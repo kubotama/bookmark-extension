@@ -1,9 +1,9 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import "./index.css";
-import Popup from "./popup/Popup.tsx";
+import "../index.css";
+import Popup from "../popup/Popup.tsx";
 
-createRoot(document.getElementById("root")!).render(
+createRoot(document.getElementById("root-popup")!).render(
   <StrictMode>
     <Popup />
   </StrictMode>

@@ -1,3 +1,5 @@
+/// <reference types="vitest" />
+
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
@@ -23,4 +25,10 @@ export default defineConfig({
     emptyOutDir: true, // ビルド時にdistディレクトリをクリーンアップ
   },
   // publicDir: 'public' (デフォルトでpublicなので明示不要な場合も)
+  test: {
+    globals: true,
+    environment: "jsdom",
+    setupFiles: "./src/test/setup.ts", // Setup file (optional)
+    css: true, // if you want to test components with CSS
+  },
 });
