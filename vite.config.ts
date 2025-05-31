@@ -8,10 +8,10 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        popup: path.resolve(__dirname, "popup.html"), // public/popup.html を参照
-        options: path.resolve(__dirname, "options.html"), // public/options.html を参照
-        background: path.resolve(__dirname, "src/background/background.ts"),
-        content: path.resolve(__dirname, "src/content/content.ts"),
+        popup: path.resolve(__dirname, "public/popup.html"), // public/popup.html を参照
+        // options: path.resolve(__dirname, "options.html"), // public/options.html を参照
+        // background: path.resolve(__dirname, "src/background/background.ts"),
+        // content: path.resolve(__dirname, "src/content/content.ts"),
       },
       output: {
         entryFileNames: "[name].js", // background.js, content.js のように出力
