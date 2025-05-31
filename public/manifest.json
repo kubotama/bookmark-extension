@@ -14,16 +14,5 @@
       "16": "icons/icon16.png",
       "48": "icons/icon48.png"
     }
-  },
-  "options_page": "options.html",
-  "background": {
-    "service_worker": "background.js"
-  },
-  "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"]
-    }
-  ],
-  "permissions": ["storage", "activeTab"]
+  }
 }
