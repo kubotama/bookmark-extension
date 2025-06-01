@@ -1,10 +1,28 @@
-import { render, screen } from "@testing-library/react";
-import { describe, it, expect } from "vitest";
+import { render, screen, waitFor } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import Popup from "./Popup";
 
 describe("Popup", () => {
-  it("renders correctly", () => {
+  beforeEach(() => {
+    // Mock chrome.tabs.query
+    global.chrome = {
+      tabs: {
+        query: vi.fn((_options, callback) => {
+          // Simulate an active tab with a URL
+          callback([{ url: "https://example.com" }]);
+        }),
+      },
+      // Mock other chrome APIs if needed
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any;
+  });
+
+  it("renders correctly and displays the active tab URL", async () => {
     render(<Popup />);
-    expect(screen.getByText("Bookmark Extension Popup")).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "登録" })).toBeInTheDocument();
+      expect(screen.getByLabelText("url")).toHaveValue("https://example.com");
+    });
   });
 });

@@ -1,5 +1,17 @@
 /* in index.css or a new Popup.css */
 .popup-container {
-  width: 200px;
-  padding: 10px;
+  width: 700px;
+  padding: 1rem;
+}
+
+.popup-input {
+  width: 85%;
+  font-size: medium;
+  height: 1rem;
+  padding: 0.5rem;
+  margin: 0.5rem;
+}
+
+.popuo-button {
+  margin: 0.5rem;
 }
