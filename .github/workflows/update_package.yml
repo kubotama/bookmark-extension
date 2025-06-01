@@ -1,0 +1,51 @@
+name: PR Version and README Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches:
+      - main
+
+jobs:
+  check-version-and-readme:
+    name: Check package.json version and README updates
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Checkout base branch
+        run: |
+          git fetch origin ${{ github.base_ref }}
+          git checkout ${{ github.base_ref }}
+          git checkout ${{ github.head_ref }}
+
+      - name: Check if package.json version was updated
+        id: check-version
+        run: |
+          BASE_VERSION=$(git show ${{ github.base_ref }}:package.json | jq -r .version)
+          PR_VERSION=$(jq -r .version package.json)
+
+          echo "Base version: $BASE_VERSION"
+          echo "PR version: $PR_VERSION"
+
+          if [ "$BASE_VERSION" == "$PR_VERSION" ]; then
+            echo "::error::package.json version has not been updated. Please update the version before merging."
+            echo "version_updated=false" >> $GITHUB_OUTPUT
+          else
+            echo "✅ package.json version has been updated."
+            echo "version_updated=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check results
+        run: |
+          if [ "${{ steps.check-version.outputs.version_updated }}" != "true" ]; then
+            echo "::error::PR check failed. Please update both package.json version and README.md before merging."
+            exit 1
+          else
+            echo "✅ All checks passed! Both package.json version and README.md have been updated."
+          fi
