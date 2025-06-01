@@ -1,7 +1,10 @@
 /// <reference types="chrome"/>
+
+import "./Popup.css";
+
 function Popup() {
   return (
-    <div style={{ width: "200px", padding: "10px" }}>
+    <div className="popup-container">
       <div>Bookmark Extension Popup</div>
     </div>
   );
