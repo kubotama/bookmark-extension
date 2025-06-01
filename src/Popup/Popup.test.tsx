@@ -25,4 +25,26 @@ describe("Popup", () => {
       expect(screen.getByLabelText("url")).toHaveValue("https://example.com");
     });
   });
+
+  it("アクティブなタブのURLの取得に失敗", async () => {
+    global.chrome = {
+      tabs: {
+        query: vi.fn((_options, callback) => {
+          // Simulate an active tab with a URL
+          callback([]);
+        }),
+      },
+      // Mock other chrome APIs if needed
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any;
+
+    render(<Popup />);
+
+    await waitFor(() => {
+      expect(screen.getByText("登録")).toBeInTheDocument();
+      expect(screen.getByLabelText("url")).toHaveValue(
+        "URLの取得に失敗しました。"
+      );
+    });
+  });
 });
