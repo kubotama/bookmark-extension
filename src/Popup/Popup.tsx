@@ -27,29 +27,26 @@ const Popup = () => {
   }, []);
 
   return (
-    <>
-      <div className="popup-container">
-        <button className="popup-button">登録</button>
-        <input
-          className="popup-input"
-          type="text"
-          aria-label="url"
-          placeholder="URLを入力してください"
-          value={activeTabUrl}
-          onChange={(e) => setActiveTabUrl(e.target.value)}
-        />
-      </div>
-      <div className="popup-container">
-        <input
-          className="popup-input"
-          type="text"
-          aria-label="title"
-          placeholder="タイトルを入力してください"
-          value={activeTabTitle}
-          onChange={(e) => setActiveTabTitle(e.target.value)}
-        />
-      </div>
-    </>
+    <div className="popup-container">
+      <button className="popup-button">登録</button>
+      <input
+        className="popup-input"
+        type="text"
+        aria-label="url"
+        placeholder="URLを入力してください"
+        value={activeTabUrl}
+        onChange={(e) => setActiveTabUrl(e.target.value)}
+      />
+      <div className="popup-separator" />
+      <input
+        className="popup-input"
+        type="text"
+        aria-label="title"
+        placeholder="タイトルを入力してください"
+        value={activeTabTitle}
+        onChange={(e) => setActiveTabTitle(e.target.value)}
+      />
+    </div>
   );
 };
 
