@@ -9,7 +9,9 @@ describe("Popup", () => {
       tabs: {
         query: vi.fn((_options, callback) => {
           // Simulate an active tab with a URL
-          callback([{ url: "https://example.com" }]);
+          callback([
+            { url: "https://example.com", title: "サンプルのページのタイトル" },
+          ]);
         }),
       },
       // Mock other chrome APIs if needed
@@ -23,6 +25,9 @@ describe("Popup", () => {
     await waitFor(() => {
       expect(screen.getByRole("button", { name: "登録" })).toBeInTheDocument();
       expect(screen.getByLabelText("url")).toHaveValue("https://example.com");
+      expect(screen.getByLabelText("title")).toHaveValue(
+        "サンプルのページのタイトル"
+      );
     });
   });
 
