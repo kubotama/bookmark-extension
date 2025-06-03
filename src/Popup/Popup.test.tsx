@@ -68,11 +68,32 @@ describe("Popup", () => {
 
     render(<Popup />);
 
+    const urlInput = screen.getByLabelText("url");
+    const titleInput = screen.getByLabelText("title");
+
+    fireEvent.change(urlInput, {
+      target: { value: "https://www.google.com/" },
+    });
+    fireEvent.change(titleInput, { target: { value: "Google" } });
+
     const registerButton = screen.getByRole("button", { name: "登録" });
     fireEvent.click(registerButton);
 
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalled();
+      expect(global.fetch).toBeCalledTimes(1);
+      expect(global.fetch).toBeCalledWith(
+        "http://localhost:3000/api/bookmark/add",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: '{"url":"https://www.google.com/","title":"Google"}',
+        }
+      );
+      expect(
+        screen.getByText("ブックマークが登録されました。")
+      ).toBeInTheDocument();
     });
   });
 });
