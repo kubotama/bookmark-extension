@@ -57,7 +57,11 @@ const Popup = () => {
 
   return (
     <>
-      {messageText && <div>{messageText}</div>}
+      {messageText && (
+        <div className="popup-message">
+          <div className="popup-message-text">{messageText}</div>
+        </div>
+      )}
       <div className="popup-container">
         <button className="popup-button" onClick={registerClick}>
           登録

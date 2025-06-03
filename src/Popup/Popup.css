@@ -31,3 +31,13 @@
 .popup-separator {
   display: flex;
 }
+
+.popup-message {
+  display: flex;
+  align-items: center;
+}
+
+.popup-message-text {
+  margin: 0.5rem;
+  font-size: medium;
+}
