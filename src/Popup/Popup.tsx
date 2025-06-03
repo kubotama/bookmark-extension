@@ -4,6 +4,8 @@ import "./Popup.css";
 
 import { useEffect, useState } from "react";
 
+const API_BOOKMARK_ADD = "http://localhost:3000/api/bookmark/add";
+
 const Popup = () => {
   const [activeTabUrl, setActiveTabUrl] = useState<string | undefined>(
     "URLの取得中..."
@@ -11,6 +13,8 @@ const Popup = () => {
   const [activeTabTitle, setActiveTabTitle] = useState<string | undefined>(
     "タイトルの取得中..."
   );
+
+  const [messageText, setMessageText] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     // Query for the active tab in the current window
@@ -26,27 +30,57 @@ const Popup = () => {
     });
   }, []);
 
+  const registerClick = () => {
+    const bookmark = {
+      url: activeTabUrl,
+      title: activeTabTitle,
+    };
+
+    fetch(API_BOOKMARK_ADD, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(bookmark),
+    })
+      .then((response) => {
+        if (response.ok) {
+          setMessageText("ブックマークが登録されました。");
+        } else {
+          setMessageText("ブックマークの登録に失敗しました。");
+        }
+      })
+      .catch((error) => {
+        setMessageText(`${error.name}: ${error.message} ${error.stack}}`);
+      });
+  };
+
   return (
-    <div className="popup-container">
-      <button className="popup-button">登録</button>
-      <input
-        className="popup-input"
-        type="text"
-        aria-label="url"
-        placeholder="URLを入力してください"
-        value={activeTabUrl}
-        onChange={(e) => setActiveTabUrl(e.target.value)}
-      />
-      <div className="popup-separator" />
-      <input
-        className="popup-input"
-        type="text"
-        aria-label="title"
-        placeholder="タイトルを入力してください"
-        value={activeTabTitle}
-        onChange={(e) => setActiveTabTitle(e.target.value)}
-      />
-    </div>
+    <>
+      {messageText && <div>{messageText}</div>}
+      <div className="popup-container">
+        <button className="popup-button" onClick={registerClick}>
+          登録
+        </button>
+        <input
+          className="popup-input"
+          type="text"
+          aria-label="url"
+          placeholder="URLを入力してください"
+          value={activeTabUrl}
+          onChange={(e) => setActiveTabUrl(e.target.value)}
+        />
+        <div className="popup-separator" />
+        <input
+          className="popup-input"
+          type="text"
+          aria-label="title"
+          placeholder="タイトルを入力してください"
+          value={activeTabTitle}
+          onChange={(e) => setActiveTabTitle(e.target.value)}
+        />
+      </div>
+    </>
   );
 };
 

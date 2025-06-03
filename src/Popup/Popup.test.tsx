@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import Popup from "./Popup";
 
@@ -50,6 +50,29 @@ describe("Popup", () => {
       expect(screen.getByLabelText("url")).toHaveValue(
         "URLの取得に失敗しました。"
       );
+    });
+  });
+
+  it("ブックマークを登録", async () => {
+    global.fetch = vi.fn().mockImplementation(
+      async () =>
+        new Response(
+          JSON.stringify({
+            url: "https://www.google.com/",
+            title: "Google",
+            id: 1,
+          }),
+          { status: 200 }
+        )
+    );
+
+    render(<Popup />);
+
+    const registerButton = screen.getByRole("button", { name: "登録" });
+    fireEvent.click(registerButton);
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalled();
     });
   });
 });
