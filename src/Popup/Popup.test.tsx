@@ -96,4 +96,51 @@ describe("Popup", () => {
       ).toBeInTheDocument();
     });
   });
+
+  it("既に登録されているブックマークを登録しようとしてエラー", async () => {
+    global.fetch = vi.fn().mockImplementation(
+      async () =>
+        new Response(
+          JSON.stringify({
+            error: "指定されたURLのブックマークは既に登録されています。",
+            message: "指定されたURLのブックマークは既に登録されています。",
+            url: "https://www.google.com/",
+            title: "Google",
+          }),
+          {
+            status: 409,
+          }
+        )
+    );
+
+    render(<Popup />);
+
+    const urlInput = screen.getByLabelText("url");
+    const titleInput = screen.getByLabelText("title");
+
+    fireEvent.change(urlInput, {
+      target: { value: "https://www.google.com/" },
+    });
+    fireEvent.change(titleInput, { target: { value: "Google" } });
+
+    const registerButton = screen.getByRole("button", { name: "登録" });
+    fireEvent.click(registerButton);
+
+    await waitFor(() => {
+      expect(global.fetch).toBeCalledTimes(1);
+      expect(global.fetch).toBeCalledWith(
+        "http://localhost:3000/api/bookmark/add",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: '{"url":"https://www.google.com/","title":"Google"}',
+        }
+      );
+      expect(
+        screen.getByText("ブックマークの登録に失敗しました。")
+      ).toBeInTheDocument();
+    });
+  });
 });
