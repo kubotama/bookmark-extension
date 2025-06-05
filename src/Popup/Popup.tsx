@@ -73,7 +73,15 @@ const Popup = () => {
           aria-label="url"
           placeholder="URLを入力してください"
           value={activeTabUrl}
-          onChange={(e) => setActiveTabUrl(e.target.value)}
+          onChange={(e) => {
+            try {
+              new URL(e.target.value);
+              setActiveTabUrl(e.target.value);
+            } catch (error) {
+              // 無効なURLの場合の処理
+              setMessageText(`無効なURLです: ${(error as Error).message}`);
+            }
+          }}
         />
         <div className="popup-separator" />
         <input
