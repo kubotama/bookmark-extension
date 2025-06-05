@@ -51,7 +51,8 @@ const Popup = () => {
         }
       })
       .catch((error) => {
-        setMessageText(`${error.name}: ${error.message} ${error.stack}}`);
+        setMessageText(`${error.name}: ${error.message}}`);
+        console.error(error);
       });
   };
 
