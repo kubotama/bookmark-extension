@@ -98,6 +98,7 @@ const Popup = () => {
             try {
               new URL(e.target.value);
               setActiveTabUrl(e.target.value);
+              setMessageText(""); // 有効なURLの場合はメッセージをクリア
             } catch (error) {
               // 無効なURLの場合の処理
               setMessageText(`無効なURLです: ${(error as Error).message}`);
