@@ -23,7 +23,11 @@ const Popup = () => {
       // There should be only one active tab in the current window.
       if (tabs && tabs.length > 0 && tabs[0].url) {
         setActiveTabUrl(tabs[0].url);
-        setActiveTabTitle(tabs[0].title);
+        if (tabs[0].title !== undefined) {
+          setActiveTabTitle(tabs[0].title);
+        } else {
+          setActiveTabTitle("タイトルの取得に失敗しました。");
+        }
       } else {
         setActiveTabUrl("URLの取得に失敗しました。");
       }
