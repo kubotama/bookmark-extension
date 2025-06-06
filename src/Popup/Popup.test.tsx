@@ -173,4 +173,20 @@ describe("Popup", () => {
 
   // TODO: it("APIリクエストで例外が発生", async () => {});
   it("APIリクエストで例外が発生", async () => {});
+
+  it("無効なURL", async () => {
+    render(<Popup />);
+
+    const urlInput = screen.getByLabelText("url");
+
+    fireEvent.change(urlInput, {
+      target: { value: "invalid-url" },
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("無効なURLです: invalid-url")
+      ).toBeInTheDocument();
+    });
+  });
 });
