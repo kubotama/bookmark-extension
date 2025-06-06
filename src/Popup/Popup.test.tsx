@@ -53,6 +53,28 @@ describe("Popup", () => {
     });
   });
 
+  it("アクティブなタブのタイトルの取得に失敗", async () => {
+    global.chrome = {
+      tabs: {
+        query: vi.fn((_options, callback) => {
+          // Simulate an active tab with a URL
+          callback([{ url: "https://example.com" }]);
+        }),
+      },
+      // Mock other chrome APIs if needed
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any;
+
+    render(<Popup />);
+
+    await waitFor(() => {
+      expect(screen.getByText("登録")).toBeInTheDocument();
+      expect(screen.getByLabelText("title")).toHaveValue(
+        "タイトルの取得に失敗しました。"
+      );
+    });
+  });
+
   it("ブックマークを登録", async () => {
     global.fetch = vi.fn().mockImplementation(
       async () =>
@@ -139,8 +161,16 @@ describe("Popup", () => {
         }
       );
       expect(
-        screen.getByText("登録失敗: 指定されたURLのブックマークは既に登録されています。")
+        screen.getByText(
+          "登録失敗: 指定されたURLのブックマークは既に登録されています。"
+        )
       ).toBeInTheDocument();
     });
   });
+
+  // TODO: it("エラーのレスポンスがJSON形式出ないエラー", async () => {});
+  it("エラーのレスポンスがJSON形式出ないエラー", async () => {});
+
+  // TODO: it("APIリクエストで例外が発生", async () => {});
+  it("APIリクエストで例外が発生", async () => {});
 });
