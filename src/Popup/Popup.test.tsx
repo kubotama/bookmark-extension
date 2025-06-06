@@ -139,7 +139,7 @@ describe("Popup", () => {
         }
       );
       expect(
-        screen.getByText("ブックマークの登録に失敗しました。")
+        screen.getByText("登録失敗: 指定されたURLのブックマークは既に登録されています。")
       ).toBeInTheDocument();
     });
   });

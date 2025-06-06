@@ -47,11 +47,28 @@ const Popup = () => {
       },
       body: JSON.stringify(bookmark),
     })
-      .then((response) => {
+      .then(async (response) => {
+        // asyncキーワードを追加
         if (response.ok) {
           setMessageText("ブックマークが登録されました。");
         } else {
-          setMessageText("ブックマークの登録に失敗しました。");
+          try {
+            const errorData = await response.json(); // エラーレスポンスをJSONとしてパース
+            setMessageText(
+              `登録失敗: ${errorData.message || response.statusText}`
+            );
+          } catch (error) {
+            setMessageText(
+              `ブックマークの登録に失敗しました。ステータス: ${
+                response.status
+              }: ${(error as Error).message}`
+            );
+            console.error(
+              `ブックマークの登録に失敗しました。ステータス: ${
+                response.status
+              }: ${(error as Error).message}`
+            );
+          }
         }
       })
       .catch((error) => {
