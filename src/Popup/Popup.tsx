@@ -77,6 +77,15 @@ const Popup = () => {
       });
   };
 
+  const isValidUrl = (url: string): boolean => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   return (
     <>
       {messageText && (
@@ -95,14 +104,21 @@ const Popup = () => {
           placeholder="URLを入力してください"
           value={activeTabUrl}
           onChange={(e) => {
-            try {
-              new URL(e.target.value);
+            if (isValidUrl(e.target.value)) {
               setActiveTabUrl(e.target.value);
               setMessageText(""); // 有効なURLの場合はメッセージをクリア
-            } catch (error) {
+            } else {
               // 無効なURLの場合の処理
-              setMessageText(`無効なURLです: ${(error as Error).message}`);
+              setMessageText(`無効なURLです: ${e.target.value}`);
             }
+            // try {
+            //   new URL(e.target.value);
+            //   setActiveTabUrl(e.target.value);
+            //   setMessageText(""); // 有効なURLの場合はメッセージをクリア
+            // } catch (error) {
+            //   // 無効なURLの場合の処理
+            //   setMessageText(`無効なURLです: ${(error as Error).message}`);
+            // }
           }}
         />
         <div className="popup-separator" />
