@@ -61,12 +61,12 @@ const Popup = () => {
             setMessageText(
               `ブックマークの登録に失敗しました。ステータス: ${
                 response.status
-              }: ${(error as Error).message}`
+              }: ${error instanceof Error ? error.message : String(error)}`
             );
             console.error(
               `ブックマークの登録に失敗しました。ステータス: ${
                 response.status
-              }: ${(error as Error).message}`
+              }: ${error instanceof Error ? error.message : String(error)}`
             );
           }
         }
