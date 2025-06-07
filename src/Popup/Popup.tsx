@@ -4,7 +4,7 @@ import "./Popup.css";
 
 import { useEffect, useState } from "react";
 
-const API_BOOKMARK_ADD = "http://localhost:3000/api/bookmark/add";
+const API_BOOKMARK_ADD = "http://localhost:3000/api/bookmark/add"; // TODO: Make configurable via options page (ref /gemini #4)
 
 const Popup = () => {
   const [activeTabUrl, setActiveTabUrl] = useState<string | undefined>(
