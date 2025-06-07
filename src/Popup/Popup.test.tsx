@@ -168,8 +168,44 @@ describe("Popup", () => {
     });
   });
 
-  // TODO: it("エラーのレスポンスがJSON形式出ないエラー", async () => {});
-  it("エラーのレスポンスがJSON形式出ないエラー", async () => {});
+  it("エラーのレスポンスがJSON形式でないエラー", async () => {
+    global.fetch = vi
+      .fn()
+      .mockImplementation(
+        async () => new Response("invalid json", { status: 500 })
+      );
+
+    render(<Popup />);
+    const urlInput = screen.getByLabelText("url");
+    const titleInput = screen.getByLabelText("title");
+
+    fireEvent.change(urlInput, {
+      target: { value: "https://www.amazon.co.jp/" },
+    });
+    fireEvent.change(titleInput, { target: { value: "Amazon" } });
+
+    const registerButton = screen.getByRole("button", { name: "登録" });
+    fireEvent.click(registerButton);
+
+    await waitFor(() => {
+      expect(global.fetch).toBeCalledTimes(1);
+      expect(global.fetch).toBeCalledWith(
+        "http://localhost:3000/api/bookmark/add",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: '{"url":"https://www.amazon.co.jp/","title":"Amazon"}',
+        }
+      );
+      expect(
+        screen.getByText(
+          "ブックマークの登録に失敗しました。ステータス: 500: Unexpected token 'i', \"invalid json\" is not valid JSON"
+        )
+      ).toBeInTheDocument();
+    });
+  });
 
   // TODO: it("APIリクエストで例外が発生", async () => {});
   it("APIリクエストで例外が発生", async () => {});
