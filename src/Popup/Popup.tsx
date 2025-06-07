@@ -14,6 +14,8 @@ const Popup = () => {
     "タイトルの取得中..."
   );
 
+  const [isTitleLoading, setIsTitleLoading] = useState<boolean>(false);
+
   const [messageText, setMessageText] = useState<string | undefined>(undefined);
 
   useEffect(() => {
@@ -25,6 +27,7 @@ const Popup = () => {
         setActiveTabUrl(tabs[0].url);
         if (tabs[0].title !== undefined) {
           setActiveTabTitle(tabs[0].title);
+          setIsTitleLoading(false);
         } else {
           setActiveTabTitle("タイトルの取得に失敗しました。");
         }
@@ -43,12 +46,7 @@ const Popup = () => {
       );
       return;
     }
-    if (
-      !activeTabTitle ||
-      activeTabTitle.includes("取得に失敗しました") ||
-      activeTabTitle.includes("取得中...") ||
-      activeTabTitle.trim() === ""
-    ) {
+    if (!activeTabTitle || isTitleLoading) {
       setMessageText(
         activeTabTitle
           ? `登録できません: タイトルが無効です (${activeTabTitle})`
