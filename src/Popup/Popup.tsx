@@ -35,6 +35,27 @@ const Popup = () => {
   }, []);
 
   const registerClick = () => {
+    if (!activeTabUrl || !isValidUrl(activeTabUrl)) {
+      setMessageText(
+        activeTabUrl
+          ? `登録できません: 無効なURLです (${activeTabUrl})`
+          : "登録できません: URLが指定されていません"
+      );
+      return;
+    }
+    if (
+      !activeTabTitle ||
+      activeTabTitle.includes("取得に失敗しました") ||
+      activeTabTitle.includes("取得中...") ||
+      activeTabTitle.trim() === ""
+    ) {
+      setMessageText(
+        activeTabTitle
+          ? `登録できません: タイトルが無効です (${activeTabTitle})`
+          : "登録できません: タイトルが指定されていません"
+      );
+      return;
+    }
     const bookmark = {
       url: activeTabUrl,
       title: activeTabTitle,
@@ -104,21 +125,16 @@ const Popup = () => {
           placeholder="URLを入力してください"
           value={activeTabUrl}
           onChange={(e) => {
+            const newUrl = e.target.value;
+            setActiveTabUrl(newUrl);
+
             if (isValidUrl(e.target.value)) {
-              setActiveTabUrl(e.target.value);
-              setMessageText(""); // 有効なURLの場合はメッセージをクリア
+              // 有効なURLの場合はメッセージをクリア
+              setMessageText("");
             } else {
               // 無効なURLの場合の処理
-              setMessageText(`無効なURLです: ${e.target.value}`);
+              setMessageText(`無効なURLです: ${newUrl}`);
             }
-            // try {
-            //   new URL(e.target.value);
-            //   setActiveTabUrl(e.target.value);
-            //   setMessageText(""); // 有効なURLの場合はメッセージをクリア
-            // } catch (error) {
-            //   // 無効なURLの場合の処理
-            //   setMessageText(`無効なURLです: ${(error as Error).message}`);
-            // }
           }}
         />
         <div className="popup-separator" />
