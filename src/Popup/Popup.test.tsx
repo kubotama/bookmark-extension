@@ -17,6 +17,8 @@ describe("Popup", () => {
       // Mock other chrome APIs if needed
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
+
+    global.fetch = vi.fn();
   });
 
   it("renders correctly and displays the active tab URL", async () => {
@@ -240,7 +242,7 @@ describe("Popup", () => {
     });
   });
 
-  it("無効なURL", async () => {
+  it("無効なURLが入力された場合", async () => {
     render(<Popup />);
 
     const urlInput = screen.getByLabelText("url");
@@ -248,10 +250,35 @@ describe("Popup", () => {
     fireEvent.change(urlInput, {
       target: { value: "invalid-url" },
     });
+    const registerButton = screen.getByRole("button", { name: "登録" });
+    fireEvent.click(registerButton);
 
     await waitFor(() => {
+      expect(global.fetch).not.toBeCalled();
       expect(
-        screen.getByText("無効なURLです: invalid-url")
+        screen.getByText("登録できません: 無効なURLです (invalid-url)")
+      ).toBeInTheDocument();
+    });
+  });
+
+  // it("無効なタイトルが入力されている場合", async () => {
+  it("無効なタイトルが入力された場合", async () => {
+    render(<Popup />);
+
+    const urlInput = screen.getByLabelText("url");
+    const titleInput = screen.getByLabelText("title");
+    fireEvent.change(urlInput, {
+      target: { value: "https://www.amazon.co.jp/" },
+    });
+    fireEvent.change(titleInput, { target: { value: "" } });
+
+    const registerButton = screen.getByRole("button", { name: "登録" });
+    fireEvent.click(registerButton);
+
+    await waitFor(() => {
+      expect(global.fetch).not.toBeCalled();
+      expect(
+        screen.getByText("登録できません: タイトルが指定されていません")
       ).toBeInTheDocument();
     });
   });
