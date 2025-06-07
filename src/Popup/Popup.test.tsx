@@ -207,8 +207,38 @@ describe("Popup", () => {
     });
   });
 
-  // TODO: it("APIリクエストで例外が発生", async () => {});
-  it("APIリクエストで例外が発生", async () => {});
+  it("APIリクエストで例外が発生", async () => {
+    global.fetch = vi
+      .fn()
+      .mockReturnValueOnce(Promise.reject(new Error("APIエラー")));
+
+    render(<Popup />);
+    const urlInput = screen.getByLabelText("url");
+    const titleInput = screen.getByLabelText("title");
+
+    fireEvent.change(urlInput, {
+      target: { value: "https://www.amazon.co.jp/" },
+    });
+    fireEvent.change(titleInput, { target: { value: "Amazon" } });
+
+    const registerButton = screen.getByRole("button", { name: "登録" });
+    fireEvent.click(registerButton);
+
+    await waitFor(() => {
+      expect(global.fetch).toBeCalledTimes(1);
+      expect(global.fetch).toBeCalledWith(
+        "http://localhost:3000/api/bookmark/add",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: '{"url":"https://www.amazon.co.jp/","title":"Amazon"}',
+        }
+      );
+      expect(screen.getByText("Error: APIエラー")).toBeInTheDocument();
+    });
+  });
 
   it("無効なURL", async () => {
     render(<Popup />);
