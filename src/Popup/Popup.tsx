@@ -14,11 +14,12 @@ const Popup = () => {
     "タイトルの取得中..."
   );
 
-  const [isTitleLoading, setIsTitleLoading] = useState<boolean>(false);
+  const [isTitleLoaded, setIsTitleLoaded] = useState<boolean>(false);
 
   const [messageText, setMessageText] = useState<string | undefined>(undefined);
 
   useEffect(() => {
+    setIsTitleLoaded(false);
     // Query for the active tab in the current window
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       // tabs is an array of Tab objects.
@@ -27,7 +28,7 @@ const Popup = () => {
         setActiveTabUrl(tabs[0].url);
         if (tabs[0].title !== undefined) {
           setActiveTabTitle(tabs[0].title);
-          setIsTitleLoading(false);
+          setIsTitleLoaded(true);
         } else {
           setActiveTabTitle("タイトルの取得に失敗しました。");
         }
@@ -46,7 +47,8 @@ const Popup = () => {
       );
       return;
     }
-    if (!activeTabTitle || isTitleLoading) {
+    // if (!activeTabTitle || !isTitleLoaded) {
+    if (!isTitleLoaded || !activeTabTitle) {
       setMessageText(
         activeTabTitle
           ? `登録できません: タイトルが無効です (${activeTabTitle})`
