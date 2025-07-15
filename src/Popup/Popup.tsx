@@ -4,7 +4,7 @@ import "./Popup.css";
 
 import { useEffect, useState } from "react";
 
-import { API_BOOKMARK_ADD } from "../contants/constants";
+import { API_BOOKMARK_ADD } from "../constants/constants";
 
 const Popup = () => {
   const [activeTabUrl, setActiveTabUrl] = useState<string | undefined>(

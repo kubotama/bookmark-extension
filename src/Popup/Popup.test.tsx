@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import Popup from "./Popup";
-import { API_BOOKMARK_ADD } from "../contants/constants";
+import { API_BOOKMARK_ADD } from "../constants/constants";
 
 describe("Popup", () => {
   beforeEach(() => {
@@ -106,17 +106,13 @@ describe("Popup", () => {
 
     await waitFor(() => {
       expect(global.fetch).toBeCalledTimes(1);
-      expect(global.fetch).toBeCalledWith(
-        // "http://localhost:3000/api/bookmarks",
-        API_BOOKMARK_ADD,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: '{"url":"https://www.google.com/","title":"Google"}',
-        }
-      );
+      expect(global.fetch).toBeCalledWith(API_BOOKMARK_ADD, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: '{"url":"https://www.google.com/","title":"Google"}',
+      });
       expect(
         screen.getByText("ブックマークが登録されました。")
       ).toBeInTheDocument();
@@ -154,17 +150,13 @@ describe("Popup", () => {
 
     await waitFor(() => {
       expect(global.fetch).toBeCalledTimes(1);
-      expect(global.fetch).toBeCalledWith(
-        // "http://localhost:3000/api/bookmarks",
-        API_BOOKMARK_ADD,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: '{"url":"https://www.google.com/","title":"Google"}',
-        }
-      );
+      expect(global.fetch).toBeCalledWith(API_BOOKMARK_ADD, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: '{"url":"https://www.google.com/","title":"Google"}',
+      });
       expect(
         screen.getByText(
           "登録失敗: 指定されたURLのブックマークは既に登録されています。"
@@ -194,17 +186,13 @@ describe("Popup", () => {
 
     await waitFor(() => {
       expect(global.fetch).toBeCalledTimes(1);
-      expect(global.fetch).toBeCalledWith(
-        // "http://localhost:3000/api/bookmarks",
-        API_BOOKMARK_ADD,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: '{"url":"https://www.amazon.co.jp/","title":"Amazon"}',
-        }
-      );
+      expect(global.fetch).toBeCalledWith(API_BOOKMARK_ADD, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: '{"url":"https://www.amazon.co.jp/","title":"Amazon"}',
+      });
       expect(
         screen.getByText(
           "ブックマークの登録に失敗しました。ステータス: 500: Unexpected token 'i', \"invalid json\" is not valid JSON"
@@ -232,17 +220,13 @@ describe("Popup", () => {
 
     await waitFor(() => {
       expect(global.fetch).toBeCalledTimes(1);
-      expect(global.fetch).toBeCalledWith(
-        // "http://localhost:3000/api/bookmarks",
-        API_BOOKMARK_ADD,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: '{"url":"https://www.amazon.co.jp/","title":"Amazon"}',
-        }
-      );
+      expect(global.fetch).toBeCalledWith(API_BOOKMARK_ADD, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: '{"url":"https://www.amazon.co.jp/","title":"Amazon"}',
+      });
       expect(screen.getByText("Error: APIエラー")).toBeInTheDocument();
     });
   });
