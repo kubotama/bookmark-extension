@@ -18,7 +18,7 @@ $ cd bookmark-extension
 
 ### パッケージのインストール
 
-```
+```bash
 $ npm install
 ```
 
