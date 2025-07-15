@@ -40,7 +40,7 @@ Chrome の拡張機能として登録します。
 
 | ツール名                                      | バージョン |
 | --------------------------------------------- | ---------- |
-| [Node.js](https://nodejs.org/)                | 22.15.29   |
+| [Node.js](https://nodejs.org/)                | 22.x       |
 | [React](https://reactjs.org/)                 | 19.1.0     |
 | [TypeScript](https://www.typescriptlang.org/) | 5.8.3      |
 | [vite](https://ja.vite.dev/)                  | 6.3.5      |
