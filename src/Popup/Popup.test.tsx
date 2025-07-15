@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import Popup from "./Popup";
+import { API_BOOKMARK_ADD } from "../contants/constants";
 
 describe("Popup", () => {
   beforeEach(() => {
@@ -106,7 +107,8 @@ describe("Popup", () => {
     await waitFor(() => {
       expect(global.fetch).toBeCalledTimes(1);
       expect(global.fetch).toBeCalledWith(
-        "http://localhost:3000/api/bookmark/add",
+        // "http://localhost:3000/api/bookmarks",
+        API_BOOKMARK_ADD,
         {
           method: "POST",
           headers: {
@@ -153,7 +155,8 @@ describe("Popup", () => {
     await waitFor(() => {
       expect(global.fetch).toBeCalledTimes(1);
       expect(global.fetch).toBeCalledWith(
-        "http://localhost:3000/api/bookmark/add",
+        // "http://localhost:3000/api/bookmarks",
+        API_BOOKMARK_ADD,
         {
           method: "POST",
           headers: {
@@ -192,7 +195,8 @@ describe("Popup", () => {
     await waitFor(() => {
       expect(global.fetch).toBeCalledTimes(1);
       expect(global.fetch).toBeCalledWith(
-        "http://localhost:3000/api/bookmark/add",
+        // "http://localhost:3000/api/bookmarks",
+        API_BOOKMARK_ADD,
         {
           method: "POST",
           headers: {
@@ -229,7 +233,8 @@ describe("Popup", () => {
     await waitFor(() => {
       expect(global.fetch).toBeCalledTimes(1);
       expect(global.fetch).toBeCalledWith(
-        "http://localhost:3000/api/bookmark/add",
+        // "http://localhost:3000/api/bookmarks",
+        API_BOOKMARK_ADD,
         {
           method: "POST",
           headers: {
