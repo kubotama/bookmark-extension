@@ -11,8 +11,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: path.resolve(__dirname, "src/popup.html"), // public/popup.html を参照
-        // ↓は、この後で利用するため、コメントアウトした。
-        // options: path.resolve(__dirname, "options.html"), // public/options.html を参照
+        options: path.resolve(__dirname, "src/options.html"), // public/options.html を参照
         // background: path.resolve(__dirname, "src/background/background.ts"),
         // content: path.resolve(__dirname, "src/content/content.ts"),
       },
