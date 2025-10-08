@@ -4,6 +4,7 @@ import {
   describe,
   expect,
   it,
+  type Mock,
   type MockInstance,
   vi,
 } from "vitest";
@@ -254,35 +255,16 @@ describe("Popup", () => {
     const customApiUrl = "https://custom-api.example.com/bookmarks";
 
     beforeEach(() => {
-      // Mock chrome.tabs.query
-      global.chrome = {
-        tabs: {
-          query: vi.fn((_options, callback) => {
-            // Simulate an active tab with a URL
-            callback([
-              {
-                url: "https://example.com",
-                title: "サンプルのページのタイトル",
-              },
-            ]);
-          }),
-        },
-        storage: {
-          local: {
-            get: vi.fn(
-              (
-                _keys: string | string[] | { [key: string]: unknown } | null,
-                callback: (items: { [key: string]: unknown }) => void
-              ) => {
-                callback({ bookmarkUrl: customApiUrl });
-              }
-            ),
-          },
-        },
-        // Mock other chrome APIs if needed
-      } as never;
-
-      global.fetch = vi.fn();
+      // global.chromeオブジェクト全体を再定義する代わりに、
+      // storage.local.getのモック実装を上書きします。
+      (global.chrome.storage.local.get as Mock).mockImplementation(
+        (
+          _keys: string | string[] | { [key: string]: unknown } | null,
+          callback: (items: { [key: string]: unknown }) => void
+        ) => {
+          callback({ bookmarkUrl: customApiUrl });
+        }
+      );
     });
 
     it("ブックマークを登録", async () => {
