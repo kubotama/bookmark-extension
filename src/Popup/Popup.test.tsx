@@ -15,6 +15,14 @@ describe("Popup", () => {
           ]);
         }),
       },
+      storage: {
+        local: {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          get: vi.fn((_keys: string | string[] | { [key: string]: any } | null, callback: (items: { [key: string]: any }) => void) => {
+            callback({});
+          }),
+        },
+      },
       // Mock other chrome APIs if needed
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
@@ -42,6 +50,14 @@ describe("Popup", () => {
           callback([]);
         }),
       },
+      storage: {
+        local: {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          get: vi.fn((_keys: string | string[] | { [key: string]: any } | null, callback: (items: { [key: string]: any }) => void) => {
+            callback({});
+          }),
+        },
+      },
       // Mock other chrome APIs if needed
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
@@ -63,6 +79,14 @@ describe("Popup", () => {
           // Simulate an active tab with a URL
           callback([{ url: "https://example.com" }]);
         }),
+      },
+      storage: {
+        local: {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          get: vi.fn((_keys: string | string[] | { [key: string]: any } | null, callback: (items: { [key: string]: any }) => void) => {
+            callback({});
+          }),
+        },
       },
       // Mock other chrome APIs if needed
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -268,6 +292,80 @@ describe("Popup", () => {
       expect(
         screen.getByText("登録できません: タイトルが指定されていません")
       ).toBeInTheDocument();
+    });
+  });
+
+  describe("オプションページで設定したURLを利用する", () => {
+    const customApiUrl = "https://custom-api.example.com/bookmarks";
+
+    beforeEach(() => {
+      // Mock chrome.tabs.query
+      global.chrome = {
+        tabs: {
+          query: vi.fn((_options, callback) => {
+            // Simulate an active tab with a URL
+            callback([
+              {
+                url: "https://example.com",
+                title: "サンプルのページのタイトル",
+              },
+            ]);
+          }),
+        },
+        storage: {
+          local: {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            get: vi.fn((_keys: string | string[] | { [key: string]: any } | null, callback: (items: { [key: string]: any }) => void) => {
+              callback({ bookmarkUrl: customApiUrl });
+            }),
+          },
+        },
+        // Mock other chrome APIs if needed
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any;
+
+      global.fetch = vi.fn();
+    });
+
+    it("ブックマークを登録", async () => {
+      global.fetch = vi.fn().mockImplementation(
+        async () =>
+          new Response(
+            JSON.stringify({
+              url: "https://www.google.com/",
+              title: "Google",
+              id: 1,
+            }),
+            { status: 200 }
+          )
+      );
+
+      render(<Popup />);
+
+      const urlInput = screen.getByLabelText("url");
+      const titleInput = screen.getByLabelText("title");
+
+      fireEvent.change(urlInput, {
+        target: { value: "https://www.google.com/" },
+      });
+      fireEvent.change(titleInput, { target: { value: "Google" } });
+
+      const registerButton = screen.getByRole("button", { name: "登録" });
+      fireEvent.click(registerButton);
+
+      await waitFor(() => {
+        expect(global.fetch).toBeCalledTimes(1);
+        expect(global.fetch).toBeCalledWith(customApiUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: '{"url":"https://www.google.com/","title":"Google"}',
+        });
+        expect(
+          screen.getByText("ブックマークが登録されました。")
+        ).toBeInTheDocument();
+      });
     });
   });
 });
