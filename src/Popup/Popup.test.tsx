@@ -351,57 +351,44 @@ describe("Popup", () => {
       consoleErrorSpy.mockRestore();
     });
 
-    it("APIリクエストで例外が発生", async () => {
-      global.fetch = vi
-        .fn()
-        .mockReturnValueOnce(Promise.reject(new Error("APIエラー")));
-      const registerButton = screen.getByRole("button", { name: "登録" });
-      fireEvent.click(registerButton);
+    it.each([
+      {
+        testName: "APIリクエストで例外が発生",
+        mockFetch: vi.fn().mockRejectedValue(new Error("APIエラー")),
+        expectedMessage: "Error: APIエラー",
+        expectedConsoleError: new Error("APIエラー"),
+      },
+      {
+        testName: "エラーのレスポンスがJSON形式でないエラー",
+        mockFetch: vi
+          .fn()
+          .mockResolvedValue(new Response("invalid json", { status: 500 })),
+        expectedMessage:
+          "ブックマークの登録に失敗しました。ステータス: 500: Unexpected token 'i', \"invalid json\" is not valid JSON",
+        expectedConsoleError:
+          "ブックマークの登録に失敗しました。ステータス: 500: Unexpected token 'i', \"invalid json\" is not valid JSON",
+      },
+    ])(
+      "$testName",
+      async ({ mockFetch, expectedMessage, expectedConsoleError }) => {
+        global.fetch = mockFetch;
+        const registerButton = screen.getByRole("button", { name: "登録" });
+        fireEvent.click(registerButton);
 
-      await waitFor(() => {
-        expect(global.fetch).toBeCalledTimes(1);
-        expect(global.fetch).toBeCalledWith(API_BOOKMARK_ADD, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: '{"url":"https://www.amazon.co.jp/","title":"Amazon"}',
+        await waitFor(() => {
+          expect(global.fetch).toBeCalledTimes(1);
+          expect(global.fetch).toBeCalledWith(API_BOOKMARK_ADD, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: '{"url":"https://www.amazon.co.jp/","title":"Amazon"}',
+          });
+          expect(screen.getByText(expectedMessage)).toBeInTheDocument();
+          expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
+          expect(consoleErrorSpy).toHaveBeenCalledWith(expectedConsoleError);
         });
-        expect(screen.getByText("Error: APIエラー")).toBeInTheDocument();
-        expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
-        expect(consoleErrorSpy).toHaveBeenCalledWith(new Error("APIエラー"));
-      });
-    });
-
-    it("エラーのレスポンスがJSON形式でないエラー", async () => {
-      global.fetch = vi
-        .fn()
-        .mockImplementation(
-          async () => new Response("invalid json", { status: 500 })
-        );
-
-      const registerButton = screen.getByRole("button", { name: "登録" });
-      fireEvent.click(registerButton);
-
-      await waitFor(() => {
-        expect(global.fetch).toBeCalledTimes(1);
-        expect(global.fetch).toBeCalledWith(API_BOOKMARK_ADD, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: '{"url":"https://www.amazon.co.jp/","title":"Amazon"}',
-        });
-        expect(
-          screen.getByText(
-            "ブックマークの登録に失敗しました。ステータス: 500: Unexpected token 'i', \"invalid json\" is not valid JSON"
-          )
-        ).toBeInTheDocument();
-        expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
-        expect(consoleErrorSpy).toHaveBeenCalledWith(
-          "ブックマークの登録に失敗しました。ステータス: 500: Unexpected token 'i', \"invalid json\" is not valid JSON"
-        );
-      });
-    });
+      }
+    );
   });
 });
