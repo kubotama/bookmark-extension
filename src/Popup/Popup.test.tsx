@@ -1,16 +1,20 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import {
-  describe,
-  it,
-  expect,
-  vi,
+  afterEach,
   beforeEach,
+  describe,
+  expect,
+  it,
   type MockInstance,
+  vi,
 } from "vitest";
-import Popup from "./Popup";
+
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+
 import { API_BOOKMARK_ADD } from "../constants/constants";
+import Popup from "./Popup";
 
 describe("Popup", () => {
+  // トップレベルに共通のモックセットアップを移動
   beforeEach(() => {
     // Mock chrome.tabs.query
     global.chrome = {
@@ -24,15 +28,9 @@ describe("Popup", () => {
       },
       storage: {
         local: {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          get: vi.fn(
-            (
-              _keys: string | string[] | { [key: string]: unknown } | null,
-              callback: (items: { [key: string]: unknown }) => void
-            ) => {
-              callback({});
-            }
-          ),
+          get: vi.fn((_keys, callback) => {
+            callback({});
+          }),
         },
       },
       // Mock other chrome APIs if needed
@@ -40,6 +38,11 @@ describe("Popup", () => {
     } as any;
 
     global.fetch = vi.fn();
+  });
+
+  // vi.fn()でモック化したものは、afterEachでクリアするのが一般的です
+  afterEach(() => {
+    vi.clearAllMocks();
   });
 
   it("renders correctly and displays the active tab URL", async () => {
@@ -64,7 +67,6 @@ describe("Popup", () => {
       },
       storage: {
         local: {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           get: vi.fn(
             (
               _keys: string | string[] | { [key: string]: unknown } | null,
@@ -76,8 +78,7 @@ describe("Popup", () => {
         },
       },
       // Mock other chrome APIs if needed
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as any;
+    } as never;
 
     render(<Popup />);
 
@@ -99,7 +100,6 @@ describe("Popup", () => {
       },
       storage: {
         local: {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           get: vi.fn(
             (
               _keys: string | string[] | { [key: string]: unknown } | null,
@@ -111,8 +111,7 @@ describe("Popup", () => {
         },
       },
       // Mock other chrome APIs if needed
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as any;
+    } as never;
 
     render(<Popup />);
 
@@ -306,7 +305,6 @@ describe("Popup", () => {
         },
         storage: {
           local: {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             get: vi.fn(
               (
                 _keys: string | string[] | { [key: string]: unknown } | null,
@@ -318,8 +316,7 @@ describe("Popup", () => {
           },
         },
         // Mock other chrome APIs if needed
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } as any;
+      } as never;
 
       global.fetch = vi.fn();
     });
