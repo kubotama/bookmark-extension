@@ -1,5 +1,12 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  type MockInstance,
+} from "vitest";
 import Popup from "./Popup";
 import { API_BOOKMARK_ADD } from "../constants/constants";
 
@@ -240,44 +247,6 @@ describe("Popup", () => {
     });
   });
 
-  it("APIリクエストで例外が発生", async () => {
-    global.fetch = vi
-      .fn()
-      .mockReturnValueOnce(Promise.reject(new Error("APIエラー")));
-
-    // console.errorをモック化して、コンソールへの出力を抑制する
-    const consoleErrorSpy = vi
-      .spyOn(console, "error")
-      .mockImplementation(() => {});
-
-    render(<Popup />);
-    const urlInput = screen.getByLabelText("url");
-    const titleInput = screen.getByLabelText("title");
-
-    fireEvent.change(urlInput, {
-      target: { value: "https://www.amazon.co.jp/" },
-    });
-    fireEvent.change(titleInput, { target: { value: "Amazon" } });
-
-    const registerButton = screen.getByRole("button", { name: "登録" });
-    fireEvent.click(registerButton);
-
-    await waitFor(() => {
-      expect(global.fetch).toBeCalledTimes(1);
-      expect(global.fetch).toBeCalledWith(API_BOOKMARK_ADD, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: '{"url":"https://www.amazon.co.jp/","title":"Amazon"}',
-      });
-      expect(screen.getByText("Error: APIエラー")).toBeInTheDocument();
-    });
-
-    // モックを元に戻す
-    consoleErrorSpy.mockRestore();
-  });
-
   it("無効なURLが入力された場合", async () => {
     render(<Popup />);
 
@@ -393,6 +362,50 @@ describe("Popup", () => {
         expect(
           screen.getByText("ブックマークが登録されました。")
         ).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe("エラーメッセージが出力される場合", () => {
+    let consoleErrorSpy: MockInstance;
+
+    beforeEach(() => {
+      // console.errorをモック化して、コンソールへの出力を抑制する
+      consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    });
+    afterEach(() => {
+      consoleErrorSpy.mockRestore();
+    });
+
+    it("APIリクエストで例外が発生", async () => {
+      global.fetch = vi
+        .fn()
+        .mockReturnValueOnce(Promise.reject(new Error("APIエラー")));
+
+      render(<Popup />);
+      const urlInput = screen.getByLabelText("url");
+      const titleInput = screen.getByLabelText("title");
+
+      fireEvent.change(urlInput, {
+        target: { value: "https://www.amazon.co.jp/" },
+      });
+      fireEvent.change(titleInput, { target: { value: "Amazon" } });
+
+      const registerButton = screen.getByRole("button", { name: "登録" });
+      fireEvent.click(registerButton);
+
+      await waitFor(() => {
+        expect(global.fetch).toBeCalledTimes(1);
+        expect(global.fetch).toBeCalledWith(API_BOOKMARK_ADD, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: '{"url":"https://www.amazon.co.jp/","title":"Amazon"}',
+        });
+        expect(screen.getByText("Error: APIエラー")).toBeInTheDocument();
+        expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
+        expect(consoleErrorSpy).toHaveBeenCalledWith(new Error("APIエラー"));
       });
     });
   });
