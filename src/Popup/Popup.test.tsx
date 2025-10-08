@@ -18,9 +18,14 @@ describe("Popup", () => {
       storage: {
         local: {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          get: vi.fn((_keys: string | string[] | { [key: string]: any } | null, callback: (items: { [key: string]: any }) => void) => {
-            callback({});
-          }),
+          get: vi.fn(
+            (
+              _keys: string | string[] | { [key: string]: unknown } | null,
+              callback: (items: { [key: string]: unknown }) => void
+            ) => {
+              callback({});
+            }
+          ),
         },
       },
       // Mock other chrome APIs if needed
@@ -53,9 +58,14 @@ describe("Popup", () => {
       storage: {
         local: {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          get: vi.fn((_keys: string | string[] | { [key: string]: any } | null, callback: (items: { [key: string]: any }) => void) => {
-            callback({});
-          }),
+          get: vi.fn(
+            (
+              _keys: string | string[] | { [key: string]: unknown } | null,
+              callback: (items: { [key: string]: unknown }) => void
+            ) => {
+              callback({});
+            }
+          ),
         },
       },
       // Mock other chrome APIs if needed
@@ -83,9 +93,14 @@ describe("Popup", () => {
       storage: {
         local: {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          get: vi.fn((_keys: string | string[] | { [key: string]: any } | null, callback: (items: { [key: string]: any }) => void) => {
-            callback({});
-          }),
+          get: vi.fn(
+            (
+              _keys: string | string[] | { [key: string]: unknown } | null,
+              callback: (items: { [key: string]: unknown }) => void
+            ) => {
+              callback({});
+            }
+          ),
         },
       },
       // Mock other chrome APIs if needed
@@ -230,6 +245,11 @@ describe("Popup", () => {
       .fn()
       .mockReturnValueOnce(Promise.reject(new Error("APIエラー")));
 
+    // console.errorをモック化して、コンソールへの出力を抑制する
+    const consoleErrorSpy = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+
     render(<Popup />);
     const urlInput = screen.getByLabelText("url");
     const titleInput = screen.getByLabelText("title");
@@ -253,6 +273,9 @@ describe("Popup", () => {
       });
       expect(screen.getByText("Error: APIエラー")).toBeInTheDocument();
     });
+
+    // モックを元に戻す
+    consoleErrorSpy.mockRestore();
   });
 
   it("無効なURLが入力された場合", async () => {
@@ -315,9 +338,14 @@ describe("Popup", () => {
         storage: {
           local: {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            get: vi.fn((_keys: string | string[] | { [key: string]: any } | null, callback: (items: { [key: string]: any }) => void) => {
-              callback({ bookmarkUrl: customApiUrl });
-            }),
+            get: vi.fn(
+              (
+                _keys: string | string[] | { [key: string]: unknown } | null,
+                callback: (items: { [key: string]: unknown }) => void
+              ) => {
+                callback({ bookmarkUrl: customApiUrl });
+              }
+            ),
           },
         },
         // Mock other chrome APIs if needed
