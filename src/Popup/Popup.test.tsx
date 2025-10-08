@@ -334,15 +334,9 @@ describe("Popup", () => {
       // console.errorをモック化して、コンソールへの出力を抑制する
       consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     });
-    afterEach(() => {
-      consoleErrorSpy.mockRestore();
-    });
 
-    it("APIリクエストで例外が発生", async () => {
-      global.fetch = vi
-        .fn()
-        .mockReturnValueOnce(Promise.reject(new Error("APIエラー")));
-
+    // フォームへの入力と登録ボタンのクリックを共通化
+    beforeEach(() => {
       render(<Popup />);
       const urlInput = screen.getByLabelText("url");
       const titleInput = screen.getByLabelText("title");
@@ -351,7 +345,16 @@ describe("Popup", () => {
         target: { value: "https://www.amazon.co.jp/" },
       });
       fireEvent.change(titleInput, { target: { value: "Amazon" } });
+    });
 
+    afterEach(() => {
+      consoleErrorSpy.mockRestore();
+    });
+
+    it("APIリクエストで例外が発生", async () => {
+      global.fetch = vi
+        .fn()
+        .mockReturnValueOnce(Promise.reject(new Error("APIエラー")));
       const registerButton = screen.getByRole("button", { name: "登録" });
       fireEvent.click(registerButton);
 
@@ -376,15 +379,6 @@ describe("Popup", () => {
         .mockImplementation(
           async () => new Response("invalid json", { status: 500 })
         );
-
-      render(<Popup />);
-      const urlInput = screen.getByLabelText("url");
-      const titleInput = screen.getByLabelText("title");
-
-      fireEvent.change(urlInput, {
-        target: { value: "https://www.amazon.co.jp/" },
-      });
-      fireEvent.change(titleInput, { target: { value: "Amazon" } });
 
       const registerButton = screen.getByRole("button", { name: "登録" });
       fireEvent.click(registerButton);
