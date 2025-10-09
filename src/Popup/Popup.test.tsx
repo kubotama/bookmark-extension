@@ -1,9 +1,21 @@
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  type Mock,
+  type MockInstance,
+  vi,
+} from "vitest";
+
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import Popup from "./Popup";
+
 import { API_BOOKMARK_ADD } from "../constants/constants";
+import Popup from "./Popup";
 
 describe("Popup", () => {
+  // トップレベルに共通のモックセットアップを移動
   beforeEach(() => {
     // Mock chrome.tabs.query
     global.chrome = {
@@ -15,11 +27,23 @@ describe("Popup", () => {
           ]);
         }),
       },
+      storage: {
+        local: {
+          get: vi.fn((_keys, callback) => {
+            callback({});
+          }),
+        },
+      },
       // Mock other chrome APIs if needed
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
 
     global.fetch = vi.fn();
+  });
+
+  // vi.fn()でモック化したものは、afterEachでクリアするのが一般的です
+  afterEach(() => {
+    vi.clearAllMocks();
   });
 
   it("renders correctly and displays the active tab URL", async () => {
@@ -42,9 +66,20 @@ describe("Popup", () => {
           callback([]);
         }),
       },
+      storage: {
+        local: {
+          get: vi.fn(
+            (
+              _keys: string | string[] | { [key: string]: unknown } | null,
+              callback: (items: { [key: string]: unknown }) => void
+            ) => {
+              callback({});
+            }
+          ),
+        },
+      },
       // Mock other chrome APIs if needed
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as any;
+    } as never;
 
     render(<Popup />);
 
@@ -64,9 +99,20 @@ describe("Popup", () => {
           callback([{ url: "https://example.com" }]);
         }),
       },
+      storage: {
+        local: {
+          get: vi.fn(
+            (
+              _keys: string | string[] | { [key: string]: unknown } | null,
+              callback: (items: { [key: string]: unknown }) => void
+            ) => {
+              callback({});
+            }
+          ),
+        },
+      },
       // Mock other chrome APIs if needed
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as any;
+    } as never;
 
     render(<Popup />);
 
@@ -165,72 +211,6 @@ describe("Popup", () => {
     });
   });
 
-  it("エラーのレスポンスがJSON形式でないエラー", async () => {
-    global.fetch = vi
-      .fn()
-      .mockImplementation(
-        async () => new Response("invalid json", { status: 500 })
-      );
-
-    render(<Popup />);
-    const urlInput = screen.getByLabelText("url");
-    const titleInput = screen.getByLabelText("title");
-
-    fireEvent.change(urlInput, {
-      target: { value: "https://www.amazon.co.jp/" },
-    });
-    fireEvent.change(titleInput, { target: { value: "Amazon" } });
-
-    const registerButton = screen.getByRole("button", { name: "登録" });
-    fireEvent.click(registerButton);
-
-    await waitFor(() => {
-      expect(global.fetch).toBeCalledTimes(1);
-      expect(global.fetch).toBeCalledWith(API_BOOKMARK_ADD, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: '{"url":"https://www.amazon.co.jp/","title":"Amazon"}',
-      });
-      expect(
-        screen.getByText(
-          "ブックマークの登録に失敗しました。ステータス: 500: Unexpected token 'i', \"invalid json\" is not valid JSON"
-        )
-      ).toBeInTheDocument();
-    });
-  });
-
-  it("APIリクエストで例外が発生", async () => {
-    global.fetch = vi
-      .fn()
-      .mockReturnValueOnce(Promise.reject(new Error("APIエラー")));
-
-    render(<Popup />);
-    const urlInput = screen.getByLabelText("url");
-    const titleInput = screen.getByLabelText("title");
-
-    fireEvent.change(urlInput, {
-      target: { value: "https://www.amazon.co.jp/" },
-    });
-    fireEvent.change(titleInput, { target: { value: "Amazon" } });
-
-    const registerButton = screen.getByRole("button", { name: "登録" });
-    fireEvent.click(registerButton);
-
-    await waitFor(() => {
-      expect(global.fetch).toBeCalledTimes(1);
-      expect(global.fetch).toBeCalledWith(API_BOOKMARK_ADD, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: '{"url":"https://www.amazon.co.jp/","title":"Amazon"}',
-      });
-      expect(screen.getByText("Error: APIエラー")).toBeInTheDocument();
-    });
-  });
-
   it("無効なURLが入力された場合", async () => {
     render(<Popup />);
 
@@ -269,5 +249,128 @@ describe("Popup", () => {
         screen.getByText("登録できません: タイトルが指定されていません")
       ).toBeInTheDocument();
     });
+  });
+
+  describe("オプションページで設定したURLを利用する", () => {
+    const customApiUrl = "https://custom-api.example.com/bookmarks";
+
+    beforeEach(() => {
+      // global.chromeオブジェクト全体を再定義する代わりに、
+      // storage.local.getのモック実装を上書きします。
+      (global.chrome.storage.local.get as Mock).mockImplementation(
+        (
+          _keys: string | string[] | { [key: string]: unknown } | null,
+          callback: (items: { [key: string]: unknown }) => void
+        ) => {
+          callback({ bookmarkUrl: customApiUrl });
+        }
+      );
+    });
+
+    it("ブックマークを登録", async () => {
+      global.fetch = vi.fn().mockImplementation(
+        async () =>
+          new Response(
+            JSON.stringify({
+              url: "https://www.google.com/",
+              title: "Google",
+              id: 1,
+            }),
+            { status: 200 }
+          )
+      );
+
+      render(<Popup />);
+
+      const urlInput = screen.getByLabelText("url");
+      const titleInput = screen.getByLabelText("title");
+
+      fireEvent.change(urlInput, {
+        target: { value: "https://www.google.com/" },
+      });
+      fireEvent.change(titleInput, { target: { value: "Google" } });
+
+      const registerButton = screen.getByRole("button", { name: "登録" });
+      fireEvent.click(registerButton);
+
+      await waitFor(() => {
+        expect(global.fetch).toBeCalledTimes(1);
+        expect(global.fetch).toBeCalledWith(customApiUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: '{"url":"https://www.google.com/","title":"Google"}',
+        });
+        expect(
+          screen.getByText("ブックマークが登録されました。")
+        ).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe("エラーメッセージが出力される場合", () => {
+    let consoleErrorSpy: MockInstance;
+
+    beforeEach(() => {
+      // console.errorをモック化して、コンソールへの出力を抑制する
+      consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    });
+
+    // フォームへの入力と登録ボタンのクリックを共通化
+    beforeEach(() => {
+      render(<Popup />);
+      const urlInput = screen.getByLabelText("url");
+      const titleInput = screen.getByLabelText("title");
+
+      fireEvent.change(urlInput, {
+        target: { value: "https://www.amazon.co.jp/" },
+      });
+      fireEvent.change(titleInput, { target: { value: "Amazon" } });
+    });
+
+    afterEach(() => {
+      consoleErrorSpy.mockRestore();
+    });
+
+    it.each([
+      {
+        testName: "APIリクエストで例外が発生",
+        mockFetch: vi.fn().mockRejectedValue(new Error("APIエラー")),
+        expectedMessage: "Error: APIエラー",
+        expectedConsoleError: new Error("APIエラー"),
+      },
+      {
+        testName: "エラーのレスポンスがJSON形式でないエラー",
+        mockFetch: vi
+          .fn()
+          .mockResolvedValue(new Response("invalid json", { status: 500 })),
+        expectedMessage:
+          "ブックマークの登録に失敗しました。ステータス: 500: Unexpected token 'i', \"invalid json\" is not valid JSON",
+        expectedConsoleError:
+          "ブックマークの登録に失敗しました。ステータス: 500: Unexpected token 'i', \"invalid json\" is not valid JSON",
+      },
+    ])(
+      "$testName",
+      async ({ mockFetch, expectedMessage, expectedConsoleError }) => {
+        global.fetch = mockFetch;
+        const registerButton = screen.getByRole("button", { name: "登録" });
+        fireEvent.click(registerButton);
+
+        await waitFor(() => {
+          expect(global.fetch).toBeCalledTimes(1);
+          expect(global.fetch).toBeCalledWith(API_BOOKMARK_ADD, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: '{"url":"https://www.amazon.co.jp/","title":"Amazon"}',
+          });
+          expect(screen.getByText(expectedMessage)).toBeInTheDocument();
+          expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
+          expect(consoleErrorSpy).toHaveBeenCalledWith(expectedConsoleError);
+        });
+      }
+    );
   });
 });

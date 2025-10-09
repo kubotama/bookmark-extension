@@ -17,8 +17,17 @@ const Popup = () => {
   const [isTitleLoaded, setIsTitleLoaded] = useState<boolean>(false);
 
   const [messageText, setMessageText] = useState<string | undefined>(undefined);
+  const [apiUrl, setApiUrl] = useState<string>(API_BOOKMARK_ADD);
+  const [isApiUrlLoaded, setIsApiUrlLoaded] = useState<boolean>(false);
 
   useEffect(() => {
+    chrome.storage.local.get("bookmarkUrl", (data) => {
+      if (data.bookmarkUrl) {
+        setApiUrl(data.bookmarkUrl);
+      }
+      setIsApiUrlLoaded(true); // 読み込み完了をマーク
+    });
+
     setIsTitleLoaded(false);
     // Query for the active tab in the current window
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -61,7 +70,7 @@ const Popup = () => {
       title: activeTabTitle,
     };
 
-    fetch(API_BOOKMARK_ADD, {
+    fetch(apiUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -115,7 +124,11 @@ const Popup = () => {
         </div>
       )}
       <div className="popup-container">
-        <button className="popup-button" onClick={registerClick}>
+        <button
+          className="popup-button"
+          onClick={registerClick}
+          disabled={!isApiUrlLoaded || !isTitleLoaded}
+        >
           登録
         </button>
         <input
