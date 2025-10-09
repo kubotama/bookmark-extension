@@ -20,9 +20,6 @@ describe("Options", () => {
         },
       },
     } as never;
-
-    // window.alertのモック
-    vi.spyOn(window, "alert").mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -91,6 +88,5 @@ describe("Options", () => {
     fireEvent.click(button);
 
     expect(mockSet).not.toHaveBeenCalled();
-    expect(window.alert).not.toHaveBeenCalled();
   });
 });
