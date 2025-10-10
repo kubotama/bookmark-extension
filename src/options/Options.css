@@ -1,0 +1,20 @@
+.options-container {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.options-container input {
+  width: 300px;
+  padding: 0.5rem;
+}
+
+.options-container button {
+  padding: 0.5rem 1rem;
+  background-color: darkcyan;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
