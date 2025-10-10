@@ -22,6 +22,12 @@ const Popup = () => {
 
   useEffect(() => {
     chrome.storage.local.get("bookmarkUrl", (data) => {
+      if (chrome.runtime.lastError) {
+        console.error(chrome.runtime.lastError.message);
+        // エラーが発生した場合でも、UIの読み込みは完了させる
+        setIsApiUrlLoaded(true);
+        return;
+      }
       if (data.bookmarkUrl) {
         setApiUrl(data.bookmarkUrl);
       }
@@ -31,6 +37,12 @@ const Popup = () => {
     setIsTitleLoaded(false);
     // Query for the active tab in the current window
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (chrome.runtime.lastError) {
+        console.error(chrome.runtime.lastError.message);
+        setActiveTabUrl("URLの取得に失敗しました。");
+        setActiveTabTitle("タイトルの取得に失敗しました。");
+        return;
+      }
       // tabs is an array of Tab objects.
       // There should be only one active tab in the current window.
       if (tabs && tabs.length > 0 && tabs[0].url) {

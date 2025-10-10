@@ -17,11 +17,10 @@ import Popup from "./Popup";
 describe("Popup", () => {
   // トップレベルに共通のモックセットアップを移動
   beforeEach(() => {
-    // Mock chrome.tabs.query
+    // Mock chrome APIs
     global.chrome = {
       tabs: {
         query: vi.fn((_options, callback) => {
-          // Simulate an active tab with a URL
           callback([
             { url: "https://example.com", title: "サンプルのページのタイトル" },
           ]);
@@ -33,6 +32,9 @@ describe("Popup", () => {
             callback({});
           }),
         },
+      },
+      runtime: {
+        lastError: undefined,
       },
       // Mock other chrome APIs if needed
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -59,27 +61,9 @@ describe("Popup", () => {
   });
 
   it("アクティブなタブのURLの取得に失敗", async () => {
-    global.chrome = {
-      tabs: {
-        query: vi.fn((_options, callback) => {
-          // Simulate an active tab with a URL
-          callback([]);
-        }),
-      },
-      storage: {
-        local: {
-          get: vi.fn(
-            (
-              _keys: string | string[] | { [key: string]: unknown } | null,
-              callback: (items: { [key: string]: unknown }) => void
-            ) => {
-              callback({});
-            }
-          ),
-        },
-      },
-      // Mock other chrome APIs if needed
-    } as never;
+    (global.chrome.tabs.query as Mock).mockImplementation((_options, callback) => {
+      callback([]);
+    });
 
     render(<Popup />);
 
@@ -92,27 +76,9 @@ describe("Popup", () => {
   });
 
   it("アクティブなタブのタイトルの取得に失敗", async () => {
-    global.chrome = {
-      tabs: {
-        query: vi.fn((_options, callback) => {
-          // Simulate an active tab with a URL
-          callback([{ url: "https://example.com" }]);
-        }),
-      },
-      storage: {
-        local: {
-          get: vi.fn(
-            (
-              _keys: string | string[] | { [key: string]: unknown } | null,
-              callback: (items: { [key: string]: unknown }) => void
-            ) => {
-              callback({});
-            }
-          ),
-        },
-      },
-      // Mock other chrome APIs if needed
-    } as never;
+    (global.chrome.tabs.query as Mock).mockImplementation((_options, callback) => {
+      callback([{ url: "https://example.com" }]);
+    });
 
     render(<Popup />);
 
@@ -372,5 +338,58 @@ describe("Popup", () => {
         });
       }
     );
+  });
+
+  describe("Chrome APIのエラーハンドリング", () => {
+    let consoleErrorSpy: MockInstance;
+
+    beforeEach(() => {
+      consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      consoleErrorSpy.mockRestore();
+    });
+
+    it("chrome.storage.local.getでエラーが発生した場合", async () => {
+      const errorMessage = "storage.local.get failed";
+      (global.chrome.storage.local.get as Mock).mockImplementation(
+        (
+          _keys: string | string[] | { [key: string]: unknown } | null,
+          callback: (items: { [key: string]: unknown }) => void
+        ) => {
+          global.chrome.runtime.lastError = { message: errorMessage };
+          callback({});
+        }
+      );
+
+      render(<Popup />);
+
+      await waitFor(() => {
+        expect(consoleErrorSpy).toHaveBeenCalledWith(errorMessage);
+      });
+    });
+
+    it("chrome.tabs.queryでエラーが発生した場合", async () => {
+      const errorMessage = "tabs.query failed";
+      (global.chrome.tabs.query as Mock).mockImplementation(
+        (_options, callback) => {
+          global.chrome.runtime.lastError = { message: errorMessage };
+          callback([]);
+        }
+      );
+
+      render(<Popup />);
+
+      await waitFor(() => {
+        expect(consoleErrorSpy).toHaveBeenCalledWith(errorMessage);
+        expect(screen.getByLabelText("url")).toHaveValue(
+          "URLの取得に失敗しました。"
+        );
+        expect(screen.getByLabelText("title")).toHaveValue(
+          "タイトルの取得に失敗しました。"
+        );
+      });
+    });
   });
 });
