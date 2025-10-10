@@ -1,62 +1,74 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import Options from "./Options";
+import { STORAGE_KEY_BOOKMARK_URL } from "../constants/constants";
 
 describe("Options", () => {
+  const URL_PLACEHOLDER = "ブックマークするURL";
+  const SAVE_BUTTON_NAME = "保存";
+
   // chrome.storage.localのモック
   const mockGet = vi.fn();
   const mockSet = vi.fn();
 
   beforeEach(() => {
-    global.chrome = {
+    vi.clearAllMocks();
+    vi.stubGlobal("chrome", {
       storage: {
         local: {
-          get: mockGet.mockImplementation((_keys, callback) => {
-            callback({}); // デフォルトでは空のオブジェクトを返す
-          }),
-          set: mockSet.mockImplementation((_items, callback) => {
-            callback();
-          }),
+          get: mockGet,
+          set: mockSet,
         },
       },
-    } as never;
+    });
+
+    // モックされた get のデフォルトの動作を設定
+    mockGet.mockImplementation((keys, callback) => {
+      const result = {
+        [STORAGE_KEY_BOOKMARK_URL]: "https://example.com/saved",
+      };
+      callback(result);
+    });
   });
 
   afterEach(() => {
-    vi.clearAllMocks();
+    vi.unstubAllGlobals();
   });
 
-  it("renders correctly", () => {
+  it("renders the options page", () => {
     render(<Options />);
     expect(
       screen.getByRole("heading", { name: "オプション" })
     ).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(URL_PLACEHOLDER)).toBeInTheDocument();
     expect(
-      screen.getByPlaceholderText("ブックマークするURL")
+      screen.getByRole("button", { name: SAVE_BUTTON_NAME })
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "保存" })).toBeInTheDocument();
   });
 
   it("loads and displays the saved URL on mount", async () => {
     const savedUrl = "https://example.com/saved";
-    mockGet.mockImplementation((_keys, callback) => {
-      callback({ bookmarkUrl: savedUrl });
+    mockGet.mockImplementation((keys, callback) => {
+      callback({ [STORAGE_KEY_BOOKMARK_URL]: savedUrl });
     });
 
     render(<Options />);
 
     await waitFor(() => {
-      expect(screen.getByPlaceholderText("ブックマークするURL")).toHaveValue(
+      expect(screen.getByPlaceholderText(URL_PLACEHOLDER)).toHaveValue(
         savedUrl
       );
     });
 
-    expect(mockGet).toHaveBeenCalledWith("bookmarkUrl", expect.any(Function));
+    expect(mockGet).toHaveBeenCalledWith(
+      STORAGE_KEY_BOOKMARK_URL,
+      expect.any(Function)
+    );
   });
 
   it("updates the input value on change", () => {
     render(<Options />);
-    const input = screen.getByPlaceholderText("ブックマークするURL");
+    const input = screen.getByPlaceholderText(URL_PLACEHOLDER);
     const newUrl = "https://example.com/new";
 
     fireEvent.change(input, { target: { value: newUrl } });
@@ -66,24 +78,25 @@ describe("Options", () => {
 
   it("saves the URL to storage when the save button is clicked", async () => {
     render(<Options />);
-    const input = screen.getByPlaceholderText("ブックマークするURL");
-    const button = screen.getByRole("button", { name: "保存" });
+    const input = screen.getByPlaceholderText(URL_PLACEHOLDER);
+    const button = screen.getByRole("button", { name: SAVE_BUTTON_NAME });
     const newUrl = "https://example.com/new";
 
     fireEvent.change(input, { target: { value: newUrl } });
     fireEvent.click(button);
 
-    await waitFor(() => {
-      expect(mockSet).toHaveBeenCalledWith(
-        { bookmarkUrl: newUrl },
-        expect.any(Function)
-      );
-    });
+    expect(mockSet).toHaveBeenCalledWith(
+      { [STORAGE_KEY_BOOKMARK_URL]: newUrl },
+      expect.any(Function)
+    );
   });
 
   it("does not save if the URL is empty", () => {
+    mockGet.mockImplementation((keys, callback) => {
+      callback({});
+    });
     render(<Options />);
-    const button = screen.getByRole("button", { name: "保存" });
+    const button = screen.getByRole("button", { name: SAVE_BUTTON_NAME });
 
     fireEvent.click(button);
 
