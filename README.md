@@ -36,9 +36,12 @@ $ npm run build
 
 ## 使用方法
 
-1. Chrome の拡張機能として登録します。
-2. 拡張機能のオプションページを開きます。
-3. オプションページで、ブックマークを管理する web アプリケーションの URL を指定します。デフォルトとして http://localhost:3000/api/bookmarks が利用されます。
+1.  Chromeで `chrome://extensions` を開きます。
+2.  右上の「デベロッパーモード」をオンにします。
+3.  「パッケージ化されていない拡張機能を読み込む」ボタンをクリックします。
+4.  ビルド時に作成された `dist` ディレクトリを選択して、拡張機能を登録します。
+5.  拡張機能のアイコンを右クリックし、「オプション」を選択してオプションページを開きます。
+6.  ブックマークを登録するためのAPIエンドポイントのURLを指定します。（デフォルト: `http://localhost:3000/api/bookmarks`）
 
 ## 関連アプリケーション
 
@@ -53,6 +56,20 @@ $ npm run build
 | [TypeScript](https://www.typescriptlang.org/) | 5.8.3      |
 | [vite](https://ja.vite.dev/)                  | 6.3.5      |
 | [vitest](https://vitest.dev)                  | 3.1.4      |
+
+## 開発
+
+### テスト
+
+```bash
+$ npm test
+```
+
+### Lint
+
+```bash
+$ npm run lint
+```
 
 ## ライセンス
 
