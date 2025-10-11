@@ -59,10 +59,6 @@ const Popup = () => {
       );
       return;
     }
-    if (!activeTabTitle) {
-      setMessageText("登録できません: タイトルが指定されていません");
-      return;
-    }
     const bookmark = {
       url: activeTabUrl,
       title: activeTabTitle,
