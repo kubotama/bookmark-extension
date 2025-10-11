@@ -121,7 +121,11 @@ const Popup = () => {
         <button
           className="popup-button"
           onClick={registerClick}
-          disabled={!isApiUrlLoaded || !activeTabTitle}
+          disabled={
+            !isApiUrlLoaded ||
+            !activeTabTitle ||
+            !isValidUrl(activeTabUrl || "")
+          }
         >
           登録
         </button>

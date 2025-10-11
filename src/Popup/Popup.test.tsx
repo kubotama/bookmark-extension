@@ -61,9 +61,11 @@ describe("Popup", () => {
   });
 
   it("アクティブなタブのURLの取得に失敗", async () => {
-    (global.chrome.tabs.query as Mock).mockImplementation((_options, callback) => {
-      callback([]);
-    });
+    (global.chrome.tabs.query as Mock).mockImplementation(
+      (_options, callback) => {
+        callback([]);
+      }
+    );
 
     render(<Popup />);
 
@@ -188,14 +190,7 @@ describe("Popup", () => {
       target: { value: "invalid-url" },
     });
     const registerButton = screen.getByRole("button", { name: "登録" });
-    fireEvent.click(registerButton);
-
-    await waitFor(() => {
-      expect(global.fetch).not.toBeCalled();
-      expect(
-        screen.getByText("登録できません: 無効なURLです (invalid-url)")
-      ).toBeInTheDocument();
-    });
+    expect(registerButton).toBeDisabled();
   });
 
   it("タイトルが空の場合、登録ボタンは無効になる", async () => {
