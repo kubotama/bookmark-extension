@@ -75,18 +75,20 @@ describe("Popup", () => {
     });
   });
 
-  it("アクティブなタブのタイトルの取得に失敗", async () => {
-    (global.chrome.tabs.query as Mock).mockImplementation((_options, callback) => {
-      callback([{ url: "https://example.com" }]);
-    });
+  it("アクティブなタブのタイトルの取得に失敗した場合、タイトルは空になり登録ボタンは無効になる", async () => {
+    (global.chrome.tabs.query as Mock).mockImplementation(
+      (_options, callback) => {
+        callback([{ url: "https://example.com", title: undefined }]);
+      }
+    );
 
     render(<Popup />);
 
     await waitFor(() => {
-      expect(screen.getByText("登録")).toBeInTheDocument();
-      expect(screen.getByLabelText("title")).toHaveValue(
-        "タイトルの取得に失敗しました。"
-      );
+      const registerButton = screen.getByRole("button", { name: "登録" });
+      expect(registerButton).toBeInTheDocument();
+      expect(registerButton).toBeDisabled();
+      expect(screen.getByLabelText("title")).toHaveValue("");
     });
   });
 
@@ -196,25 +198,31 @@ describe("Popup", () => {
     });
   });
 
-  it("無効なタイトルが入力された場合", async () => {
+  it("タイトルが空の場合、登録ボタンは無効になる", async () => {
     render(<Popup />);
 
-    const urlInput = screen.getByLabelText("url");
+    const registerButton = await screen.findByRole("button", { name: "登録" });
     const titleInput = screen.getByLabelText("title");
-    fireEvent.change(urlInput, {
-      target: { value: "https://www.amazon.co.jp/" },
+
+    // Initially, with a valid title, the button is enabled.
+    await waitFor(() => {
+      expect(titleInput).toHaveValue("サンプルのページのタイトル");
+      expect(registerButton).toBeEnabled();
     });
+
+    // Clear the title
     fireEvent.change(titleInput, { target: { value: "" } });
 
-    const registerButton = screen.getByRole("button", { name: "登録" });
-    fireEvent.click(registerButton);
+    // Now, the button should be disabled
+    expect(registerButton).toBeDisabled();
 
-    await waitFor(() => {
-      expect(global.fetch).not.toBeCalled();
-      expect(
-        screen.getByText("登録できません: タイトルが指定されていません")
-      ).toBeInTheDocument();
-    });
+    // Verify no message is shown and no fetch is made, because the button is disabled
+    // and the click handler that sets the message is not supposed to be called.
+    fireEvent.click(registerButton);
+    expect(
+      screen.queryByText("登録できません: タイトルが指定されていません")
+    ).not.toBeInTheDocument();
+    expect(global.fetch).not.toBeCalled();
   });
 
   describe("オプションページで設定したURLを利用する", () => {
@@ -386,9 +394,9 @@ describe("Popup", () => {
         expect(screen.getByLabelText("url")).toHaveValue(
           "URLの取得に失敗しました。"
         );
-        expect(screen.getByLabelText("title")).toHaveValue(
-          "タイトルの取得に失敗しました。"
-        );
+        expect(screen.getByLabelText("title")).toHaveValue("");
+        const registerButton = screen.getByRole("button", { name: "登録" });
+        expect(registerButton).toBeDisabled();
       });
     });
   });

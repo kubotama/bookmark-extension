@@ -14,7 +14,7 @@ const Popup = () => {
     "タイトルの取得中..."
   );
 
-  const [isTitleLoaded, setIsTitleLoaded] = useState<boolean>(false);
+
 
   const [messageText, setMessageText] = useState<string | undefined>(undefined);
   const [apiUrl, setApiUrl] = useState<string>(API_BOOKMARK_ADD);
@@ -34,28 +34,30 @@ const Popup = () => {
       setIsApiUrlLoaded(true); // 読み込み完了をマーク
     });
 
-    setIsTitleLoaded(false);
+
     // Query for the active tab in the current window
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (chrome.runtime.lastError) {
         console.error(chrome.runtime.lastError.message);
         setActiveTabUrl("URLの取得に失敗しました。");
-        setActiveTabTitle("タイトルの取得に失敗しました。");
+        setActiveTabTitle("");
+
         return;
       }
       // tabs is an array of Tab objects.
       // There should be only one active tab in the current window.
       if (tabs && tabs.length > 0 && tabs[0].url) {
         setActiveTabUrl(tabs[0].url);
-        if (tabs[0].title !== undefined) {
+        if (tabs[0].title) {
           setActiveTabTitle(tabs[0].title);
-          setIsTitleLoaded(true);
         } else {
-          setActiveTabTitle("タイトルの取得に失敗しました。");
+          setActiveTabTitle(""); // Set empty for manual input
         }
       } else {
         setActiveTabUrl("URLの取得に失敗しました。");
+        setActiveTabTitle(""); // Set empty for manual input
       }
+
     });
   }, []);
 
@@ -68,13 +70,8 @@ const Popup = () => {
       );
       return;
     }
-    // if (!activeTabTitle || !isTitleLoaded) {
-    if (!isTitleLoaded || !activeTabTitle) {
-      setMessageText(
-        activeTabTitle
-          ? `登録できません: タイトルが無効です (${activeTabTitle})`
-          : "登録できません: タイトルが指定されていません"
-      );
+    if (!activeTabTitle) {
+      setMessageText("登録できません: タイトルが指定されていません");
       return;
     }
     const bookmark = {
@@ -139,7 +136,7 @@ const Popup = () => {
         <button
           className="popup-button"
           onClick={registerClick}
-          disabled={!isApiUrlLoaded || !isTitleLoaded}
+          disabled={!isApiUrlLoaded || !activeTabTitle}
         >
           登録
         </button>
