@@ -23,7 +23,7 @@ describe("Options", () => {
     });
 
     // モックされた get のデフォルトの動作を設定
-    mockGet.mockImplementation((keys, callback) => {
+    mockGet.mockImplementation((_keys, callback) => {
       const result = {
         [STORAGE_KEY_BOOKMARK_URL]: "https://example.com/saved",
       };
@@ -48,7 +48,7 @@ describe("Options", () => {
 
   it("loads and displays the saved URL on mount", async () => {
     const savedUrl = "https://example.com/saved";
-    mockGet.mockImplementation((keys, callback) => {
+    mockGet.mockImplementation((_keys, callback) => {
       callback({ [STORAGE_KEY_BOOKMARK_URL]: savedUrl });
     });
 
@@ -92,7 +92,7 @@ describe("Options", () => {
   });
 
   it("does not save if the URL is empty", () => {
-    mockGet.mockImplementation((keys, callback) => {
+    mockGet.mockImplementation((_keys, callback) => {
       callback({});
     });
     render(<Options />);
