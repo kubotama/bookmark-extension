@@ -43,14 +43,17 @@ describe("Options", () => {
     vi.unstubAllGlobals();
   });
 
-  it("renders the options page", () => {
+  it("renders the options page", async () => {
     render(<Options />);
+
     expect(
-      screen.getByRole("heading", { name: "オプション" })
+      await screen.findByRole("heading", { name: "オプション" })
     ).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(URL_PLACEHOLDER)).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: SAVE_BUTTON_NAME })
+      await screen.findByPlaceholderText(URL_PLACEHOLDER)
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByRole("button", { name: SAVE_BUTTON_NAME })
     ).toBeInTheDocument();
   });
 
@@ -60,18 +63,17 @@ describe("Options", () => {
 
     render(<Options />);
 
-    await waitFor(() => {
-      expect(screen.getByPlaceholderText(URL_PLACEHOLDER)).toHaveValue(
-        savedUrl
-      );
-    });
+    expect(await screen.findByPlaceholderText(URL_PLACEHOLDER)).toHaveValue(
+      savedUrl
+    );
 
     expect(mockGet).toHaveBeenCalledWith(STORAGE_KEY_BOOKMARK_URL);
   });
 
-  it("updates the input value on change", () => {
+  it("updates the input value on change", async () => {
     render(<Options />);
-    const input = screen.getByPlaceholderText(URL_PLACEHOLDER);
+
+    const input = await screen.findByPlaceholderText(URL_PLACEHOLDER);
     const newUrl = "https://example.com/new";
 
     fireEvent.change(input, { target: { value: newUrl } });
@@ -81,22 +83,29 @@ describe("Options", () => {
 
   it("saves the URL to storage when the save button is clicked", async () => {
     render(<Options />);
-    const input = screen.getByPlaceholderText(URL_PLACEHOLDER);
-    const button = screen.getByRole("button", { name: SAVE_BUTTON_NAME });
+
+    const input = await screen.findByPlaceholderText(URL_PLACEHOLDER);
+    const button = await screen.findByRole("button", {
+      name: SAVE_BUTTON_NAME,
+    });
     const newUrl = "https://example.com/new";
 
     fireEvent.change(input, { target: { value: newUrl } });
-    fireEvent.click(button);
+    await waitFor(() => {
+      fireEvent.click(button);
+    });
 
     expect(mockSet).toHaveBeenCalledWith({
       [STORAGE_KEY_BOOKMARK_URL]: newUrl,
     });
   });
 
-  it("does not save if the URL is empty", () => {
+  it("does not save if the URL is empty", async () => {
     mockGet.mockResolvedValue({});
     render(<Options />);
-    const button = screen.getByRole("button", { name: SAVE_BUTTON_NAME });
+    const button = await screen.findByRole("button", {
+      name: SAVE_BUTTON_NAME,
+    });
 
     fireEvent.click(button);
 
