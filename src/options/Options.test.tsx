@@ -28,17 +28,14 @@ describe("Options", () => {
       storage: {
         local: {
           get: mockGet,
-          set: mockSet.mockImplementation((_data, callback) => callback()),
+          set: mockSet.mockResolvedValue(undefined),
         },
       },
     });
 
     // モックされた get のデフォルトの動作を設定
-    mockGet.mockImplementation((_keys, callback) => {
-      const result = {
-        [STORAGE_KEY_BOOKMARK_URL]: "https://example.com/saved",
-      };
-      callback(result);
+    mockGet.mockResolvedValue({
+      [STORAGE_KEY_BOOKMARK_URL]: "https://example.com/saved",
     });
   });
 
@@ -59,9 +56,7 @@ describe("Options", () => {
 
   it("loads and displays the saved URL on mount", async () => {
     const savedUrl = "https://example.com/saved";
-    mockGet.mockImplementation((_keys, callback) => {
-      callback({ [STORAGE_KEY_BOOKMARK_URL]: savedUrl });
-    });
+    mockGet.mockResolvedValue({ [STORAGE_KEY_BOOKMARK_URL]: savedUrl });
 
     render(<Options />);
 
@@ -71,10 +66,7 @@ describe("Options", () => {
       );
     });
 
-    expect(mockGet).toHaveBeenCalledWith(
-      STORAGE_KEY_BOOKMARK_URL,
-      expect.any(Function)
-    );
+    expect(mockGet).toHaveBeenCalledWith(STORAGE_KEY_BOOKMARK_URL);
   });
 
   it("updates the input value on change", () => {
@@ -96,16 +88,13 @@ describe("Options", () => {
     fireEvent.change(input, { target: { value: newUrl } });
     fireEvent.click(button);
 
-    expect(mockSet).toHaveBeenCalledWith(
-      { [STORAGE_KEY_BOOKMARK_URL]: newUrl },
-      expect.any(Function)
-    );
+    expect(mockSet).toHaveBeenCalledWith({
+      [STORAGE_KEY_BOOKMARK_URL]: newUrl,
+    });
   });
 
   it("does not save if the URL is empty", () => {
-    mockGet.mockImplementation((_keys, callback) => {
-      callback({});
-    });
+    mockGet.mockResolvedValue({});
     render(<Options />);
     const button = screen.getByRole("button", { name: SAVE_BUTTON_NAME });
 
@@ -114,7 +103,7 @@ describe("Options", () => {
     expect(mockSet).not.toHaveBeenCalled();
   });
 
-  it("displays a save message and clears it after 3 seconds", () => {
+  it("displays a save message and clears it after 3 seconds", async () => {
     vi.useFakeTimers();
     render(<Options />);
     const input = screen.getByPlaceholderText(URL_PLACEHOLDER);
@@ -123,7 +112,8 @@ describe("Options", () => {
 
     fireEvent.change(input, { target: { value: newUrl } });
 
-    act(() => {
+    // fireEvent.clickは非同期の状態で更新をトリガーするため、actでラップします
+    await act(async () => {
       fireEvent.click(button);
     });
 
