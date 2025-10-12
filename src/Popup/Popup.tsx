@@ -51,14 +51,6 @@ const Popup = () => {
   }, []);
 
   const registerClick = () => {
-    if (!activeTabUrl || !isValidUrl(activeTabUrl)) {
-      setMessageText(
-        activeTabUrl
-          ? `登録できません: 無効なURLです (${activeTabUrl})`
-          : "登録できません: URLが指定されていません"
-      );
-      return;
-    }
     const bookmark = {
       url: activeTabUrl,
       title: activeTabTitle,
