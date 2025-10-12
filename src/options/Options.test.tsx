@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, act, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import Options from "./Options";
 import { STORAGE_KEY_BOOKMARK_URL } from "../constants/constants";
@@ -17,7 +17,7 @@ describe("Options", () => {
       storage: {
         local: {
           get: mockGet,
-          set: mockSet,
+          set: mockSet.mockImplementation((_data, callback) => callback()),
         },
       },
     });
@@ -101,5 +101,32 @@ describe("Options", () => {
     fireEvent.click(button);
 
     expect(mockSet).not.toHaveBeenCalled();
+  });
+
+  it("displays a save message and clears it after 3 seconds", () => {
+    vi.useFakeTimers();
+    render(<Options />);
+    const input = screen.getByPlaceholderText(URL_PLACEHOLDER);
+    const button = screen.getByRole("button", { name: SAVE_BUTTON_NAME });
+    const newUrl = "https://example.com/new-url-for-message-test";
+
+    fireEvent.change(input, { target: { value: newUrl } });
+
+    act(() => {
+      fireEvent.click(button);
+    });
+
+    // メッセージが表示されることを確認
+    expect(screen.getByText("保存しました！")).toBeInTheDocument();
+
+    // 3秒経過させる
+    act(() => {
+      vi.advanceTimersByTime(3000);
+    });
+
+    // メッセージが消えることを確認
+    expect(screen.queryByText("保存しました！")).not.toBeInTheDocument();
+
+    vi.useRealTimers();
   });
 });

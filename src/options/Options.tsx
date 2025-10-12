@@ -4,6 +4,7 @@ import { STORAGE_KEY_BOOKMARK_URL } from "../constants/constants";
 
 const Options = () => {
   const [url, setUrl] = useState("");
+  const [saveMessage, setSaveMessage] = useState(""); // メッセージ用のstateを追加
 
   // コンポーネントのマウント時にストレージからURLを読み込む
   useEffect(() => {
@@ -19,6 +20,10 @@ const Options = () => {
     if (url) {
       chrome.storage.local.set({ [STORAGE_KEY_BOOKMARK_URL]: url }, () => {
         console.log("URL saved:", url);
+        setSaveMessage("保存しました！"); // メッセージを設定
+        setTimeout(() => {
+          setSaveMessage(""); // 3秒後にメッセージをクリア
+        }, 3000);
       });
     }
   };
@@ -33,6 +38,7 @@ const Options = () => {
         placeholder="ブックマークするURL"
       />
       <button onClick={handleSave}>保存</button>
+      {saveMessage && <p className="save-message">{saveMessage}</p>} {/* メッセージの表示 */}
     </div>
   );
 };
