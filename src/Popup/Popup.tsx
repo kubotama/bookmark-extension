@@ -7,12 +7,9 @@ import { useEffect, useState } from "react";
 import { API_BOOKMARK_ADD } from "../constants/constants";
 
 const Popup = () => {
-  const [activeTabUrl, setActiveTabUrl] = useState<string | undefined>(
-    "URLの取得中..."
-  );
-  const [activeTabTitle, setActiveTabTitle] = useState<string | undefined>(
-    "タイトルの取得中..."
-  );
+  const [activeTabUrl, setActiveTabUrl] = useState<string>("URLの取得中...");
+  const [activeTabTitle, setActiveTabTitle] =
+    useState<string>("タイトルの取得中...");
 
   const [messageText, setMessageText] = useState<string | undefined>(undefined);
   const [apiUrl, setApiUrl] = useState<string>(API_BOOKMARK_ADD);
@@ -114,9 +111,7 @@ const Popup = () => {
           className="popup-button"
           onClick={registerClick}
           disabled={
-            !isApiUrlLoaded ||
-            !activeTabTitle ||
-            !isValidUrl(activeTabUrl || "")
+            !isApiUrlLoaded || !activeTabTitle || !isValidUrl(activeTabUrl)
           }
         >
           登録
