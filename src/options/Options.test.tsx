@@ -1,7 +1,18 @@
-import { render, screen, fireEvent, act, waitFor } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
+
+import {
+  SAVE_MESSAGE_TIMEOUT_MS,
+  STORAGE_KEY_BOOKMARK_URL,
+} from "../constants/constants";
 import Options from "./Options";
-import { STORAGE_KEY_BOOKMARK_URL } from "../constants/constants";
 
 describe("Options", () => {
   const URL_PLACEHOLDER = "ブックマークするURL";
@@ -121,7 +132,7 @@ describe("Options", () => {
 
     // 3秒経過させる
     act(() => {
-      vi.advanceTimersByTime(3000);
+      vi.advanceTimersByTime(SAVE_MESSAGE_TIMEOUT_MS);
     });
 
     // メッセージが消えることを確認
