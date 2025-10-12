@@ -1,12 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 
 import {
   SAVE_MESSAGE_TIMEOUT_MS,
@@ -91,7 +85,7 @@ describe("Options", () => {
     const newUrl = "https://example.com/new";
 
     fireEvent.change(input, { target: { value: newUrl } });
-    await waitFor(() => {
+    await act(async () => {
       fireEvent.click(button);
     });
 
@@ -107,7 +101,9 @@ describe("Options", () => {
       name: SAVE_BUTTON_NAME,
     });
 
-    fireEvent.click(button);
+    await act(async () => {
+      fireEvent.click(button);
+    });
 
     expect(mockSet).not.toHaveBeenCalled();
   });
