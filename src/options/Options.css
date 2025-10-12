@@ -18,3 +18,13 @@
   border: none;
   cursor: pointer;
 }
+
+.save-message {
+  color: #28a745; /* Bootstrapの成功時の色に近い緑 */
+  font-weight: bold;
+  margin-top: 1rem;
+  padding: 0.5rem;
+  border: 1px solid #28a745;
+  border-radius: 4px;
+  background-color: #e9f7ef;
+}

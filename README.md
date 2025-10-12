@@ -54,13 +54,11 @@ $ npm run build
 
 ## 技術スタック
 
-| ツール名                                      | バージョン |
-| --------------------------------------------- | ---------- |
-| [Node.js](https://nodejs.org/)                | 22.x       |
-| [React](https://reactjs.org/)                 | 19.1.0     |
-| [TypeScript](https://www.typescriptlang.org/) | 5.8.3      |
-| [vite](https://ja.vite.dev/)                  | 6.3.5      |
-| [vitest](https://vitest.dev)                  | 3.1.4      |
+- [Node.js](https://nodejs.org/)
+- [React](https://reactjs.org/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [vite](https://ja.vite.dev/)
+- [vitest](https://vitest.dev)
 
 ## 開発
 
@@ -68,6 +66,12 @@ $ npm run build
 
 ```bash
 $ npm test
+```
+
+### テストカバレッジの確認
+
+```bash
+$ npm run test:coverage
 ```
 
 ### Lint
