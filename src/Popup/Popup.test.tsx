@@ -12,7 +12,10 @@ import {
 import { render, screen } from "@testing-library/react";
 import userEvent, { type UserEvent } from "@testing-library/user-event";
 
-import { API_BOOKMARK_ADD } from "../constants/constants";
+import {
+  API_BOOKMARK_ADD,
+  STORAGE_KEY_BOOKMARK_URL,
+} from "../constants/constants";
 import Popup from "./Popup";
 
 describe("Popup", () => {
@@ -31,9 +34,14 @@ describe("Popup", () => {
       },
       storage: {
         local: {
-          get: vi.fn((_keys, callback) => {
-            callback({});
-          }),
+          get: vi.fn(
+            (
+              _keys: string | string[] | { [key: string]: unknown } | null,
+              callback: (items: { [key: string]: unknown }) => void
+            ) => {
+              callback({});
+            }
+          ),
         },
       },
       runtime: {
@@ -50,6 +58,23 @@ describe("Popup", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
   });
+
+  const keyContainsBookmarkUrl = (
+    keys: string | string[] | { [key: string]: unknown } | null
+  ): boolean => {
+    if (keys === STORAGE_KEY_BOOKMARK_URL) return true;
+    if (Array.isArray(keys) && keys.includes(STORAGE_KEY_BOOKMARK_URL))
+      return true;
+    if (
+      typeof keys === "object" &&
+      keys !== null &&
+      !Array.isArray(keys) &&
+      Object.prototype.hasOwnProperty.call(keys, STORAGE_KEY_BOOKMARK_URL)
+    ) {
+      return true;
+    }
+    return false;
+  };
 
   it("renders correctly and displays the active tab URL", async () => {
     render(<Popup />);
@@ -222,10 +247,14 @@ describe("Popup", () => {
       // storage.local.getのモック実装を上書きします。
       (global.chrome.storage.local.get as Mock).mockImplementation(
         (
-          _keys: string | string[] | { [key: string]: unknown } | null,
+          keys: string | string[] | { [key: string]: unknown } | null,
           callback: (items: { [key: string]: unknown }) => void
         ) => {
-          callback({ bookmarkUrl: customApiUrl });
+          if (keyContainsBookmarkUrl(keys)) {
+            callback({ [STORAGE_KEY_BOOKMARK_URL]: customApiUrl });
+          } else {
+            callback({});
+          }
         }
       );
     });
@@ -353,10 +382,12 @@ describe("Popup", () => {
       const errorMessage = "storage.local.get failed";
       (global.chrome.storage.local.get as Mock).mockImplementation(
         (
-          _keys: string | string[] | { [key: string]: unknown } | null,
+          keys: string | string[] | { [key: string]: unknown } | null,
           callback: (items: { [key: string]: unknown }) => void
         ) => {
-          global.chrome.runtime.lastError = { message: errorMessage };
+          if (keyContainsBookmarkUrl(keys)) {
+            global.chrome.runtime.lastError = { message: errorMessage };
+          }
           callback({});
         }
       );
