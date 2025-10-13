@@ -20,7 +20,8 @@ describe("Popup", () => {
   // トップレベルに共通のモックセットアップを移動
   beforeEach(() => {
     // Mock chrome APIs
-    global.chrome = {
+    vi.clearAllMocks();
+    vi.stubGlobal("chrome", {
       tabs: {
         query: vi.fn((_options, callback) => {
           callback([
@@ -39,16 +40,15 @@ describe("Popup", () => {
         lastError: undefined,
       },
       // Mock other chrome APIs if needed
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as any;
+    });
 
-    global.fetch = vi.fn();
+    vi.stubGlobal("fetch", vi.fn());
     user = userEvent.setup();
   });
 
   // vi.fn()でモック化したものは、afterEachでクリアするのが一般的です
   afterEach(() => {
-    vi.clearAllMocks();
+    vi.unstubAllGlobals();
   });
 
   it("renders correctly and displays the active tab URL", async () => {
