@@ -59,6 +59,23 @@ describe("Popup", () => {
     vi.unstubAllGlobals();
   });
 
+  const keyContainsBookmarkUrl = (
+    keys: string | string[] | { [key: string]: unknown } | null
+  ): boolean => {
+    if (keys === STORAGE_KEY_BOOKMARK_URL) return true;
+    if (Array.isArray(keys) && keys.includes(STORAGE_KEY_BOOKMARK_URL))
+      return true;
+    if (
+      typeof keys === "object" &&
+      keys !== null &&
+      !Array.isArray(keys) &&
+      Object.prototype.hasOwnProperty.call(keys, STORAGE_KEY_BOOKMARK_URL)
+    ) {
+      return true;
+    }
+    return false;
+  };
+
   it("renders correctly and displays the active tab URL", async () => {
     render(<Popup />);
 
@@ -233,10 +250,7 @@ describe("Popup", () => {
           keys: string | string[] | { [key: string]: unknown } | null,
           callback: (items: { [key: string]: unknown }) => void
         ) => {
-          if (
-            keys === STORAGE_KEY_BOOKMARK_URL ||
-            (Array.isArray(keys) && keys.includes(STORAGE_KEY_BOOKMARK_URL))
-          ) {
+          if (keyContainsBookmarkUrl(keys)) {
             callback({ [STORAGE_KEY_BOOKMARK_URL]: customApiUrl });
           } else {
             callback({});
@@ -363,23 +377,6 @@ describe("Popup", () => {
     afterEach(() => {
       consoleErrorSpy.mockRestore();
     });
-
-    const keyContainsBookmarkUrl = (
-      keys: string | string[] | { [key: string]: unknown } | null
-    ): boolean => {
-      if (keys === STORAGE_KEY_BOOKMARK_URL) return true;
-      if (Array.isArray(keys) && keys.includes(STORAGE_KEY_BOOKMARK_URL))
-        return true;
-      if (
-        typeof keys === "object" &&
-        keys !== null &&
-        !Array.isArray(keys) &&
-        Object.prototype.hasOwnProperty.call(keys, STORAGE_KEY_BOOKMARK_URL)
-      ) {
-        return true;
-      }
-      return false;
-    };
 
     it("chrome.storage.local.getでエラーが発生した場合", async () => {
       const errorMessage = "storage.local.get failed";
