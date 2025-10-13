@@ -20,7 +20,8 @@ describe("Popup", () => {
   // トップレベルに共通のモックセットアップを移動
   beforeEach(() => {
     // Mock chrome APIs
-    global.chrome = {
+    vi.clearAllMocks();
+    vi.stubGlobal("chrome", {
       tabs: {
         query: vi.fn((_options, callback) => {
           callback([
@@ -39,16 +40,15 @@ describe("Popup", () => {
         lastError: undefined,
       },
       // Mock other chrome APIs if needed
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as any;
+    });
 
-    global.fetch = vi.fn();
+    vi.stubGlobal("fetch", vi.fn());
     user = userEvent.setup();
   });
 
   // vi.fn()でモック化したものは、afterEachでクリアするのが一般的です
   afterEach(() => {
-    vi.clearAllMocks();
+    vi.unstubAllGlobals();
   });
 
   it("renders correctly and displays the active tab URL", async () => {
@@ -96,7 +96,7 @@ describe("Popup", () => {
   });
 
   it("ブックマークを登録", async () => {
-    global.fetch = vi.fn().mockImplementation(
+    (global.fetch as Mock).mockImplementation(
       async () =>
         new Response(
           JSON.stringify({
@@ -135,7 +135,7 @@ describe("Popup", () => {
   });
 
   it("既に登録されているブックマークを登録しようとしてエラー", async () => {
-    global.fetch = vi.fn().mockImplementation(
+    (global.fetch as Mock).mockImplementation(
       async () =>
         new Response(
           JSON.stringify({
@@ -231,7 +231,7 @@ describe("Popup", () => {
     });
 
     it("ブックマークを登録", async () => {
-      global.fetch = vi.fn().mockImplementation(
+      (global.fetch as Mock).mockImplementation(
         async () =>
           new Response(
             JSON.stringify({
@@ -316,7 +316,8 @@ describe("Popup", () => {
     ])(
       "$testName",
       async ({ mockFetch, expectedMessage, expectedConsoleError }) => {
-        global.fetch = mockFetch;
+        (global.fetch as Mock).mockImplementation(mockFetch);
+
         const registerButton = await screen.findByRole("button", {
           name: "登録",
         });
