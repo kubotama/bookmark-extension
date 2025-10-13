@@ -1,6 +1,6 @@
 import "./Options.css";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
   SAVE_MESSAGE_TIMEOUT_MS,
@@ -15,11 +15,12 @@ const Options = () => {
 
   // コンポーネントのマウント時にストレージからURLを読み込む
   useEffect(() => {
-    chrome.storage.local.get(STORAGE_KEY_BOOKMARK_URL, (data) => {
+    (async () => {
+      const data = await chrome.storage.local.get(STORAGE_KEY_BOOKMARK_URL);
       if (data.bookmarkUrl) {
         setUrl(data.bookmarkUrl);
       }
-    });
+    })();
   }, []);
 
   // コンポーネントのアンマウント時にタイマーをクリアする
@@ -32,22 +33,21 @@ const Options = () => {
   }, []);
 
   // 保存ボタンがクリックされたときの処理
-  const handleSave = () => {
+  const handleSave = async () => {
     if (url) {
-      chrome.storage.local.set({ [STORAGE_KEY_BOOKMARK_URL]: url }, () => {
-        console.log("URL saved:", url);
-        setSaveMessage("保存しました！");
+      await chrome.storage.local.set({ [STORAGE_KEY_BOOKMARK_URL]: url });
+      console.log("URL saved:", url);
+      setSaveMessage("保存しました！");
 
-        // 既存のタイマーをクリア
-        if (timerRef.current) {
-          clearTimeout(timerRef.current);
-        }
+      // 既存のタイマーをクリア
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
 
-        // 新しいタイマーをセット
-        timerRef.current = window.setTimeout(() => {
-          setSaveMessage("");
-        }, SAVE_MESSAGE_TIMEOUT_MS);
-      });
+      // 新しいタイマーをセット
+      timerRef.current = window.setTimeout(() => {
+        setSaveMessage("");
+      }, SAVE_MESSAGE_TIMEOUT_MS);
     }
   };
 
