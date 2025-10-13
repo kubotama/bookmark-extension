@@ -387,10 +387,8 @@ describe("Popup", () => {
         ) => {
           if (keyContainsBookmarkUrl(keys)) {
             global.chrome.runtime.lastError = { message: errorMessage };
-            callback({});
-          } else {
-            callback({});
           }
+          callback({});
         }
       );
 
