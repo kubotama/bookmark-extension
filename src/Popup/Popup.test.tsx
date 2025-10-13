@@ -12,7 +12,10 @@ import {
 import { render, screen } from "@testing-library/react";
 import userEvent, { type UserEvent } from "@testing-library/user-event";
 
-import { API_BOOKMARK_ADD } from "../constants/constants";
+import {
+  API_BOOKMARK_ADD,
+  STORAGE_KEY_BOOKMARK_URL,
+} from "../constants/constants";
 import Popup from "./Popup";
 
 describe("Popup", () => {
@@ -31,9 +34,21 @@ describe("Popup", () => {
       },
       storage: {
         local: {
-          get: vi.fn((_keys, callback) => {
-            callback({});
-          }),
+          get: vi.fn(
+            (
+              keys: string | string[] | { [key: string]: unknown } | null,
+              callback: (items: { [key: string]: unknown }) => void
+            ) => {
+              if (
+                keys === STORAGE_KEY_BOOKMARK_URL ||
+                (Array.isArray(keys) && keys.includes(STORAGE_KEY_BOOKMARK_URL))
+              ) {
+                callback({});
+              } else {
+                callback({});
+              }
+            }
+          ),
         },
       },
       runtime: {
@@ -222,10 +237,17 @@ describe("Popup", () => {
       // storage.local.getのモック実装を上書きします。
       (global.chrome.storage.local.get as Mock).mockImplementation(
         (
-          _keys: string | string[] | { [key: string]: unknown } | null,
+          keys: string | string[] | { [key: string]: unknown } | null,
           callback: (items: { [key: string]: unknown }) => void
         ) => {
-          callback({ bookmarkUrl: customApiUrl });
+          if (
+            keys === STORAGE_KEY_BOOKMARK_URL ||
+            (Array.isArray(keys) && keys.includes(STORAGE_KEY_BOOKMARK_URL))
+          ) {
+            callback({ [STORAGE_KEY_BOOKMARK_URL]: customApiUrl });
+          } else {
+            callback({});
+          }
         }
       );
     });
@@ -353,11 +375,16 @@ describe("Popup", () => {
       const errorMessage = "storage.local.get failed";
       (global.chrome.storage.local.get as Mock).mockImplementation(
         (
-          _keys: string | string[] | { [key: string]: unknown } | null,
-          callback: (items: { [key: string]: unknown }) => void
+          keys: string | string[] | { [key: string]: unknown } | null,
+          callback: (items: { [key:string]: unknown }) => void
         ) => {
-          global.chrome.runtime.lastError = { message: errorMessage };
-          callback({});
+          if (
+            keys === STORAGE_KEY_BOOKMARK_URL ||
+            (Array.isArray(keys) && keys.includes(STORAGE_KEY_BOOKMARK_URL))
+          ) {
+            global.chrome.runtime.lastError = { message: errorMessage };
+            callback({});
+          }
         }
       );
 
