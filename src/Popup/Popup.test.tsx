@@ -9,12 +9,14 @@ import {
   vi,
 } from "vitest";
 
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
+import userEvent, { type UserEvent } from "@testing-library/user-event";
 
 import { API_BOOKMARK_ADD } from "../constants/constants";
 import Popup from "./Popup";
 
 describe("Popup", () => {
+  let user: UserEvent;
   // トップレベルに共通のモックセットアップを移動
   beforeEach(() => {
     // Mock chrome APIs
@@ -41,6 +43,7 @@ describe("Popup", () => {
     } as any;
 
     global.fetch = vi.fn();
+    user = userEvent.setup();
   });
 
   // vi.fn()でモック化したものは、afterEachでクリアするのが一般的です
@@ -51,13 +54,15 @@ describe("Popup", () => {
   it("renders correctly and displays the active tab URL", async () => {
     render(<Popup />);
 
-    await waitFor(() => {
-      expect(screen.getByRole("button", { name: "登録" })).toBeInTheDocument();
-      expect(screen.getByLabelText("url")).toHaveValue("https://example.com");
-      expect(screen.getByLabelText("title")).toHaveValue(
-        "サンプルのページのタイトル"
-      );
-    });
+    expect(
+      await screen.findByRole("button", { name: "登録" })
+    ).toBeInTheDocument();
+    expect(await screen.findByLabelText("url")).toHaveValue(
+      "https://example.com"
+    );
+    expect(await screen.findByLabelText("title")).toHaveValue(
+      "サンプルのページのタイトル"
+    );
   });
 
   it("アクティブなタブのURLの取得に失敗", async () => {
@@ -69,12 +74,10 @@ describe("Popup", () => {
 
     render(<Popup />);
 
-    await waitFor(() => {
-      expect(screen.getByText("登録")).toBeInTheDocument();
-      expect(screen.getByLabelText("url")).toHaveValue(
-        "URLの取得に失敗しました。"
-      );
-    });
+    expect(await screen.findByText("登録")).toBeInTheDocument();
+    expect(await screen.findByLabelText("url")).toHaveValue(
+      "URLの取得に失敗しました。"
+    );
   });
 
   it("アクティブなタブのタイトルの取得に失敗した場合、タイトルは空になり登録ボタンは無効になる", async () => {
@@ -86,12 +89,10 @@ describe("Popup", () => {
 
     render(<Popup />);
 
-    await waitFor(() => {
-      const registerButton = screen.getByRole("button", { name: "登録" });
-      expect(registerButton).toBeInTheDocument();
-      expect(registerButton).toBeDisabled();
-      expect(screen.getByLabelText("title")).toHaveValue("");
-    });
+    expect(await screen.findByLabelText("title")).toHaveValue("");
+    const registerButton = await screen.findByRole("button", { name: "登録" });
+    expect(registerButton).toBeInTheDocument();
+    expect(registerButton).toBeDisabled();
   });
 
   it("ブックマークを登録", async () => {
@@ -109,29 +110,27 @@ describe("Popup", () => {
 
     render(<Popup />);
 
-    const urlInput = screen.getByLabelText("url");
-    const titleInput = screen.getByLabelText("title");
+    const urlInput = await screen.findByLabelText("url");
+    const titleInput = await screen.findByLabelText("title");
 
-    fireEvent.change(urlInput, {
-      target: { value: "https://www.google.com/" },
-    });
-    fireEvent.change(titleInput, { target: { value: "Google" } });
+    await user.clear(urlInput);
+    await user.type(urlInput, "https://www.google.com/");
+    await user.clear(titleInput);
+    await user.type(titleInput, "Google");
 
-    const registerButton = screen.getByRole("button", { name: "登録" });
-    fireEvent.click(registerButton);
+    const registerButton = await screen.findByRole("button", { name: "登録" });
+    await user.click(registerButton);
 
-    await waitFor(() => {
-      expect(global.fetch).toBeCalledTimes(1);
-      expect(global.fetch).toBeCalledWith(API_BOOKMARK_ADD, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: '{"url":"https://www.google.com/","title":"Google"}',
-      });
-      expect(
-        screen.getByText("ブックマークが登録されました。")
-      ).toBeInTheDocument();
+    expect(
+      await screen.findByText("ブックマークが登録されました。")
+    ).toBeInTheDocument();
+    expect(global.fetch).toBeCalledTimes(1);
+    expect(global.fetch).toBeCalledWith(API_BOOKMARK_ADD, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: '{"url":"https://www.google.com/","title":"Google"}',
     });
   });
 
@@ -153,43 +152,40 @@ describe("Popup", () => {
 
     render(<Popup />);
 
-    const urlInput = screen.getByLabelText("url");
-    const titleInput = screen.getByLabelText("title");
+    const urlInput = await screen.findByLabelText("url");
+    const titleInput = await screen.findByLabelText("title");
 
-    fireEvent.change(urlInput, {
-      target: { value: "https://www.google.com/" },
-    });
-    fireEvent.change(titleInput, { target: { value: "Google" } });
+    await user.clear(urlInput);
+    await user.type(urlInput, "https://www.google.com/");
+    await user.clear(titleInput);
+    await user.type(titleInput, "Google");
 
-    const registerButton = screen.getByRole("button", { name: "登録" });
-    fireEvent.click(registerButton);
+    const registerButton = await screen.findByRole("button", { name: "登録" });
+    await user.click(registerButton);
 
-    await waitFor(() => {
-      expect(global.fetch).toBeCalledTimes(1);
-      expect(global.fetch).toBeCalledWith(API_BOOKMARK_ADD, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: '{"url":"https://www.google.com/","title":"Google"}',
-      });
-      expect(
-        screen.getByText(
-          "登録失敗: 指定されたURLのブックマークは既に登録されています。"
-        )
-      ).toBeInTheDocument();
+    expect(
+      await screen.findByText(
+        "登録失敗: 指定されたURLのブックマークは既に登録されています。"
+      )
+    ).toBeInTheDocument();
+    expect(global.fetch).toBeCalledTimes(1);
+    expect(global.fetch).toBeCalledWith(API_BOOKMARK_ADD, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: '{"url":"https://www.google.com/","title":"Google"}',
     });
   });
 
   it("無効なURLが入力された場合", async () => {
     render(<Popup />);
 
-    const urlInput = screen.getByLabelText("url");
+    const urlInput = await screen.findByLabelText("url");
+    await user.clear(urlInput);
+    await user.type(urlInput, "invalid-url");
 
-    fireEvent.change(urlInput, {
-      target: { value: "invalid-url" },
-    });
-    const registerButton = screen.getByRole("button", { name: "登録" });
+    const registerButton = await screen.findByRole("button", { name: "登録" });
     expect(registerButton).toBeDisabled();
   });
 
@@ -197,23 +193,21 @@ describe("Popup", () => {
     render(<Popup />);
 
     const registerButton = await screen.findByRole("button", { name: "登録" });
-    const titleInput = screen.getByLabelText("title");
+    const titleInput = await screen.findByLabelText("title");
 
     // Initially, with a valid title, the button is enabled.
-    await waitFor(() => {
-      expect(titleInput).toHaveValue("サンプルのページのタイトル");
-      expect(registerButton).toBeEnabled();
-    });
+    expect(titleInput).toHaveValue("サンプルのページのタイトル");
+    expect(registerButton).toBeEnabled();
 
     // Clear the title
-    fireEvent.change(titleInput, { target: { value: "" } });
+    await user.clear(titleInput);
 
     // Now, the button should be disabled
     expect(registerButton).toBeDisabled();
 
     // Verify no message is shown and no fetch is made, because the button is disabled
     // and the click handler that sets the message is not supposed to be called.
-    fireEvent.click(registerButton);
+    await user.click(registerButton);
     expect(
       screen.queryByText("登録できません: タイトルが指定されていません")
     ).not.toBeInTheDocument();
@@ -251,30 +245,30 @@ describe("Popup", () => {
 
       render(<Popup />);
 
-      const urlInput = screen.getByLabelText("url");
-      const titleInput = screen.getByLabelText("title");
+      const urlInput = await screen.findByLabelText("url");
+      const titleInput = await screen.findByLabelText("title");
 
-      fireEvent.change(urlInput, {
-        target: { value: "https://www.google.com/" },
+      await user.clear(urlInput);
+      await user.type(urlInput, "https://www.google.com/");
+      await user.clear(titleInput);
+      await user.type(titleInput, "Google");
+
+      const registerButton = await screen.findByRole("button", {
+        name: "登録",
       });
-      fireEvent.change(titleInput, { target: { value: "Google" } });
+      await user.click(registerButton);
 
-      const registerButton = screen.getByRole("button", { name: "登録" });
-      fireEvent.click(registerButton);
-
-      await waitFor(() => {
-        expect(global.fetch).toBeCalledTimes(1);
-        expect(global.fetch).toBeCalledWith(customApiUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: '{"url":"https://www.google.com/","title":"Google"}',
-        });
-        expect(
-          screen.getByText("ブックマークが登録されました。")
-        ).toBeInTheDocument();
+      expect(global.fetch).toBeCalledTimes(1);
+      expect(global.fetch).toBeCalledWith(customApiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: '{"url":"https://www.google.com/","title":"Google"}',
       });
+      expect(
+        await screen.findByText("ブックマークが登録されました。")
+      ).toBeInTheDocument();
     });
   });
 
@@ -287,15 +281,15 @@ describe("Popup", () => {
     });
 
     // フォームへの入力と登録ボタンのクリックを共通化
-    beforeEach(() => {
+    beforeEach(async () => {
       render(<Popup />);
-      const urlInput = screen.getByLabelText("url");
-      const titleInput = screen.getByLabelText("title");
+      const urlInput = await screen.findByLabelText("url");
+      const titleInput = await screen.findByLabelText("title");
 
-      fireEvent.change(urlInput, {
-        target: { value: "https://www.amazon.co.jp/" },
-      });
-      fireEvent.change(titleInput, { target: { value: "Amazon" } });
+      await user.clear(urlInput);
+      await user.type(urlInput, "https://www.amazon.co.jp/");
+      await user.clear(titleInput);
+      await user.type(titleInput, "Amazon");
     });
 
     afterEach(() => {
@@ -323,22 +317,22 @@ describe("Popup", () => {
       "$testName",
       async ({ mockFetch, expectedMessage, expectedConsoleError }) => {
         global.fetch = mockFetch;
-        const registerButton = screen.getByRole("button", { name: "登録" });
-        fireEvent.click(registerButton);
-
-        await waitFor(() => {
-          expect(global.fetch).toBeCalledTimes(1);
-          expect(global.fetch).toBeCalledWith(API_BOOKMARK_ADD, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: '{"url":"https://www.amazon.co.jp/","title":"Amazon"}',
-          });
-          expect(screen.getByText(expectedMessage)).toBeInTheDocument();
-          expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
-          expect(consoleErrorSpy).toHaveBeenCalledWith(expectedConsoleError);
+        const registerButton = await screen.findByRole("button", {
+          name: "登録",
         });
+        await user.click(registerButton);
+
+        expect(await screen.findByText(expectedMessage)).toBeInTheDocument();
+        expect(global.fetch).toBeCalledTimes(1);
+        expect(global.fetch).toBeCalledWith(API_BOOKMARK_ADD, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: '{"url":"https://www.amazon.co.jp/","title":"Amazon"}',
+        });
+        expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
+        expect(consoleErrorSpy).toHaveBeenCalledWith(expectedConsoleError);
       }
     );
   });
@@ -368,9 +362,7 @@ describe("Popup", () => {
 
       render(<Popup />);
 
-      await waitFor(() => {
-        expect(consoleErrorSpy).toHaveBeenCalledWith(errorMessage);
-      });
+      expect(consoleErrorSpy).toHaveBeenCalledWith(errorMessage);
     });
 
     it("chrome.tabs.queryでエラーが発生した場合", async () => {
@@ -384,15 +376,15 @@ describe("Popup", () => {
 
       render(<Popup />);
 
-      await waitFor(() => {
-        expect(consoleErrorSpy).toHaveBeenCalledWith(errorMessage);
-        expect(screen.getByLabelText("url")).toHaveValue(
-          "URLの取得に失敗しました。"
-        );
-        expect(screen.getByLabelText("title")).toHaveValue("");
-        const registerButton = screen.getByRole("button", { name: "登録" });
-        expect(registerButton).toBeDisabled();
+      expect(await screen.findByLabelText("title")).toHaveValue("");
+      expect(consoleErrorSpy).toHaveBeenCalledWith(errorMessage);
+      expect(await screen.findByLabelText("url")).toHaveValue(
+        "URLの取得に失敗しました。"
+      );
+      const registerButton = await screen.findByRole("button", {
+        name: "登録",
       });
+      expect(registerButton).toBeDisabled();
     });
   });
 });
