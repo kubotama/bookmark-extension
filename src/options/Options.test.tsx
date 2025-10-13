@@ -1,16 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import {
-  waitForElementToBeRemoved,
-  render,
-  screen,
-} from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import userEvent, { type UserEvent } from "@testing-library/user-event";
 
-import {
-  SAVE_MESSAGE_TIMEOUT_MS,
-  STORAGE_KEY_BOOKMARK_URL,
-} from "../constants/constants";
+import { STORAGE_KEY_BOOKMARK_URL } from "../constants/constants";
 import Options from "./Options";
 
 describe("Options", () => {
@@ -148,12 +141,9 @@ describe("Options", () => {
       // メッセージが表示されることを確認
       expect(await screen.findByText("保存しました！")).toBeInTheDocument();
 
-      await waitForElementToBeRemoved(
-        () => screen.queryByText("保存しました！"),
-        {
-          timeout: SAVE_MESSAGE_TIMEOUT_MS + 100,
-        }
-      );
+      await act(async () => {
+        await vi.runAllTimersAsync();
+      });
 
       // メッセージが消えることを確認
       expect(screen.queryByText("保存しました！")).not.toBeInTheDocument();
