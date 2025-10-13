@@ -36,17 +36,10 @@ describe("Popup", () => {
         local: {
           get: vi.fn(
             (
-              keys: string | string[] | { [key: string]: unknown } | null,
+              _keys: string | string[] | { [key: string]: unknown } | null,
               callback: (items: { [key: string]: unknown }) => void
             ) => {
-              if (
-                keys === STORAGE_KEY_BOOKMARK_URL ||
-                (Array.isArray(keys) && keys.includes(STORAGE_KEY_BOOKMARK_URL))
-              ) {
-                callback({});
-              } else {
-                callback({});
-              }
+              callback({});
             }
           ),
         },
@@ -376,7 +369,7 @@ describe("Popup", () => {
       (global.chrome.storage.local.get as Mock).mockImplementation(
         (
           keys: string | string[] | { [key: string]: unknown } | null,
-          callback: (items: { [key:string]: unknown }) => void
+          callback: (items: { [key: string]: unknown }) => void
         ) => {
           if (
             keys === STORAGE_KEY_BOOKMARK_URL ||
