@@ -17,7 +17,6 @@ import Popup from "./Popup";
 
 describe("Popup", () => {
   let user: UserEvent;
-  let fetchSpy: MockInstance;
   // トップレベルに共通のモックセットアップを移動
   beforeEach(() => {
     // Mock chrome APIs
@@ -43,13 +42,13 @@ describe("Popup", () => {
       // Mock other chrome APIs if needed
     });
 
-    fetchSpy = vi.spyOn(global, "fetch").mockImplementation(vi.fn());
+    vi.spyOn(global, "fetch").mockImplementation(vi.fn());
     user = userEvent.setup();
   });
 
   // vi.fn()でモック化したものは、afterEachでクリアするのが一般的です
   afterEach(() => {
-    fetchSpy.mockRestore();
+    vi.unstubAllGlobals();
   });
 
   it("renders correctly and displays the active tab URL", async () => {
