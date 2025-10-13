@@ -15,13 +15,6 @@ const Options = () => {
 
   // コンポーネントのマウント時にストレージからURLを読み込む
   useEffect(() => {
-    // const loadUrl = async () => {
-    //   const data = await chrome.storage.local.get(STORAGE_KEY_BOOKMARK_URL);
-    //   if (data.bookmarkUrl) {
-    //     setUrl(data.bookmarkUrl);
-    //   }
-    // };
-    // loadUrl();
     (async () => {
       const data = await chrome.storage.local.get(STORAGE_KEY_BOOKMARK_URL);
       if (data.bookmarkUrl) {
