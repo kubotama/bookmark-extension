@@ -111,6 +111,8 @@ describe("Options", () => {
   it("displays a save message and clears it after 3 seconds", async () => {
     vi.useFakeTimers();
     render(<Options />);
+    // findBy* を使用すると fakeTimer との競合でタイムアウトするため、getBy* を使用しています。
+    // 要素は同期的（非表示ではなく）にレンダリングされるため、getBy* で問題ありません。
     const input = screen.getByPlaceholderText(URL_PLACEHOLDER);
     const button = screen.getByRole("button", { name: SAVE_BUTTON_NAME });
     const newUrl = "https://example.com/new-url-for-message-test";
