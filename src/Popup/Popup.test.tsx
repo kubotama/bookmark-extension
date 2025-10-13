@@ -42,7 +42,7 @@ describe("Popup", () => {
       // Mock other chrome APIs if needed
     });
 
-    vi.spyOn(global, "fetch").mockImplementation(vi.fn());
+    vi.stubGlobal("fetch", vi.fn());
     user = userEvent.setup();
   });
 
