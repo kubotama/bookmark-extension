@@ -1,6 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { act, render, screen } from "@testing-library/react";
+import {
+  waitForElementToBeRemoved,
+  render,
+  screen,
+} from "@testing-library/react";
 import userEvent, { type UserEvent } from "@testing-library/user-event";
 
 import {
@@ -115,16 +119,20 @@ describe("Options", () => {
 
   describe("タイマーを使用するテスト", () => {
     beforeEach(() => {
-      user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-    });
-
-    it("displays a save message and clears it after 3 seconds", async () => {
-      user.setup({ advanceTimers: vi.advanceTimersByTime });
       vi.useFakeTimers();
+      // vitest v3では必要な設定 V4で不要になる見込み
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (globalThis as any).jest = {
         advanceTimersByTime: vi.advanceTimersByTime.bind(vi),
       };
+      user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it("displays a save message and clears it after 3 seconds", async () => {
       render(<Options />);
       const input = await screen.findByPlaceholderText(URL_PLACEHOLDER);
       const button = await screen.findByRole("button", {
@@ -140,15 +148,15 @@ describe("Options", () => {
       // メッセージが表示されることを確認
       expect(await screen.findByText("保存しました！")).toBeInTheDocument();
 
-      // 3秒経過させる
-      act(() => {
-        vi.advanceTimersByTime(SAVE_MESSAGE_TIMEOUT_MS);
-      });
+      await waitForElementToBeRemoved(
+        () => screen.queryByText("保存しました！"),
+        {
+          timeout: SAVE_MESSAGE_TIMEOUT_MS + 100,
+        }
+      );
 
       // メッセージが消えることを確認
       expect(screen.queryByText("保存しました！")).not.toBeInTheDocument();
-
-      vi.useRealTimers();
     });
   });
 });
