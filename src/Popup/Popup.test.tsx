@@ -4,7 +4,6 @@ import {
   describe,
   expect,
   it,
-  type Mock,
   type MockInstance,
   vi,
 } from "vitest";
@@ -91,11 +90,9 @@ describe("Popup", () => {
   });
 
   it("アクティブなタブのURLの取得に失敗", async () => {
-    (global.chrome.tabs.query as Mock).mockImplementation(
-      (_options, callback) => {
-        callback([]);
-      }
-    );
+    vi.mocked(chrome.tabs.query).mockImplementation((_options, callback) => {
+      callback([]);
+    });
 
     render(<Popup />);
 
@@ -106,11 +103,9 @@ describe("Popup", () => {
   });
 
   it("アクティブなタブのタイトルの取得に失敗した場合、タイトルは空になり登録ボタンは無効になる", async () => {
-    (global.chrome.tabs.query as Mock).mockImplementation(
-      (_options, callback) => {
-        callback([{ url: "https://example.com", title: undefined }]);
-      }
-    );
+    vi.mocked(chrome.tabs.query).mockImplementation((_options, callback) => {
+      callback([{ url: "https://example.com", title: undefined }]);
+    });
 
     render(<Popup />);
 
@@ -121,7 +116,7 @@ describe("Popup", () => {
   });
 
   it("ブックマークを登録", async () => {
-    (global.fetch as Mock).mockImplementation(
+    vi.mocked(fetch).mockImplementation(
       async () =>
         new Response(
           JSON.stringify({
@@ -149,8 +144,8 @@ describe("Popup", () => {
     expect(
       await screen.findByText("ブックマークが登録されました。")
     ).toBeInTheDocument();
-    expect(global.fetch).toBeCalledTimes(1);
-    expect(global.fetch).toBeCalledWith(API_BOOKMARK_ADD, {
+    expect(fetch).toBeCalledTimes(1);
+    expect(fetch).toBeCalledWith(API_BOOKMARK_ADD, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -160,7 +155,7 @@ describe("Popup", () => {
   });
 
   it("既に登録されているブックマークを登録しようとしてエラー", async () => {
-    (global.fetch as Mock).mockImplementation(
+    vi.mocked(fetch).mockImplementation(
       async () =>
         new Response(
           JSON.stringify({
@@ -193,8 +188,8 @@ describe("Popup", () => {
         "登録失敗: 指定されたURLのブックマークは既に登録されています。"
       )
     ).toBeInTheDocument();
-    expect(global.fetch).toBeCalledTimes(1);
-    expect(global.fetch).toBeCalledWith(API_BOOKMARK_ADD, {
+    expect(fetch).toBeCalledTimes(1);
+    expect(fetch).toBeCalledWith(API_BOOKMARK_ADD, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -236,7 +231,7 @@ describe("Popup", () => {
     expect(
       screen.queryByText("登録できません: タイトルが指定されていません")
     ).not.toBeInTheDocument();
-    expect(global.fetch).not.toBeCalled();
+    expect(fetch).not.toBeCalled();
   });
 
   describe("オプションページで設定したURLを利用する", () => {
@@ -245,7 +240,7 @@ describe("Popup", () => {
     beforeEach(() => {
       // global.chromeオブジェクト全体を再定義する代わりに、
       // storage.local.getのモック実装を上書きします。
-      (global.chrome.storage.local.get as Mock).mockImplementation(
+      vi.mocked(chrome.storage.local.get).mockImplementation(
         (
           keys: string | string[] | { [key: string]: unknown } | null,
           callback: (items: { [key: string]: unknown }) => void
@@ -260,7 +255,7 @@ describe("Popup", () => {
     });
 
     it("ブックマークを登録", async () => {
-      (global.fetch as Mock).mockImplementation(
+      vi.mocked(fetch).mockImplementation(
         async () =>
           new Response(
             JSON.stringify({
@@ -287,8 +282,8 @@ describe("Popup", () => {
       });
       await user.click(registerButton);
 
-      expect(global.fetch).toBeCalledTimes(1);
-      expect(global.fetch).toBeCalledWith(customApiUrl, {
+      expect(fetch).toBeCalledTimes(1);
+      expect(fetch).toBeCalledWith(customApiUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -345,7 +340,7 @@ describe("Popup", () => {
     ])(
       "$testName",
       async ({ mockFetch, expectedMessage, expectedConsoleError }) => {
-        (global.fetch as Mock).mockImplementation(mockFetch);
+        vi.mocked(fetch).mockImplementation(mockFetch);
 
         const registerButton = await screen.findByRole("button", {
           name: "登録",
@@ -353,8 +348,8 @@ describe("Popup", () => {
         await user.click(registerButton);
 
         expect(await screen.findByText(expectedMessage)).toBeInTheDocument();
-        expect(global.fetch).toBeCalledTimes(1);
-        expect(global.fetch).toBeCalledWith(API_BOOKMARK_ADD, {
+        expect(fetch).toBeCalledTimes(1);
+        expect(fetch).toBeCalledWith(API_BOOKMARK_ADD, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -380,7 +375,7 @@ describe("Popup", () => {
 
     it("chrome.storage.local.getでエラーが発生した場合", async () => {
       const errorMessage = "storage.local.get failed";
-      (global.chrome.storage.local.get as Mock).mockImplementation(
+      vi.mocked(chrome.storage.local.get).mockImplementation(
         (
           keys: string | string[] | { [key: string]: unknown } | null,
           callback: (items: { [key: string]: unknown }) => void
@@ -399,12 +394,10 @@ describe("Popup", () => {
 
     it("chrome.tabs.queryでエラーが発生した場合", async () => {
       const errorMessage = "tabs.query failed";
-      (global.chrome.tabs.query as Mock).mockImplementation(
-        (_options, callback) => {
-          global.chrome.runtime.lastError = { message: errorMessage };
-          callback([]);
-        }
-      );
+      vi.mocked(chrome.tabs.query).mockImplementation((_options, callback) => {
+        global.chrome.runtime.lastError = { message: errorMessage };
+        callback([]);
+      });
 
       render(<Popup />);
 
