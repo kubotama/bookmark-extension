@@ -407,6 +407,8 @@ describe("Popup", () => {
         if (expectedConsoleError) {
           expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
           expect(consoleErrorSpy).toHaveBeenCalledWith(expectedConsoleError);
+        } else {
+          expect(consoleErrorSpy).not.toHaveBeenCalled();
         }
       }
     );
