@@ -26,7 +26,10 @@ describe("Popup", () => {
       callback: (tabs: chrome.tabs.Tab[]) => void
     ) => {
       callback([
-        { url: "https://example.com", title: "サンプルのページのタイトル" } as chrome.tabs.Tab,
+        {
+          url: "https://example.com",
+          title: "サンプルのページのタイトル",
+        } as chrome.tabs.Tab,
       ]);
     }
   );
@@ -98,9 +101,14 @@ describe("Popup", () => {
   });
 
   it("アクティブなタブのURL取得に失敗した場合、エラーメッセージが表示される", async () => {
-    mockQuery.mockImplementation((_options: chrome.tabs.QueryInfo, callback: (tabs: chrome.tabs.Tab[]) => void) => {
-      callback([]);
-    });
+    mockQuery.mockImplementation(
+      (
+        _options: chrome.tabs.QueryInfo,
+        callback: (tabs: chrome.tabs.Tab[]) => void
+      ) => {
+        callback([]);
+      }
+    );
 
     render(<Popup />);
 
@@ -111,9 +119,16 @@ describe("Popup", () => {
   });
 
   it("アクティブなタブのタイトルの取得に失敗した場合、タイトルは空になり登録ボタンは無効になる", async () => {
-    mockQuery.mockImplementation((_options: chrome.tabs.QueryInfo, callback: (tabs: chrome.tabs.Tab[]) => void) => {
-      callback([{ url: "https://example.com", title: undefined } as chrome.tabs.Tab]);
-    });
+    mockQuery.mockImplementation(
+      (
+        _options: chrome.tabs.QueryInfo,
+        callback: (tabs: chrome.tabs.Tab[]) => void
+      ) => {
+        callback([
+          { url: "https://example.com", title: undefined } as chrome.tabs.Tab,
+        ]);
+      }
+    );
 
     render(<Popup />);
 
@@ -246,7 +261,8 @@ describe("Popup", () => {
     const customApiUrl = "https://custom-api.example.com/bookmarks";
 
     beforeEach(() => {
-            mockStorageGet.mockImplementation(        (
+      mockStorageGet.mockImplementation(
+        (
           keys: string | string[] | { [key: string]: unknown } | null,
           callback: (items: { [key: string]: unknown }) => void
         ) => {
@@ -341,6 +357,19 @@ describe("Popup", () => {
         expectedConsoleError:
           "ブックマークの登録に失敗しました。ステータス: 500: Unexpected token 'i', \"invalid json\" is not valid JSON",
       },
+      {
+        testName: "エラーレスポンスのJSONにmessageプロパティがない場合",
+        mockFetch: () =>
+          Promise.resolve(
+            new Response(JSON.stringify({}), {
+              status: 400,
+              statusText: "Bad Request",
+            })
+          ),
+        expectedMessage: "登録失敗: Bad Request",
+        // このケースではconsole.errorは呼ばれない
+        expectedConsoleError: undefined,
+      },
     ])(
       "$testName",
       async ({ mockFetch, expectedMessage, expectedConsoleError }) => {
@@ -360,8 +389,10 @@ describe("Popup", () => {
           },
           body: '{"url":"https://www.amazon.co.jp/","title":"Amazon"}',
         });
-        expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
-        expect(consoleErrorSpy).toHaveBeenCalledWith(expectedConsoleError);
+        if (expectedConsoleError) {
+          expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
+          expect(consoleErrorSpy).toHaveBeenCalledWith(expectedConsoleError);
+        }
       }
     );
   });
@@ -398,10 +429,15 @@ describe("Popup", () => {
 
     it("chrome.tabs.queryでエラーが発生した場合", async () => {
       const errorMessage = "tabs.query failed";
-      mockQuery.mockImplementation((_options: chrome.tabs.QueryInfo, callback: (tabs: chrome.tabs.Tab[]) => void) => {
-        chrome.runtime.lastError = { message: errorMessage };
-        callback([]);
-      });
+      mockQuery.mockImplementation(
+        (
+          _options: chrome.tabs.QueryInfo,
+          callback: (tabs: chrome.tabs.Tab[]) => void
+        ) => {
+          chrome.runtime.lastError = { message: errorMessage };
+          callback([]);
+        }
+      );
 
       render(<Popup />);
 
