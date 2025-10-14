@@ -20,42 +20,49 @@ import Popup from "./Popup";
 
 describe("Popup", () => {
   let user: UserEvent;
+  const mockQuery = vi.fn(
+    (
+      _options: chrome.tabs.QueryInfo,
+      callback: (tabs: chrome.tabs.Tab[]) => void
+    ) => {
+      callback([
+        { url: "https://example.com", title: "サンプルのページのタイトル" } as chrome.tabs.Tab,
+      ]);
+    }
+  );
+  const mockStorageGet = vi.fn(
+    (
+      _keys: string | string[] | { [key: string]: unknown } | null,
+      callback: (items: { [key: string]: unknown }) => void
+    ) => {
+      callback({});
+    }
+  );
+
   // トップレベルに共通のモックセットアップを移動
   beforeEach(() => {
     // Mock chrome APIs
     vi.clearAllMocks();
     vi.stubGlobal("chrome", {
       tabs: {
-        query: vi.fn((_options, callback) => {
-          callback([
-            { url: "https://example.com", title: "サンプルのページのタイトル" },
-          ]);
-        }),
+        query: mockQuery,
       },
       storage: {
         local: {
-          get: vi.fn(
-            (
-              _keys: string | string[] | { [key: string]: unknown } | null,
-              callback: (items: { [key: string]: unknown }) => void
-            ) => {
-              callback({});
-            }
-          ),
+          get: mockStorageGet,
         },
       },
       runtime: {
         lastError: undefined,
       },
-      // Mock other chrome APIs if needed
     });
-
     vi.stubGlobal("fetch", vi.fn());
     user = userEvent.setup();
   });
 
   // vi.fn()でモック化したものは、afterEachでクリアするのが一般的です
   afterEach(() => {
+    vi.restoreAllMocks();
     vi.unstubAllGlobals();
   });
 
@@ -91,11 +98,9 @@ describe("Popup", () => {
   });
 
   it("アクティブなタブのURL取得に失敗した場合、エラーメッセージが表示される", async () => {
-    (global.chrome.tabs.query as Mock).mockImplementation(
-      (_options, callback) => {
-        callback([]);
-      }
-    );
+    mockQuery.mockImplementation((_options: chrome.tabs.QueryInfo, callback: (tabs: chrome.tabs.Tab[]) => void) => {
+      callback([]);
+    });
 
     render(<Popup />);
 
@@ -106,11 +111,9 @@ describe("Popup", () => {
   });
 
   it("アクティブなタブのタイトルの取得に失敗した場合、タイトルは空になり登録ボタンは無効になる", async () => {
-    (global.chrome.tabs.query as Mock).mockImplementation(
-      (_options, callback) => {
-        callback([{ url: "https://example.com", title: undefined }]);
-      }
-    );
+    mockQuery.mockImplementation((_options: chrome.tabs.QueryInfo, callback: (tabs: chrome.tabs.Tab[]) => void) => {
+      callback([{ url: "https://example.com", title: undefined } as chrome.tabs.Tab]);
+    });
 
     render(<Popup />);
 
@@ -243,10 +246,7 @@ describe("Popup", () => {
     const customApiUrl = "https://custom-api.example.com/bookmarks";
 
     beforeEach(() => {
-      // global.chromeオブジェクト全体を再定義する代わりに、
-      // storage.local.getのモック実装を上書きします。
-      (global.chrome.storage.local.get as Mock).mockImplementation(
-        (
+            mockStorageGet.mockImplementation(        (
           keys: string | string[] | { [key: string]: unknown } | null,
           callback: (items: { [key: string]: unknown }) => void
         ) => {
@@ -328,15 +328,14 @@ describe("Popup", () => {
     it.each([
       {
         testName: "APIリクエストで例外が発生",
-        mockFetch: vi.fn().mockRejectedValue(new Error("APIエラー")),
+        mockFetch: () => Promise.reject(new Error("APIエラー")),
         expectedMessage: "Error: APIエラー",
         expectedConsoleError: new Error("APIエラー"),
       },
       {
         testName: "エラーのレスポンスがJSON形式でないエラー",
-        mockFetch: vi
-          .fn()
-          .mockResolvedValue(new Response("invalid json", { status: 500 })),
+        mockFetch: () =>
+          Promise.resolve(new Response("invalid json", { status: 500 })),
         expectedMessage:
           "ブックマークの登録に失敗しました。ステータス: 500: Unexpected token 'i', \"invalid json\" is not valid JSON",
         expectedConsoleError:
@@ -380,13 +379,13 @@ describe("Popup", () => {
 
     it("chrome.storage.local.getでエラーが発生した場合", async () => {
       const errorMessage = "storage.local.get failed";
-      (global.chrome.storage.local.get as Mock).mockImplementation(
+      mockStorageGet.mockImplementation(
         (
           keys: string | string[] | { [key: string]: unknown } | null,
           callback: (items: { [key: string]: unknown }) => void
         ) => {
           if (keyContainsBookmarkUrl(keys)) {
-            global.chrome.runtime.lastError = { message: errorMessage };
+            chrome.runtime.lastError = { message: errorMessage };
           }
           callback({});
         }
@@ -399,12 +398,10 @@ describe("Popup", () => {
 
     it("chrome.tabs.queryでエラーが発生した場合", async () => {
       const errorMessage = "tabs.query failed";
-      (global.chrome.tabs.query as Mock).mockImplementation(
-        (_options, callback) => {
-          global.chrome.runtime.lastError = { message: errorMessage };
-          callback([]);
-        }
-      );
+      mockQuery.mockImplementation((_options: chrome.tabs.QueryInfo, callback: (tabs: chrome.tabs.Tab[]) => void) => {
+        chrome.runtime.lastError = { message: errorMessage };
+        callback([]);
+      });
 
       render(<Popup />);
 
