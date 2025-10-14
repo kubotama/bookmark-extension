@@ -83,7 +83,6 @@ describe("Popup", () => {
   // vi.fn()でモック化したものは、afterEachでクリアするのが一般的です
   afterEach(() => {
     vi.restoreAllMocks();
-    vi.unstubAllGlobals();
   });
 
   const keyContainsBookmarkUrl = (

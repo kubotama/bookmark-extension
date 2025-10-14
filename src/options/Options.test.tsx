@@ -25,13 +25,14 @@ describe("Options", () => {
         },
       },
     });
-    mockGet.mockResolvedValue({ [STORAGE_KEY_BOOKMARK_URL]: "https://example.com/saved" });
+    mockGet.mockResolvedValue({
+      [STORAGE_KEY_BOOKMARK_URL]: "https://example.com/saved",
+    });
     mockSet.mockResolvedValue(undefined);
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
-    vi.unstubAllGlobals();
   });
 
   describe("タイマーを使用しないテスト", () => {
