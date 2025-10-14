@@ -40,27 +40,30 @@ const createMockTab = (
 
 describe("Popup", () => {
   let user: UserEvent;
-  const mockQuery = vi.fn(
-    (
-      _options: chrome.tabs.QueryInfo,
-      callback: (tabs: chrome.tabs.Tab[]) => void
-    ) => {
-      callback([
-        createMockTab("https://example.com", "サンプルのページのタイトル"),
-      ]);
-    }
-  );
-  const mockStorageGet = vi.fn(
-    (
-      _keys: string | string[] | { [key: string]: unknown } | null,
-      callback: (items: { [key: string]: unknown }) => void
-    ) => {
-      callback({});
-    }
-  );
+  let mockQuery: Mock;
+  let mockStorageGet: Mock;
 
   // トップレベルに共通のモックセットアップを移動
   beforeEach(() => {
+    mockQuery = vi.fn(
+      (
+        _options: chrome.tabs.QueryInfo,
+        callback: (tabs: chrome.tabs.Tab[]) => void
+      ) => {
+        callback([
+          createMockTab("https://example.com", "サンプルのページのタイトル"),
+        ]);
+      }
+    );
+    mockStorageGet = vi.fn(
+      (
+        _keys: string | string[] | { [key: string]: unknown } | null,
+        callback: (items: { [key: string]: unknown }) => void
+      ) => {
+        callback({});
+      }
+    );
+
     // Mock chrome APIs
     vi.clearAllMocks();
     vi.stubGlobal("chrome", {
