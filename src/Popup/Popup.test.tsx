@@ -18,6 +18,26 @@ import {
 } from "../constants/constants";
 import Popup from "./Popup";
 
+const createMockTab = (
+  url: string,
+  title: string | undefined
+): chrome.tabs.Tab => ({
+  id: 1,
+  index: 0,
+  windowId: 1,
+  highlighted: true,
+  active: true,
+  pinned: false,
+  discarded: false,
+  autoDiscardable: true,
+  incognito: false,
+  url,
+  title,
+  frozen: false,
+  selected: false,
+  groupId: 0,
+});
+
 describe("Popup", () => {
   let user: UserEvent;
   const mockQuery = vi.fn(
@@ -26,10 +46,7 @@ describe("Popup", () => {
       callback: (tabs: chrome.tabs.Tab[]) => void
     ) => {
       callback([
-        {
-          url: "https://example.com",
-          title: "サンプルのページのタイトル",
-        } as chrome.tabs.Tab,
+        createMockTab("https://example.com", "サンプルのページのタイトル"),
       ]);
     }
   );
@@ -124,9 +141,7 @@ describe("Popup", () => {
         _options: chrome.tabs.QueryInfo,
         callback: (tabs: chrome.tabs.Tab[]) => void
       ) => {
-        callback([
-          { url: "https://example.com", title: undefined } as chrome.tabs.Tab,
-        ]);
+        callback([createMockTab("https://example.com", undefined)]);
       }
     );
 
