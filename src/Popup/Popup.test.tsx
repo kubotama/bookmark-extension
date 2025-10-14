@@ -76,7 +76,7 @@ describe("Popup", () => {
     return false;
   };
 
-  it("renders correctly and displays the active tab URL", async () => {
+  it("初期表示時にアクティブタブのURLとタイトルが正しく表示される", async () => {
     render(<Popup />);
 
     expect(
@@ -90,7 +90,7 @@ describe("Popup", () => {
     );
   });
 
-  it("アクティブなタブのURLの取得に失敗", async () => {
+  it("アクティブなタブのURL取得に失敗した場合、エラーメッセージが表示される", async () => {
     (global.chrome.tabs.query as Mock).mockImplementation(
       (_options, callback) => {
         callback([]);
@@ -120,7 +120,7 @@ describe("Popup", () => {
     expect(registerButton).toBeDisabled();
   });
 
-  it("ブックマークを登録", async () => {
+  it("フォームに入力した内容でブックマークを登録する", async () => {
     (global.fetch as Mock).mockImplementation(
       async () =>
         new Response(
@@ -159,7 +159,7 @@ describe("Popup", () => {
     });
   });
 
-  it("既に登録されているブックマークを登録しようとしてエラー", async () => {
+  it("既に登録済みのブックマークを登録しようとした場合にエラーメッセージが表示される", async () => {
     (global.fetch as Mock).mockImplementation(
       async () =>
         new Response(
@@ -203,7 +203,7 @@ describe("Popup", () => {
     });
   });
 
-  it("無効なURLが入力された場合", async () => {
+  it("無効なURLが入力された場合、登録ボタンは無効になる", async () => {
     render(<Popup />);
 
     const urlInput = await screen.findByLabelText("url");
@@ -259,7 +259,7 @@ describe("Popup", () => {
       );
     });
 
-    it("ブックマークを登録", async () => {
+    it("オプションページで設定したURLでブックマークを登録する", async () => {
       (global.fetch as Mock).mockImplementation(
         async () =>
           new Response(
