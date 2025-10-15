@@ -101,7 +101,7 @@ const Popup = () => {
         console.error(error);
       } else {
         setMessageText(`予期せぬエラーが発生しました: ${String(error)}`);
-        console.error("An unexpected error occurred:", error);
+        console.error("予期せぬエラーが発生しました:", error);
       }
     }
   };
