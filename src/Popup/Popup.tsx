@@ -18,38 +18,44 @@ const Popup = () => {
   useEffect(() => {
     let isMounted = true;
     const initialize = async () => {
-      try {
-        const data = await chrome.storage.local.get("bookmarkUrl");
-        if (data.bookmarkUrl) {
-          setApiUrl(data.bookmarkUrl);
-        }
-      } catch (e) {
-        if (e instanceof Error) {
-          console.error(e.message);
-        }
-      } finally {
-        if (isMounted) setIsApiUrlLoaded(true);
-      }
+      const [storageResult, tabsResult] = await Promise.allSettled([
+        chrome.storage.local.get("bookmarkUrl"),
+        chrome.tabs.query({ active: true, currentWindow: true }),
+      ]);
 
-      try {
-        const tabs = await chrome.tabs.query({
-          active: true,
-          currentWindow: true,
-        });
-        const tab = tabs?.[0];
-        if (!tab?.url) {
-          throw new Error("アクティブなタブまたはURLが見つかりませんでした。");
-        }
-        if (isMounted) {
+      if (!isMounted) return;
+
+      // API URLの読み込み結果を処理
+      if (
+        storageResult.status === "fulfilled" &&
+        storageResult.value.bookmarkUrl
+      ) {
+        setApiUrl(storageResult.value.bookmarkUrl);
+      } else if (
+        storageResult.status === "rejected" &&
+        storageResult.reason instanceof Error
+      ) {
+        console.error(storageResult.reason.message);
+      }
+      setIsApiUrlLoaded(true);
+
+      // タブ情報の読み込み結果を処理
+      if (tabsResult.status === "fulfilled") {
+        const tab = tabsResult.value?.[0];
+        if (tab?.url) {
           setActiveTabUrl(tab.url);
           setActiveTabTitle(tab.title || "");
-        }
-      } catch (e) {
-        if (isMounted) {
+        } else {
+          console.error("アクティブなタブまたはURLが見つかりませんでした。");
           setActiveTabUrl("URLの取得に失敗しました。");
           setActiveTabTitle("");
         }
-        if (e instanceof Error) console.error(e.message);
+      } else if (tabsResult.status === "rejected") {
+        if (tabsResult.reason instanceof Error) {
+          console.error(tabsResult.reason.message);
+        }
+        setActiveTabUrl("URLの取得に失敗しました。");
+        setActiveTabTitle("");
       }
     };
     initialize();
