@@ -1,13 +1,13 @@
 {
   "name": "bookmark-extension",
   "private": true,
-  "version": "1.6.6",
+  "version": "1.6.7",
   "type": "module",
   "scripts": {
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "test": "vitest run",
-    "test:coverage": "vitest --coverage"
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "react": "^19.1.0",
