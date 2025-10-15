@@ -147,5 +147,36 @@ describe("Options", () => {
       // メッセージが消えることを確認
       expect(screen.queryByText("保存しました！")).not.toBeInTheDocument();
     });
+
+    it("resets the timer when the save button is clicked multiple times", async () => {
+      render(<Options />);
+      const input = await screen.findByPlaceholderText(URL_PLACEHOLDER);
+      const button = await screen.findByRole("button", {
+        name: SAVE_BUTTON_NAME,
+      });
+      const newUrl = "https://example.com/multiple-clicks-test";
+
+      await user.clear(input);
+      await user.type(input, newUrl);
+
+      // 1回目のクリック
+      await user.click(button);
+
+      // メッセージが表示されることを確認
+      expect(await screen.findByText("保存しました！")).toBeInTheDocument();
+
+      // 2回目のクリック
+      await user.click(button);
+
+      // メッセージがまだ表示されていることを確認
+      expect(await screen.findByText("保存しました！")).toBeInTheDocument();
+
+      // タイマーを進めてメッセージが消えることを確認
+      await act(async () => {
+        await vi.runAllTimersAsync();
+      });
+
+      expect(screen.queryByText("保存しました！")).not.toBeInTheDocument();
+    });
   });
 });
