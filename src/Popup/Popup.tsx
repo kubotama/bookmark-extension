@@ -2,67 +2,20 @@
 
 import "./Popup.css";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-import { API_BOOKMARK_ADD } from "../constants/constants";
+import { useActiveTabInfo } from "../hooks/useActiveTabInfo";
+import { useApiUrl } from "../hooks/useApiUrl";
 
 const Popup = () => {
-  const [activeTabUrl, setActiveTabUrl] = useState<string>("URLの取得中...");
-  const [activeTabTitle, setActiveTabTitle] =
-    useState<string>("タイトルの取得中...");
-
+  const {
+    url: activeTabUrl,
+    setUrl: setActiveTabUrl,
+    title: activeTabTitle,
+    setTitle: setActiveTabTitle,
+  } = useActiveTabInfo();
+  const { apiUrl, isApiUrlLoaded } = useApiUrl();
   const [messageText, setMessageText] = useState<string | undefined>(undefined);
-  const [apiUrl, setApiUrl] = useState<string>(API_BOOKMARK_ADD);
-  const [isApiUrlLoaded, setIsApiUrlLoaded] = useState<boolean>(false);
-
-  useEffect(() => {
-    let isMounted = true;
-    const initialize = async () => {
-      const [storageResult, tabsResult] = await Promise.allSettled([
-        chrome.storage.local.get("bookmarkUrl"),
-        chrome.tabs.query({ active: true, currentWindow: true }),
-      ]);
-
-      if (!isMounted) return;
-
-      // API URLの読み込み結果を処理
-      if (
-        storageResult.status === "fulfilled" &&
-        storageResult.value.bookmarkUrl
-      ) {
-        setApiUrl(storageResult.value.bookmarkUrl);
-      } else if (
-        storageResult.status === "rejected" &&
-        storageResult.reason instanceof Error
-      ) {
-        console.error(storageResult.reason.message);
-      }
-      setIsApiUrlLoaded(true);
-
-      // タブ情報の読み込み結果を処理
-      if (tabsResult.status === "fulfilled") {
-        const tab = tabsResult.value?.[0];
-        if (tab?.url) {
-          setActiveTabUrl(tab.url);
-          setActiveTabTitle(tab.title || "");
-        } else {
-          console.error("アクティブなタブまたはURLが見つかりませんでした。");
-          setActiveTabUrl("URLの取得に失敗しました。");
-          setActiveTabTitle("");
-        }
-      } else if (tabsResult.status === "rejected") {
-        if (tabsResult.reason instanceof Error) {
-          console.error(tabsResult.reason.message);
-        }
-        setActiveTabUrl("URLの取得に失敗しました。");
-        setActiveTabTitle("");
-      }
-    };
-    initialize();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   const registerClick = async () => {
     const bookmark = {
