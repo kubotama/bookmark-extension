@@ -45,9 +45,11 @@ describe("Popup", () => {
 
   // トップレベルに共通のモックセットアップを移動
   beforeEach(() => {
-    mockQuery = vi.fn().mockResolvedValue([
-      createMockTab("https://example.com", "サンプルのページのタイトル"),
-    ]);
+    mockQuery = vi
+      .fn()
+      .mockResolvedValue([
+        createMockTab("https://example.com", "サンプルのページのタイトル"),
+      ]);
     mockStorageGet = vi.fn().mockResolvedValue({});
 
     // Mock chrome APIs
@@ -117,7 +119,9 @@ describe("Popup", () => {
   });
 
   it("アクティブなタブのタイトルの取得に失敗した場合、タイトルは空になり登録ボタンは無効になる", async () => {
-    mockQuery.mockResolvedValue([createMockTab("https://example.com", undefined)]);
+    mockQuery.mockResolvedValue([
+      createMockTab("https://example.com", undefined),
+    ]);
 
     render(<Popup />);
 
@@ -336,10 +340,13 @@ describe("Popup", () => {
         testName: "エラーのレスポンスがJSON形式でないエラー",
         mockFetch: () =>
           Promise.resolve(new Response("invalid json", { status: 500 })),
-        expectedMessage:
-          "ブックマークの登録に失敗しました。ステータス: 500: Unexpected token 'i', \"invalid json\" is not valid JSON",
-        expectedConsoleError:
-          "ブックマークの登録に失敗しました。ステータス: 500: Unexpected token 'i', \"invalid json\" is not valid JSON",
+        expectedMessage: "ブックマークの登録に失敗しました。ステータス: 500",
+        expectedConsoleError: [
+          "ブックマークの登録に失敗しました。ステータス: 500:",
+          new SyntaxError(
+            "Unexpected token 'i', \"invalid json\" is not valid JSON"
+          ),
+        ],
       },
       {
         testName: "エラーレスポンスのJSONにmessageプロパティがない場合",
@@ -375,7 +382,13 @@ describe("Popup", () => {
         });
         if (expectedConsoleError) {
           expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
-          expect(consoleErrorSpy).toHaveBeenCalledWith(expectedConsoleError);
+          if (Array.isArray(expectedConsoleError)) {
+            expect(consoleErrorSpy).toHaveBeenCalledWith(
+              ...expectedConsoleError
+            );
+          } else {
+            expect(consoleErrorSpy).toHaveBeenCalledWith(expectedConsoleError);
+          }
         } else {
           expect(consoleErrorSpy).not.toHaveBeenCalled();
         }

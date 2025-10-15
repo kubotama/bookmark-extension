@@ -88,11 +88,9 @@ const Popup = () => {
             `登録失敗: ${errorData.message || response.statusText}`
           );
         } catch (error) {
-          const errorMessage = `ブックマークの登録に失敗しました。ステータス: ${
-            response.status
-          }: ${error instanceof Error ? error.message : String(error)}`;
+          const errorMessage = `ブックマークの登録に失敗しました。ステータス: ${response.status}`;
           setMessageText(errorMessage);
-          console.error(errorMessage);
+          console.error(`${errorMessage}:`, error);
         }
       }
     } catch (error) {
