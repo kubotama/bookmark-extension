@@ -1,6 +1,7 @@
 /// <reference types="vitest" />
 
 import { defineConfig } from "vite";
+import { configDefaults } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import path from "path";
 
@@ -30,5 +31,14 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: "./src/test/setup.ts", // Setup file (optional)
     css: true, // if you want to test components with CSS
+    coverage: {
+      provider: "v8",
+      exclude: [
+        ...configDefaults.exclude,
+        "src/Popup/main.tsx",
+        "src/options/main.tsx",
+        "src/vite-env.d.ts",
+      ],
+    },
   },
 });
