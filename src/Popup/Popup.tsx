@@ -64,47 +64,46 @@ const Popup = () => {
     };
   }, []);
 
-  const registerClick = () => {
+  const registerClick = async () => {
     const bookmark = {
       url: activeTabUrl,
       title: activeTabTitle,
     };
 
-    fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(bookmark),
-    })
-      .then(async (response) => {
-        // asyncキーワードを追加
-        if (response.ok) {
-          setMessageText("ブックマークが登録されました。");
-        } else {
-          try {
-            const errorData = await response.json(); // エラーレスポンスをJSONとしてパース
-            setMessageText(
-              `登録失敗: ${errorData.message || response.statusText}`
-            );
-          } catch (error) {
-            setMessageText(
-              `ブックマークの登録に失敗しました。ステータス: ${
-                response.status
-              }: ${error instanceof Error ? error.message : String(error)}`
-            );
-            console.error(
-              `ブックマークの登録に失敗しました。ステータス: ${
-                response.status
-              }: ${error instanceof Error ? error.message : String(error)}`
-            );
-          }
+    try {
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(bookmark),
+      });
+
+      if (response.ok) {
+        setMessageText("ブックマークが登録されました。");
+      } else {
+        try {
+          const errorData = await response.json();
+          setMessageText(
+            `登録失敗: ${errorData.message || response.statusText}`
+          );
+        } catch (error) {
+          const errorMessage = `ブックマークの登録に失敗しました。ステータス: ${
+            response.status
+          }: ${error instanceof Error ? error.message : String(error)}`;
+          setMessageText(errorMessage);
+          console.error(errorMessage);
         }
-      })
-      .catch((error) => {
+      }
+    } catch (error) {
+      if (error instanceof Error) {
         setMessageText(`${error.name}: ${error.message}`);
         console.error(error);
-      });
+      } else {
+        setMessageText(`予期せぬエラーが発生しました: ${String(error)}`);
+        console.error("An unexpected error occurred:", error);
+      }
+    }
   };
 
   const isValidUrl = (url: string): boolean => {
