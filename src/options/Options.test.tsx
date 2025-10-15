@@ -3,7 +3,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, render, screen } from "@testing-library/react";
 import userEvent, { type UserEvent } from "@testing-library/user-event";
 
-import { STORAGE_KEY_BOOKMARK_URL } from "../constants/constants";
+import {
+  SAVE_MESSAGE_TIMEOUT_MS,
+  STORAGE_KEY_BOOKMARK_URL,
+} from "../constants/constants";
 import Options from "./Options";
 
 describe("Options", () => {
@@ -149,7 +152,7 @@ describe("Options", () => {
     });
 
     it("should reset the message timer when the save button is clicked again before the message disappears", async () => {
-      const MESSAGE_TIMEOUT = 3000;
+      const MESSAGE_TIMEOUT = SAVE_MESSAGE_TIMEOUT_MS;
       const HALF_TIMEOUT = MESSAGE_TIMEOUT / 2;
       render(<Options />);
       const input = await screen.findByPlaceholderText(URL_PLACEHOLDER);
