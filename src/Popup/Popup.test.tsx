@@ -9,7 +9,7 @@ import {
   vi,
 } from "vitest";
 
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent, { type UserEvent } from "@testing-library/user-event";
 
 import {
@@ -45,24 +45,10 @@ describe("Popup", () => {
 
   // トップレベルに共通のモックセットアップを移動
   beforeEach(() => {
-    mockQuery = vi.fn(
-      (
-        _options: chrome.tabs.QueryInfo,
-        callback: (tabs: chrome.tabs.Tab[]) => void
-      ) => {
-        callback([
-          createMockTab("https://example.com", "サンプルのページのタイトル"),
-        ]);
-      }
-    );
-    mockStorageGet = vi.fn(
-      (
-        _keys: string | string[] | { [key: string]: unknown } | null,
-        callback: (items: { [key: string]: unknown }) => void
-      ) => {
-        callback({});
-      }
-    );
+    mockQuery = vi.fn().mockResolvedValue([
+      createMockTab("https://example.com", "サンプルのページのタイトル"),
+    ]);
+    mockStorageGet = vi.fn().mockResolvedValue({});
 
     // Mock chrome APIs
     vi.clearAllMocks();
@@ -120,14 +106,7 @@ describe("Popup", () => {
   });
 
   it("アクティブなタブのURL取得に失敗した場合、エラーメッセージが表示される", async () => {
-    mockQuery.mockImplementation(
-      (
-        _options: chrome.tabs.QueryInfo,
-        callback: (tabs: chrome.tabs.Tab[]) => void
-      ) => {
-        callback([]);
-      }
-    );
+    mockQuery.mockResolvedValue([]);
 
     render(<Popup />);
 
@@ -138,14 +117,7 @@ describe("Popup", () => {
   });
 
   it("アクティブなタブのタイトルの取得に失敗した場合、タイトルは空になり登録ボタンは無効になる", async () => {
-    mockQuery.mockImplementation(
-      (
-        _options: chrome.tabs.QueryInfo,
-        callback: (tabs: chrome.tabs.Tab[]) => void
-      ) => {
-        callback([createMockTab("https://example.com", undefined)]);
-      }
-    );
+    mockQuery.mockResolvedValue([createMockTab("https://example.com", undefined)]);
 
     render(<Popup />);
 
@@ -278,18 +250,13 @@ describe("Popup", () => {
     const customApiUrl = "https://custom-api.example.com/bookmarks";
 
     beforeEach(() => {
-      mockStorageGet.mockImplementation(
-        (
-          keys: string | string[] | { [key: string]: unknown } | null,
-          callback: (items: { [key: string]: unknown }) => void
-        ) => {
-          if (keyContainsBookmarkUrl(keys)) {
-            callback({ [STORAGE_KEY_BOOKMARK_URL]: customApiUrl });
-          } else {
-            callback({});
-          }
+      mockStorageGet.mockImplementation((keys) => {
+        if (keyContainsBookmarkUrl(keys)) {
+          return Promise.resolve({ [STORAGE_KEY_BOOKMARK_URL]: customApiUrl });
+        } else {
+          return Promise.resolve({});
         }
-      );
+      });
     });
 
     it("オプションページで設定したURLでブックマークを登録する", async () => {
@@ -429,34 +396,18 @@ describe("Popup", () => {
 
     it("chrome.storage.local.getでエラーが発生した場合", async () => {
       const errorMessage = "storage.local.get failed";
-      mockStorageGet.mockImplementation(
-        (
-          keys: string | string[] | { [key: string]: unknown } | null,
-          callback: (items: { [key: string]: unknown }) => void
-        ) => {
-          if (keyContainsBookmarkUrl(keys)) {
-            chrome.runtime.lastError = { message: errorMessage };
-          }
-          callback({});
-        }
-      );
+      mockStorageGet.mockRejectedValue(new Error(errorMessage));
 
       render(<Popup />);
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith(errorMessage);
+      await waitFor(() => {
+        expect(consoleErrorSpy).toHaveBeenCalledWith(errorMessage);
+      });
     });
 
     it("chrome.tabs.queryでエラーが発生した場合", async () => {
       const errorMessage = "tabs.query failed";
-      mockQuery.mockImplementation(
-        (
-          _options: chrome.tabs.QueryInfo,
-          callback: (tabs: chrome.tabs.Tab[]) => void
-        ) => {
-          chrome.runtime.lastError = { message: errorMessage };
-          callback([]);
-        }
-      );
+      mockQuery.mockRejectedValue(new Error(errorMessage));
 
       render(<Popup />);
 

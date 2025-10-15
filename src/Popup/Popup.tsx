@@ -16,35 +16,46 @@ const Popup = () => {
   const [isApiUrlLoaded, setIsApiUrlLoaded] = useState<boolean>(false);
 
   useEffect(() => {
-    chrome.storage.local.get("bookmarkUrl", (data) => {
-      if (chrome.runtime.lastError) {
-        console.error(chrome.runtime.lastError.message);
-        // エラーが発生した場合でも、UIの読み込みは完了させる
-        setIsApiUrlLoaded(true);
-        return;
-      }
-      if (data.bookmarkUrl) {
-        setApiUrl(data.bookmarkUrl);
-      }
-      setIsApiUrlLoaded(true); // 読み込み完了をマーク
-    });
-
-    // Query for the active tab in the current window
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      const tab = tabs?.[0];
-      if (chrome.runtime.lastError || !tab?.url) {
-        console.error(
-          chrome.runtime.lastError?.message ??
-            "アクティブなタブまたはURLが見つかりませんでした。"
-        );
-        setActiveTabUrl("URLの取得に失敗しました。");
-        setActiveTabTitle("");
-        return;
+    let isMounted = true;
+    const initialize = async () => {
+      try {
+        const data = await chrome.storage.local.get("bookmarkUrl");
+        if (data.bookmarkUrl) {
+          setApiUrl(data.bookmarkUrl);
+        }
+      } catch (e) {
+        if (e instanceof Error) {
+          console.error(e.message);
+        }
+      } finally {
+        if (isMounted) setIsApiUrlLoaded(true);
       }
 
-      setActiveTabUrl(tab.url);
-      setActiveTabTitle(tab.title || "");
-    });
+      try {
+        const tabs = await chrome.tabs.query({
+          active: true,
+          currentWindow: true,
+        });
+        const tab = tabs?.[0];
+        if (!tab?.url) {
+          throw new Error("アクティブなタブまたはURLが見つかりませんでした。");
+        }
+        if (isMounted) {
+          setActiveTabUrl(tab.url);
+          setActiveTabTitle(tab.title || "");
+        }
+      } catch (e) {
+        if (isMounted) {
+          setActiveTabUrl("URLの取得に失敗しました。");
+          setActiveTabTitle("");
+        }
+        if (e instanceof Error) console.error(e.message);
+      }
+    };
+    initialize();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const registerClick = () => {
