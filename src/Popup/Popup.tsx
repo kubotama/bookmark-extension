@@ -16,35 +16,52 @@ const Popup = () => {
   const [isApiUrlLoaded, setIsApiUrlLoaded] = useState<boolean>(false);
 
   useEffect(() => {
-    chrome.storage.local.get("bookmarkUrl", (data) => {
-      if (chrome.runtime.lastError) {
-        console.error(chrome.runtime.lastError.message);
-        // エラーが発生した場合でも、UIの読み込みは完了させる
-        setIsApiUrlLoaded(true);
-        return;
-      }
-      if (data.bookmarkUrl) {
-        setApiUrl(data.bookmarkUrl);
-      }
-      setIsApiUrlLoaded(true); // 読み込み完了をマーク
-    });
+    let isMounted = true;
+    const initialize = async () => {
+      const [storageResult, tabsResult] = await Promise.allSettled([
+        chrome.storage.local.get("bookmarkUrl"),
+        chrome.tabs.query({ active: true, currentWindow: true }),
+      ]);
 
-    // Query for the active tab in the current window
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      const tab = tabs?.[0];
-      if (chrome.runtime.lastError || !tab?.url) {
-        console.error(
-          chrome.runtime.lastError?.message ??
-            "アクティブなタブまたはURLが見つかりませんでした。"
-        );
+      if (!isMounted) return;
+
+      // API URLの読み込み結果を処理
+      if (
+        storageResult.status === "fulfilled" &&
+        storageResult.value.bookmarkUrl
+      ) {
+        setApiUrl(storageResult.value.bookmarkUrl);
+      } else if (
+        storageResult.status === "rejected" &&
+        storageResult.reason instanceof Error
+      ) {
+        console.error(storageResult.reason.message);
+      }
+      setIsApiUrlLoaded(true);
+
+      // タブ情報の読み込み結果を処理
+      if (tabsResult.status === "fulfilled") {
+        const tab = tabsResult.value?.[0];
+        if (tab?.url) {
+          setActiveTabUrl(tab.url);
+          setActiveTabTitle(tab.title || "");
+        } else {
+          console.error("アクティブなタブまたはURLが見つかりませんでした。");
+          setActiveTabUrl("URLの取得に失敗しました。");
+          setActiveTabTitle("");
+        }
+      } else if (tabsResult.status === "rejected") {
+        if (tabsResult.reason instanceof Error) {
+          console.error(tabsResult.reason.message);
+        }
         setActiveTabUrl("URLの取得に失敗しました。");
         setActiveTabTitle("");
-        return;
       }
-
-      setActiveTabUrl(tab.url);
-      setActiveTabTitle(tab.title || "");
-    });
+    };
+    initialize();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const registerClick = () => {
