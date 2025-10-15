@@ -21,19 +21,18 @@ describe("Options", () => {
       storage: {
         local: {
           get: mockGet,
-          set: mockSet.mockResolvedValue(undefined),
+          set: mockSet,
         },
       },
     });
-
-    // モックされた get のデフォルトの動作を設定
     mockGet.mockResolvedValue({
       [STORAGE_KEY_BOOKMARK_URL]: "https://example.com/saved",
     });
+    mockSet.mockResolvedValue(undefined);
   });
 
   afterEach(() => {
-    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
   });
 
   describe("タイマーを使用しないテスト", () => {
