@@ -148,7 +148,9 @@ describe("Options", () => {
       expect(screen.queryByText("保存しました！")).not.toBeInTheDocument();
     });
 
-    it("resets the timer when the save button is clicked multiple times", async () => {
+    it("should reset the message timer when the save button is clicked again before the message disappears", async () => {
+      const MESSAGE_TIMEOUT = 3000;
+      const HALF_TIMEOUT = MESSAGE_TIMEOUT / 2;
       render(<Options />);
       const input = await screen.findByPlaceholderText(URL_PLACEHOLDER);
       const button = await screen.findByRole("button", {
@@ -161,21 +163,27 @@ describe("Options", () => {
 
       // 1回目のクリック
       await user.click(button);
-
-      // メッセージが表示されることを確認
       expect(await screen.findByText("保存しました！")).toBeInTheDocument();
 
-      // 2回目のクリック
-      await user.click(button);
-
-      // メッセージがまだ表示されていることを確認
-      expect(await screen.findByText("保存しました！")).toBeInTheDocument();
-
-      // タイマーを進めてメッセージが消えることを確認
+      // タイマーが半分経過（1500ms）
       await act(async () => {
-        await vi.runAllTimersAsync();
+        await vi.advanceTimersByTimeAsync(HALF_TIMEOUT);
       });
 
+      // 2回目のクリックでタイマーをリセット
+      await user.click(button);
+
+      // 1回目のタイマーが切れるはずの時間まで進める（+1500ms）
+      // タイマーがリセットされていれば、メッセージは消えない
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(HALF_TIMEOUT);
+      });
+      expect(screen.getByText("保存しました！")).toBeInTheDocument();
+
+      // 2回目のタイマーが切れる時間まで進める（さらに+1500ms）
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(HALF_TIMEOUT);
+      });
       expect(screen.queryByText("保存しました！")).not.toBeInTheDocument();
     });
   });
