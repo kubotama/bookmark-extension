@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 
 import { useActiveTabInfo } from "./useActiveTabInfo";
 import { useApiUrl } from "./useApiUrl";
@@ -14,22 +14,27 @@ export const usePopup = () => {
   const [messageText, setMessageText] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleUrlChange = (newUrl: string) => {
-    setActiveTabUrl(newUrl);
-
-    setMessageText(isValidUrl(newUrl) ? undefined : `無効なURLです: ${newUrl}`);
-  };
-
-  const isValidUrl = (url: string): boolean => {
+  const isValidUrl = useCallback((url: string): boolean => {
     try {
       new URL(url);
       return true;
     } catch {
       return false;
     }
-  };
+  }, []);
 
-  const registerClick = async () => {
+  const handleUrlChange = useCallback(
+    (newUrl: string) => {
+      setActiveTabUrl(newUrl);
+
+      setMessageText(
+        isValidUrl(newUrl) ? undefined : `無効なURLです: ${newUrl}`
+      );
+    },
+    [setActiveTabUrl, isValidUrl]
+  );
+
+  const registerClick = useCallback(async () => {
     const bookmark = {
       url: activeTabUrl,
       title: activeTabTitle,
@@ -75,17 +80,19 @@ export const usePopup = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [apiUrl, activeTabUrl, activeTabTitle]);
 
   return {
+    // Tab info
     activeTabUrl,
     setActiveTabUrl,
     activeTabTitle,
     setActiveTabTitle,
+    // API status
     isApiUrlLoaded,
-    messageText,
-    setMessageText,
     isLoading,
+    // UI state and handlers
+    messageText,
     isValidUrl,
     registerClick,
     handleUrlChange,
