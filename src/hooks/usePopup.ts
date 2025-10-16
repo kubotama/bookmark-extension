@@ -1,7 +1,16 @@
-import { useState, useCallback } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import { useActiveTabInfo } from "./useActiveTabInfo";
 import { useApiUrl } from "./useApiUrl";
+
+const isValidUrl = (url: string): boolean => {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+};
 
 export const usePopup = () => {
   const {
@@ -14,15 +23,6 @@ export const usePopup = () => {
   const [messageText, setMessageText] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
 
-  const isValidUrl = useCallback((url: string): boolean => {
-    try {
-      new URL(url);
-      return true;
-    } catch {
-      return false;
-    }
-  }, []);
-
   const handleUrlChange = useCallback(
     (newUrl: string) => {
       setActiveTabUrl(newUrl);
@@ -31,7 +31,7 @@ export const usePopup = () => {
         isValidUrl(newUrl) ? undefined : `無効なURLです: ${newUrl}`
       );
     },
-    [setActiveTabUrl, isValidUrl]
+    [setActiveTabUrl]
   );
 
   const registerClick = useCallback(async () => {
@@ -82,19 +82,26 @@ export const usePopup = () => {
     }
   }, [apiUrl, activeTabUrl, activeTabTitle]);
 
+  const isRegisterDisabled = useMemo(() => {
+    return (
+      isLoading ||
+      !isApiUrlLoaded ||
+      !activeTabTitle ||
+      !isValidUrl(activeTabUrl)
+    );
+  }, [isLoading, isApiUrlLoaded, activeTabTitle, activeTabUrl]);
+
   return {
     // Tab info
     activeTabUrl,
-    setActiveTabUrl,
     activeTabTitle,
     setActiveTabTitle,
     // API status
-    isApiUrlLoaded,
     isLoading,
     // UI state and handlers
     messageText,
-    isValidUrl,
     registerClick,
     handleUrlChange,
+    isRegisterDisabled,
   };
 };

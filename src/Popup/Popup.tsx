@@ -10,11 +10,10 @@ const Popup = () => {
     activeTabTitle,
     isLoading,
     setActiveTabTitle,
-    isApiUrlLoaded,
     messageText,
-    isValidUrl,
     registerClick,
     handleUrlChange,
+    isRegisterDisabled,
   } = usePopup();
 
   return (
@@ -28,12 +27,7 @@ const Popup = () => {
         <button
           className="popup-button"
           onClick={registerClick}
-          disabled={
-            isLoading ||
-            !isApiUrlLoaded ||
-            !activeTabTitle ||
-            !isValidUrl(activeTabUrl)
-          }
+          disabled={isRegisterDisabled}
         >
           {isLoading ? "登録中..." : "登録"}
         </button>
