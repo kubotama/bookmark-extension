@@ -1,24 +1,24 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { act, renderHook, waitFor } from "@testing-library/react";
+import { useActiveTabInfo } from "../hooks/useActiveTabInfo";
+import { useApiUrl } from "../hooks/useApiUrl";
 
 import { API_BOOKMARK_ADD } from "../constants/constants";
 import { usePopup } from "./usePopup";
 
-vi.mock("./useActiveTabInfo", () => ({
-  useActiveTabInfo: () => ({
-    url: "https://example.com",
-    setUrl: vi.fn(),
-    title: "Test Title",
-    setTitle: vi.fn(),
-  }),
+// モック用の変数を定義
+let mockActiveTabInfo: ReturnType<typeof useActiveTabInfo>;
+let mockApiUrl: ReturnType<typeof useApiUrl>;
+
+vi.mock("../hooks/useActiveTabInfo", () => ({
+  // ファクトリ関数内で変数を返すようにする
+  useActiveTabInfo: () => mockActiveTabInfo,
 }));
 
-vi.mock("./useApiUrl", () => ({
-  useApiUrl: () => ({
-    apiUrl: API_BOOKMARK_ADD,
-    isApiUrlLoaded: true,
-  }),
+vi.mock("../hooks/useApiUrl", () => ({
+  // ファクトリ関数内で変数を返すようにする
+  useApiUrl: () => mockApiUrl,
 }));
 
 describe("usePopup", () => {
@@ -27,6 +27,17 @@ describe("usePopup", () => {
   >;
 
   beforeEach(() => {
+    // 各テストの前にモックを初期化
+    mockActiveTabInfo = {
+      url: "https://example.com",
+      setUrl: vi.fn(),
+      title: "Test Title",
+      setTitle: vi.fn(),
+    };
+    mockApiUrl = {
+      apiUrl: API_BOOKMARK_ADD,
+      isApiUrlLoaded: true,
+    };
     vi.stubGlobal("fetch", vi.fn());
     hookResult = renderHook(() => usePopup());
   });
@@ -40,15 +51,8 @@ describe("usePopup", () => {
 
     expect(result.current.activeTabUrl).toBe("https://example.com");
     expect(result.current.activeTabTitle).toBe("Test Title");
-    expect(result.current.isApiUrlLoaded).toBe(true);
+    expect(result.current.isRegisterDisabled).toBe(false);
     expect(result.current.messageText).toBeUndefined();
-  });
-
-  it("URLの検証が正しく行われること", () => {
-    const { result } = hookResult;
-
-    expect(result.current.isValidUrl("https://example.com")).toBe(true);
-    expect(result.current.isValidUrl("invalid-url")).toBe(false);
   });
 
   it("ブックマークが正常に登録されること", async () => {
@@ -109,7 +113,9 @@ describe("usePopup", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.messageText).toBe("Error: Network error");
+      expect(result.current.messageText).toBe(
+        "予期せぬエラーが発生しました: Error: Network error"
+      );
     });
   });
 
@@ -130,6 +136,32 @@ describe("usePopup", () => {
     await waitFor(() => {
       // response.statusTextがフォールバックとして使用されることを確認
       expect(result.current.messageText).toBe("登録失敗: Bad Request");
+    });
+  });
+
+  describe("isRegisterDisabledのロジック", () => {
+    it("タイトルが空の場合に登録ボタンが無効になること", () => {
+      // モックの値を直接変更
+      mockActiveTabInfo.title = "";
+
+      const { result } = renderHook(() => usePopup());
+      expect(result.current.isRegisterDisabled).toBe(true);
+    });
+
+    it("URLが無効な場合に登録ボタンが無効になること", () => {
+      // モックの値を直接変更
+      mockActiveTabInfo.url = "invalid-url";
+
+      const { result } = renderHook(() => usePopup());
+      expect(result.current.isRegisterDisabled).toBe(true);
+    });
+
+    it("APIのURLがロードされていない場合に登録ボタンが無効になること", () => {
+      // モックの値を直接変更
+      mockApiUrl.isApiUrlLoaded = false;
+
+      const { result } = renderHook(() => usePopup());
+      expect(result.current.isRegisterDisabled).toBe(true);
     });
   });
 });

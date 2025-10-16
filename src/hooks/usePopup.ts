@@ -67,16 +67,11 @@ export const usePopup = () => {
         }
       }
     } catch (error) {
-      if (error instanceof Error) {
-        setMessageText(`${error.name}: ${error.message}`);
-        console.error(error);
-      } else {
-        // fetchがrejectするエラーは通常Errorインスタンスですが、予期せぬケースを考慮します。
-        // 文字列やオブジェクトがthrowされる可能性も考えられます。
-        const errorMessage = `予期せぬエラーが発生しました: ${String(error)}`;
-        setMessageText(errorMessage);
-        console.error(errorMessage, error);
-      }
+      // fetchがrejectするエラーは通常Errorインスタンスですが、予期せぬケースを考慮します。
+      // 文字列やオブジェクトがthrowされる可能性も考えられます。
+      const errorMessage = `予期せぬエラーが発生しました: ${String(error)}`;
+      setMessageText(errorMessage);
+      console.error(errorMessage, error);
     } finally {
       setIsLoading(false);
     }
