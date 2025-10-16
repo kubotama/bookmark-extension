@@ -14,6 +14,12 @@ export const usePopup = () => {
   const [messageText, setMessageText] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
 
+  const handleUrlChange = (newUrl: string) => {
+    setActiveTabUrl(newUrl);
+
+    setMessageText(isValidUrl(newUrl) ? undefined : `無効なURLです: ${newUrl}`);
+  };
+
   const isValidUrl = (url: string): boolean => {
     try {
       new URL(url);
@@ -82,5 +88,6 @@ export const usePopup = () => {
     isLoading,
     isValidUrl,
     registerClick,
+    handleUrlChange,
   };
 };
