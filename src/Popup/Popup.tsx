@@ -2,69 +2,20 @@
 
 import "./Popup.css";
 
-import { useState } from "react";
-
-import { useActiveTabInfo } from "../hooks/useActiveTabInfo";
-import { useApiUrl } from "../hooks/useApiUrl";
+import { usePopup } from "../hooks/usePopup";
 
 const Popup = () => {
   const {
-    url: activeTabUrl,
-    setUrl: setActiveTabUrl,
-    title: activeTabTitle,
-    setTitle: setActiveTabTitle,
-  } = useActiveTabInfo();
-  const { apiUrl, isApiUrlLoaded } = useApiUrl();
-  const [messageText, setMessageText] = useState<string | undefined>(undefined);
-
-  const registerClick = async () => {
-    const bookmark = {
-      url: activeTabUrl,
-      title: activeTabTitle,
-    };
-
-    try {
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(bookmark),
-      });
-
-      if (response.ok) {
-        setMessageText("ブックマークが登録されました。");
-      } else {
-        try {
-          const errorData = await response.json();
-          setMessageText(
-            `登録失敗: ${errorData.message || response.statusText}`
-          );
-        } catch (error) {
-          const errorMessage = `ブックマークの登録に失敗しました。ステータス: ${response.status}`;
-          setMessageText(errorMessage);
-          console.error(`${errorMessage}:`, error);
-        }
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        setMessageText(`${error.name}: ${error.message}`);
-        console.error(error);
-      } else {
-        setMessageText(`予期せぬエラーが発生しました: ${String(error)}`);
-        console.error("予期せぬエラーが発生しました:", error);
-      }
-    }
-  };
-
-  const isValidUrl = (url: string): boolean => {
-    try {
-      new URL(url);
-      return true;
-    } catch {
-      return false;
-    }
-  };
+    activeTabUrl,
+    setActiveTabUrl,
+    activeTabTitle,
+    setActiveTabTitle,
+    isApiUrlLoaded,
+    messageText,
+    setMessageText,
+    isValidUrl,
+    registerClick,
+  } = usePopup();
 
   return (
     <>
