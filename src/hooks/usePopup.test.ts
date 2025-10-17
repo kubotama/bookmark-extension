@@ -144,7 +144,7 @@ describe("usePopup", () => {
       // モックの値を直接変更
       mockActiveTabInfo.title = "";
 
-      const { result, rerender } = hookResult;
+      const { result, rerender } = (hookResult = renderHook(() => usePopup()));
       rerender(); // フックを再実行して新しいモックの値を反映
       expect(result.current.isRegisterDisabled).toBe(true);
     });
@@ -153,7 +153,7 @@ describe("usePopup", () => {
       // モックの値を直接変更
       mockActiveTabInfo.url = "invalid-url";
 
-      const { result, rerender } = hookResult;
+      const { result, rerender } = (hookResult = renderHook(() => usePopup()));
       rerender();
       expect(result.current.isRegisterDisabled).toBe(true);
     });
@@ -162,7 +162,7 @@ describe("usePopup", () => {
       // モックの値を直接変更
       mockApiUrl.isApiUrlLoaded = false;
 
-      const { result, rerender } = hookResult;
+      const { result, rerender } = (hookResult = renderHook(() => usePopup()));
       rerender();
       expect(result.current.isRegisterDisabled).toBe(true);
     });
