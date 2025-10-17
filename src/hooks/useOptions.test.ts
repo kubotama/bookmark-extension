@@ -45,13 +45,9 @@ describe("useOptions", () => {
     ];
 
     it.each(testCases)("$description", async ({ expectedUrl }) => {
-      if (expectedUrl.length > 0) {
-        mockGet.mockResolvedValue({
-          [STORAGE_KEY_BOOKMARK_URL]: expectedUrl,
-        });
-      } else {
-        mockGet.mockResolvedValue({});
-      }
+      mockGet.mockResolvedValue(
+        expectedUrl ? { [STORAGE_KEY_BOOKMARK_URL]: expectedUrl } : {}
+      );
 
       const { result } = renderHook(() => useOptions());
 

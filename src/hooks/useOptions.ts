@@ -41,7 +41,6 @@ export const useOptions = () => {
   const handleSave = async () => {
     if (url) {
       await chrome.storage.local.set({ [STORAGE_KEY_BOOKMARK_URL]: url });
-      console.log("URL saved:", url);
       setSaveMessage("保存しました！");
 
       // 既存のタイマーをクリア
