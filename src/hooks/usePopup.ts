@@ -71,7 +71,7 @@ export const usePopup = () => {
       // 文字列やオブジェクトがthrowされる可能性も考えられます。
       const errorMessage = `予期せぬエラーが発生しました: ${String(error)}`;
       setMessageText(errorMessage);
-      console.error(errorMessage, error);
+      console.error(error);
     } finally {
       setIsLoading(false);
     }
