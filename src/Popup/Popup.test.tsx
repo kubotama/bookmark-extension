@@ -9,7 +9,7 @@ import {
   vi,
 } from "vitest";
 
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent, { type UserEvent } from "@testing-library/user-event";
 
 import {
@@ -250,6 +250,39 @@ describe("Popup", () => {
     expect(global.fetch).not.toBeCalled();
   });
 
+  it("登録処理中に登録ボタンが無効化されること", async () => {
+    // fetchが即座に解決されないようにPromiseを作成
+    let resolveFetch: (value: Response) => void;
+    const fetchPromise = new Promise<Response>((resolve) => {
+      resolveFetch = resolve;
+    });
+
+    (global.fetch as ReturnType<typeof vi.fn>).mockImplementation(
+      () => fetchPromise
+    );
+
+    render(<Popup />);
+
+    const registerButton = await screen.findByRole("button", { name: "登録" });
+    expect(registerButton).toBeEnabled();
+
+    // user.clickは非同期イベントなので、完了を待つ
+    await user.click(registerButton);
+
+    // isLoadingがtrueになり、ボタンが無効化されることを確認
+    expect(registerButton).toBeDisabled();
+
+    // fetchを解決して処理を完了させる
+    await act(async () => {
+      resolveFetch(new Response(JSON.stringify({ id: 1 }), { status: 200 }));
+    });
+
+    // 処理完了後、ボタンが再度有効になることを確認
+    await waitFor(() => {
+      expect(registerButton).toBeEnabled();
+    });
+  });
+
   describe("オプションページで設定したURLを利用する", () => {
     const customApiUrl = "https://custom-api.example.com/bookmarks";
 
@@ -333,8 +366,11 @@ describe("Popup", () => {
       {
         testName: "APIリクエストで例外が発生",
         mockFetch: () => Promise.reject(new Error("APIエラー")),
-        expectedMessage: "Error: APIエラー",
-        expectedConsoleError: new Error("APIエラー"),
+        expectedMessage: "予期せぬエラーが発生しました: Error: APIエラー",
+        expectedConsoleError: [
+          "予期せぬエラーが発生しました: Error: APIエラー",
+          new Error("APIエラー"),
+        ],
       },
       {
         testName: "エラーのレスポンスがJSON形式でないエラー",
