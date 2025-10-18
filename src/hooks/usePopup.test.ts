@@ -154,31 +154,39 @@ describe("usePopup", () => {
   });
 
   describe("isRegisterDisabledのロジック", () => {
-    it("タイトルが空の場合に登録ボタンが無効になること", () => {
-      // モックの値を直接変更
-      mockActiveTabInfo.title = "";
+    const testCases = [
+      {
+        description: "タイトルが空の場合に登録ボタンが無効になること",
+        setup: () => {
+          // モックの値を直接変更
+          mockActiveTabInfo.title = "";
+        },
+        expected: true,
+      },
+      {
+        description: "URLが空の場合に登録ボタンが無効になること",
+        setup: () => {
+          // モックの値を直接変更
+          mockActiveTabInfo.url = "invalid-url";
+        },
+        expected: true,
+      },
+      {
+        description:
+          "APIのURLがロードされていない場合に登録ボタンが無効になること",
+        setup: () => {
+          // モックの値を直接変更
+          mockApiUrl.isApiUrlLoaded = false;
+        },
+        expected: true,
+      },
+    ];
 
+    it.each(testCases)("$description", async ({ setup, expected }) => {
+      setup();
       const { result, rerender } = (hookResult = renderHook(() => usePopup()));
       rerender(); // フックを再実行して新しいモックの値を反映
-      expect(result.current.isRegisterDisabled).toBe(true);
-    });
-
-    it("URLが無効な場合に登録ボタンが無効になること", () => {
-      // モックの値を直接変更
-      mockActiveTabInfo.url = "invalid-url";
-
-      const { result, rerender } = (hookResult = renderHook(() => usePopup()));
-      rerender();
-      expect(result.current.isRegisterDisabled).toBe(true);
-    });
-
-    it("APIのURLがロードされていない場合に登録ボタンが無効になること", () => {
-      // モックの値を直接変更
-      mockApiUrl.isApiUrlLoaded = false;
-
-      const { result, rerender } = (hookResult = renderHook(() => usePopup()));
-      rerender();
-      expect(result.current.isRegisterDisabled).toBe(true);
+      expect(result.current.isRegisterDisabled).toBe(expected);
     });
   });
 });
