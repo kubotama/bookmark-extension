@@ -42,6 +42,7 @@ describe("Popup", () => {
   let user: UserEvent;
   let mockQuery: Mock;
   let mockStorageGet: Mock;
+  let consoleErrorSpy: MockInstance;
 
   // トップレベルに共通のモックセットアップを移動
   beforeEach(() => {
@@ -69,10 +70,14 @@ describe("Popup", () => {
     });
     vi.stubGlobal("fetch", vi.fn());
     user = userEvent.setup();
+
+    // console.errorをモック化して、コンソールへの出力を抑制する
+    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
   // vi.fn()でモック化したものは、afterEachでクリアするのが一般的です
   afterEach(() => {
+    consoleErrorSpy.mockRestore();
     vi.restoreAllMocks();
   });
 
@@ -339,13 +344,6 @@ describe("Popup", () => {
   });
 
   describe("エラーメッセージが出力される場合", () => {
-    let consoleErrorSpy: MockInstance;
-
-    beforeEach(() => {
-      // console.errorをモック化して、コンソールへの出力を抑制する
-      consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    });
-
     // フォームへの入力と登録ボタンのクリックを共通化
     beforeEach(async () => {
       render(<Popup />);
@@ -356,10 +354,6 @@ describe("Popup", () => {
       await user.type(urlInput, "https://www.amazon.co.jp/");
       await user.clear(titleInput);
       await user.type(titleInput, "Amazon");
-    });
-
-    afterEach(() => {
-      consoleErrorSpy.mockRestore();
     });
 
     it.each([
