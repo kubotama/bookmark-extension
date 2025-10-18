@@ -1,6 +1,7 @@
 import "./Options.css";
 
 import { useOptions } from "../hooks/useOptions";
+import LabeledInputField from "../components/LabeledInputField";
 
 const Options = () => {
   const { url, setUrl, saveMessage, handleSave } = useOptions();
@@ -8,7 +9,8 @@ const Options = () => {
   return (
     <div className="options-container">
       <h1>オプション</h1>
-      <input
+      <LabeledInputField
+        label="ブックマークするURL"
         type="text"
         value={url}
         onChange={(e) => setUrl(e.target.value)}

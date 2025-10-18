@@ -3,6 +3,7 @@
 import "./Popup.css";
 
 import { usePopup } from "../hooks/usePopup";
+import LabeledInputField from "../components/LabeledInputField";
 
 const Popup = () => {
   const {
@@ -31,8 +32,8 @@ const Popup = () => {
         >
           {isLoading ? "登録中..." : "登録"}
         </button>
-        <input
-          className="popup-input"
+        <LabeledInputField
+          label="URL"
           type="text"
           aria-label="url"
           placeholder="URLを入力してください"
@@ -40,8 +41,8 @@ const Popup = () => {
           onChange={(e) => handleUrlChange(e.target.value)}
         />
         <div className="popup-separator" />
-        <input
-          className="popup-input"
+        <LabeledInputField
+          label="タイトル"
           type="text"
           aria-label="title"
           placeholder="タイトルを入力してください"
