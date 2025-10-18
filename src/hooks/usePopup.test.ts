@@ -1,4 +1,12 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+  type MockInstance,
+} from "vitest";
 
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { useActiveTabInfo } from "../hooks/useActiveTabInfo";
@@ -26,7 +34,11 @@ describe("usePopup", () => {
     typeof renderHook<ReturnType<typeof usePopup>, unknown>
   >;
 
+  let consoleErrorSpy: MockInstance;
+
   beforeEach(() => {
+    // console.errorをモック化して、コンソールへの出力を抑制する
+    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     // 各テストの前にモックを初期化
     mockActiveTabInfo = {
       url: "https://example.com",
@@ -43,6 +55,7 @@ describe("usePopup", () => {
   });
 
   afterEach(() => {
+    consoleErrorSpy.mockRestore();
     vi.restoreAllMocks();
   });
 
@@ -116,6 +129,7 @@ describe("usePopup", () => {
       expect(result.current.messageText).toBe(
         "予期せぬエラーが発生しました: Error: Network error"
       );
+      expect(consoleErrorSpy).toHaveBeenCalledWith(new Error("Network error"));
     });
   });
 
