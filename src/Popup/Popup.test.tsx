@@ -367,10 +367,7 @@ describe("Popup", () => {
         testName: "APIリクエストで例外が発生",
         mockFetch: () => Promise.reject(new Error("APIエラー")),
         expectedMessage: "予期せぬエラーが発生しました: Error: APIエラー",
-        expectedConsoleError: [
-          "予期せぬエラーが発生しました: Error: APIエラー",
-          new Error("APIエラー"),
-        ],
+        expectedConsoleError: new Error("APIエラー"),
       },
       {
         testName: "エラーのレスポンスがJSON形式でないエラー",
