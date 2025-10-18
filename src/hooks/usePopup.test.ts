@@ -184,8 +184,7 @@ describe("usePopup", () => {
 
     it.each(testCases)("$description", async ({ setup, expected }) => {
       setup();
-      const { result, rerender } = (hookResult = renderHook(() => usePopup()));
-      rerender(); // フックを再実行して新しいモックの値を反映
+      const { result } = (hookResult = renderHook(() => usePopup()));
       expect(result.current.isRegisterDisabled).toBe(expected);
     });
   });
