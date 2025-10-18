@@ -164,7 +164,7 @@ describe("usePopup", () => {
         expected: true,
       },
       {
-        description: "URLが空の場合に登録ボタンが無効になること",
+        description: "URLが無効な場合に登録ボタンが無効になること",
         setup: () => {
           // モックの値を直接変更
           mockActiveTabInfo.url = "invalid-url";
