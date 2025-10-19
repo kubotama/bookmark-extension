@@ -40,6 +40,7 @@ const Popup = () => {
           placeholder="URLを入力してください"
           value={activeTabUrl}
           onChange={(e) => handleUrlChange(e.target.value)}
+          className="popup-input"
         />
         <div className="popup-separator" />
         <LabeledInputField
@@ -48,6 +49,7 @@ const Popup = () => {
           placeholder="タイトルを入力してください"
           value={activeTabTitle}
           onChange={(e) => setActiveTabTitle(e.target.value)}
+          className="popup-input"
         />
       </div>
     </>
