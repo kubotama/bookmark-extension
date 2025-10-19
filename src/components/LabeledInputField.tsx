@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useId } from "react";
 
 interface LabeledInputFieldProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -12,11 +12,11 @@ const LabeledInputField: React.FC<LabeledInputFieldProps> = ({
   value,
   onChange,
   type = "text",
-  placeholder,
-  id, // Destructure id
+  id: providedId,
   ...rest
 }) => {
-  const inputId = id || label.replace(/\s+/g, "-") + "-input"; // Generate a unique ID if not provided
+  const generatedId = useId();
+  const inputId = providedId || generatedId;
   return (
     <div className="labeled-input-field">
       <label htmlFor={inputId}>{label}</label>{" "}
@@ -26,7 +26,6 @@ const LabeledInputField: React.FC<LabeledInputFieldProps> = ({
         type={type}
         value={value}
         onChange={onChange}
-        placeholder={placeholder}
         {...rest}
       />
     </div>

@@ -14,6 +14,8 @@ import userEvent, { type UserEvent } from "@testing-library/user-event";
 
 import {
   API_BOOKMARK_ADD,
+  LABEL_TITLE,
+  LABEL_URL,
   STORAGE_KEY_BOOKMARK_URL,
 } from "../constants/constants";
 import Popup from "./Popup";
@@ -104,10 +106,10 @@ describe("Popup", () => {
     expect(
       await screen.findByRole("button", { name: "登録" })
     ).toBeInTheDocument();
-    expect(await screen.findByLabelText("url")).toHaveValue(
+    expect(await screen.findByLabelText(LABEL_URL)).toHaveValue(
       "https://example.com"
     );
-    expect(await screen.findByLabelText("title")).toHaveValue(
+    expect(await screen.findByLabelText(LABEL_TITLE)).toHaveValue(
       "サンプルのページのタイトル"
     );
   });
@@ -118,7 +120,7 @@ describe("Popup", () => {
     render(<Popup />);
 
     expect(await screen.findByText("登録")).toBeInTheDocument();
-    expect(await screen.findByLabelText("url")).toHaveValue(
+    expect(await screen.findByLabelText(LABEL_URL)).toHaveValue(
       "URLの取得に失敗しました。"
     );
   });
@@ -130,7 +132,7 @@ describe("Popup", () => {
 
     render(<Popup />);
 
-    expect(await screen.findByLabelText("title")).toHaveValue("");
+    expect(await screen.findByLabelText(LABEL_TITLE)).toHaveValue("");
     const registerButton = await screen.findByRole("button", { name: "登録" });
     expect(registerButton).toBeInTheDocument();
     expect(registerButton).toBeDisabled();
@@ -151,8 +153,8 @@ describe("Popup", () => {
 
     render(<Popup />);
 
-    const urlInput = await screen.findByLabelText("url");
-    const titleInput = await screen.findByLabelText("title");
+    const urlInput = await screen.findByLabelText(LABEL_URL);
+    const titleInput = await screen.findByLabelText(LABEL_TITLE);
 
     await user.clear(urlInput);
     await user.type(urlInput, "https://www.google.com/");
@@ -193,8 +195,8 @@ describe("Popup", () => {
 
     render(<Popup />);
 
-    const urlInput = await screen.findByLabelText("url");
-    const titleInput = await screen.findByLabelText("title");
+    const urlInput = await screen.findByLabelText(LABEL_URL);
+    const titleInput = await screen.findByLabelText(LABEL_TITLE);
 
     await user.clear(urlInput);
     await user.type(urlInput, "https://www.google.com/");
@@ -222,7 +224,7 @@ describe("Popup", () => {
   it("無効なURLが入力された場合、登録ボタンは無効になる", async () => {
     render(<Popup />);
 
-    const urlInput = await screen.findByLabelText("url");
+    const urlInput = await screen.findByLabelText(LABEL_URL);
     await user.clear(urlInput);
     await user.type(urlInput, "invalid-url");
 
@@ -234,7 +236,7 @@ describe("Popup", () => {
     render(<Popup />);
 
     const registerButton = await screen.findByRole("button", { name: "登録" });
-    const titleInput = await screen.findByLabelText("title");
+    const titleInput = await screen.findByLabelText(LABEL_TITLE);
 
     // Initially, with a valid title, the button is enabled.
     expect(titleInput).toHaveValue("サンプルのページのタイトル");
@@ -316,8 +318,8 @@ describe("Popup", () => {
 
       render(<Popup />);
 
-      const urlInput = await screen.findByLabelText("url");
-      const titleInput = await screen.findByLabelText("title");
+      const urlInput = await screen.findByLabelText(LABEL_URL);
+      const titleInput = await screen.findByLabelText(LABEL_TITLE);
 
       await user.clear(urlInput);
       await user.type(urlInput, "https://www.google.com/");
@@ -347,8 +349,8 @@ describe("Popup", () => {
     // フォームへの入力と登録ボタンのクリックを共通化
     beforeEach(async () => {
       render(<Popup />);
-      const urlInput = await screen.findByLabelText("url");
-      const titleInput = await screen.findByLabelText("title");
+      const urlInput = await screen.findByLabelText(LABEL_URL);
+      const titleInput = await screen.findByLabelText(LABEL_TITLE);
 
       await user.clear(urlInput);
       await user.type(urlInput, "https://www.amazon.co.jp/");
@@ -451,9 +453,9 @@ describe("Popup", () => {
 
       render(<Popup />);
 
-      expect(await screen.findByLabelText("title")).toHaveValue("");
+      expect(await screen.findByLabelText(LABEL_TITLE)).toHaveValue("");
       expect(consoleErrorSpy).toHaveBeenCalledWith(errorMessage);
-      expect(await screen.findByLabelText("url")).toHaveValue(
+      expect(await screen.findByLabelText(LABEL_URL)).toHaveValue(
         "URLの取得に失敗しました。"
       );
       const registerButton = await screen.findByRole("button", {

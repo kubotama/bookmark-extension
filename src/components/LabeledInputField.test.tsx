@@ -37,4 +37,12 @@ describe("LabeledInputField", () => {
     );
     expect(screen.getByPlaceholderText(placeholderText)).toBeInTheDocument();
   });
+
+  it("指定されたidがinputとlabelに適用されること", () => {
+    const customId = "custom-input-id";
+    render(<LabeledInputField {...defaultProps} id={customId} />);
+
+    const inputElement = screen.getByLabelText(defaultProps.label);
+    expect(inputElement).toHaveAttribute("id", customId);
+  });
 });
