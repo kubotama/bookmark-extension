@@ -2,7 +2,7 @@
 
 import "./Popup.css";
 
-import { useMemo, useRef } from "react";
+import { useRef } from "react";
 
 import LabeledInputField from "../components/LabeledInputField";
 import { LABEL_TITLE, LABEL_URL } from "../constants/constants";
@@ -21,24 +21,8 @@ const Popup = () => {
     isRegisterDisabled,
   } = usePopup();
 
-  // スタイルに関連する定数をコンポーネントの近くに定義
-  // この定数はこのコンポーネントのレイアウトに依存するため、内部で定義するのが適切です。
-  // useMemoでメモ化することで、再レンダリング時に不要な再生成を防ぎます。
-  const popupWidthConfig = useMemo(
-    () => ({
-      labelWidth: 80,
-      buttonWidth: 80,
-      paddingAndGaps: 40,
-    }),
-    []
-  );
-
   const measurementRef = useRef<HTMLSpanElement>(null);
-  const popupWidth = useDynamicPopupWidth(
-    activeTabUrl,
-    measurementRef,
-    popupWidthConfig
-  );
+  const popupWidth = useDynamicPopupWidth(activeTabUrl, measurementRef);
 
   return (
     <div className="popup-wrapper" style={{ width: popupWidth }}>
