@@ -6,7 +6,7 @@ import { useMemo, useRef } from "react";
 
 import LabeledInputField from "../components/LabeledInputField";
 import { LABEL_TITLE, LABEL_URL } from "../constants/constants";
-import { useDynamicPopupWidth } from "../hooks/useDynamicPopupWidth"; // 仮のパス
+import { useDynamicPopupWidth } from "../hooks/useDynamicPopupWidth";
 import { usePopup } from "../hooks/usePopup";
 
 const Popup = () => {
