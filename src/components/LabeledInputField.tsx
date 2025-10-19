@@ -18,17 +18,17 @@ const LabeledInputField: React.FC<LabeledInputFieldProps> = ({
   const generatedId = useId();
   const inputId = providedId || generatedId;
   return (
-    <div className="labeled-input-field">
-      <label htmlFor={inputId}>{label}</label>{" "}
-      {/* Associate label with input */}
+    <>
+      <label htmlFor={inputId}>{label}</label>
       <input
-        id={inputId} // Assign id to input
+        id={inputId}
         type={type}
         value={value}
         onChange={onChange}
+        className={rest.className}
         {...rest}
       />
-    </div>
+    </>
   );
 };
 
