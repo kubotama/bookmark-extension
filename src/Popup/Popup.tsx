@@ -3,6 +3,9 @@
 import "./Popup.css";
 
 import { usePopup } from "../hooks/usePopup";
+import LabeledInputField from "../components/LabeledInputField";
+
+import { LABEL_URL, LABEL_TITLE } from "../constants/constants";
 
 const Popup = () => {
   const {
@@ -31,19 +34,17 @@ const Popup = () => {
         >
           {isLoading ? "登録中..." : "登録"}
         </button>
-        <input
-          className="popup-input"
+        <LabeledInputField
+          label={LABEL_URL}
           type="text"
-          aria-label="url"
           placeholder="URLを入力してください"
           value={activeTabUrl}
           onChange={(e) => handleUrlChange(e.target.value)}
         />
         <div className="popup-separator" />
-        <input
-          className="popup-input"
+        <LabeledInputField
+          label={LABEL_TITLE}
           type="text"
-          aria-label="title"
           placeholder="タイトルを入力してください"
           value={activeTabTitle}
           onChange={(e) => setActiveTabTitle(e.target.value)}
