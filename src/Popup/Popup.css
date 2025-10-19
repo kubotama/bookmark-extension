@@ -1,26 +1,44 @@
-/* in index.css or a new Popup.css */
-.popup-container {
-  width: 700px;
+/* ポップアップ全体のラッパー */
+.popup-wrapper {
   padding: 1rem;
+  min-width: 320px; /* 最小幅を少し調整 */
+  max-width: 700px; /* 最大幅を指定 */
+  transition: width 0.2s ease-in-out; /* 幅の変更を滑らかにする */
   display: grid;
-  grid-template-columns: 15% 85%;
-  grid-template-rows: 50px 50px;
+  grid-template-columns: auto 1fr; /* ラベル, 入力欄 */
+  gap: 1rem 0.5rem; /* 行間, 列間 */
+  align-items: center;
+}
+
+/* 幅計測用の非表示span */
+.text-measurement {
+  position: absolute;
+  visibility: hidden;
+  height: auto;
+  width: auto;
+  white-space: nowrap; /* 折り返しを防ぐ */
+  font-size: small; /* popup-inputのフォントサイズと合わせる */
+}
+
+.popup-button,
+.popup-message {
+  /* 2列にまたがるように設定 */
+  grid-column: 1 / -1;
 }
 
 .popup-input {
   display: flex;
-  width: 95%;
+  width: 100%; /* 1frの幅全体を使う */
+  box-sizing: border-box; /* paddingを含めて幅を計算 */
   align-items: center;
-  justify-content: center;
+  /* justify-content: center; は不要なため削除 */
   font-size: small;
   height: 1rem;
   padding: 0.5rem;
-  margin: 0.5rem;
 }
 
 .popup-button {
   display: flex;
-  margin: 0.2rem;
   align-items: center;
   justify-content: center;
   background-color: darkcyan;
@@ -38,6 +56,6 @@
 }
 
 .popup-message-text {
-  margin: 0.5rem;
+  /* margin: 0.5rem; 親のpaddingで管理するため不要 or paddingに変更 */
   font-size: medium;
 }
