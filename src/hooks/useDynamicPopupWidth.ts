@@ -3,6 +3,7 @@ import React, { useLayoutEffect, useState } from "react";
 const DEFAULT_WIDTH_CONFIG = {
   labelWidth: 80, // "URL"ラベルの幅
   buttonWidth: 80, // "登録"ボタンの幅
+  // .popup-wrapper の padding (1rem * 2) + column-gap (0.5rem) => 16px * 2 + 8px = 40px
   paddingAndGaps: 40, // コンテナのpaddingやgapの合計
 };
 
