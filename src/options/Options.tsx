@@ -2,6 +2,7 @@ import "./Options.css";
 
 import LabeledInputField from "../components/LabeledInputField";
 import {
+  OPTION_LABEL_API_URL,
   OPTION_SAVE_BUTTON_TEXT,
   OPTION_SUBTITLE_TEXT,
   OPTION_TITLE_TEXT,
@@ -18,7 +19,7 @@ const Options = () => {
       <h2 className="option-subtitle">{OPTION_SUBTITLE_TEXT}</h2>
       <div className="options-container">
         <LabeledInputField
-          label="ブックマークを管理するAPIのURL"
+          label={OPTION_LABEL_API_URL}
           type="text"
           value={url}
           onChange={(e) => setUrl(e.target.value)}

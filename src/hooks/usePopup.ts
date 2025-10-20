@@ -1,5 +1,11 @@
 import { useCallback, useMemo, useState } from "react";
 
+import {
+  POPUP_REGISTER_CONFLICT_ERROR_PREFIX,
+  POPUP_REGISTER_FAILED_PREFIX,
+  POPUP_REGISTER_SUCCESS_MESSAGE,
+  POPUP_UNEXPECTED_ERROR_PREFIX,
+} from "../constants/constants";
 import { useActiveTabInfo } from "./useActiveTabInfo";
 import { useApiUrl } from "./useApiUrl";
 
@@ -53,15 +59,17 @@ export const usePopup = () => {
       });
 
       if (response.ok) {
-        setMessageText("ブックマークが登録されました。");
+        setMessageText(POPUP_REGISTER_SUCCESS_MESSAGE);
       } else {
         try {
           const errorData = await response.json();
           setMessageText(
-            `登録失敗: ${errorData.message || response.statusText}`
+            `${POPUP_REGISTER_CONFLICT_ERROR_PREFIX}${
+              errorData.message || response.statusText
+            }`
           );
         } catch (error) {
-          const errorMessage = `ブックマークの登録に失敗しました。ステータス: ${response.status}`;
+          const errorMessage = `${POPUP_REGISTER_FAILED_PREFIX}${response.status}`;
           setMessageText(errorMessage);
           console.error(`${errorMessage}:`, error);
         }
@@ -69,7 +77,7 @@ export const usePopup = () => {
     } catch (error) {
       // fetchがrejectするエラーは通常Errorインスタンスですが、予期せぬケースを考慮します。
       // 文字列やオブジェクトがthrowされる可能性も考えられます。
-      const errorMessage = `予期せぬエラーが発生しました: ${String(error)}`;
+      const errorMessage = `${POPUP_UNEXPECTED_ERROR_PREFIX}${String(error)}`;
       setMessageText(errorMessage);
       console.error(error);
     } finally {

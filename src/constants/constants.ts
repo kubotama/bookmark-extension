@@ -11,3 +11,13 @@ export const PLACEHOLDER_URL =
 export const OPTION_TITLE_TEXT = "bookmark-extension";
 export const OPTION_SUBTITLE_TEXT = "オプションの設定画面";
 export const OPTION_SAVE_BUTTON_TEXT = "保存";
+export const OPTION_LABEL_API_URL = "ブックマークを管理するAPIのURL";
+export const OPTION_SAVE_SUCCESS_MESSAGE = "保存しました！";
+
+export const POPUP_REGISTER_BUTTON_TEXT = "登録";
+export const POPUP_URL_FETCH_ERROR_MESSAGE = "URLの取得に失敗しました。";
+export const POPUP_REGISTER_SUCCESS_MESSAGE = "ブックマークが登録されました。";
+export const POPUP_REGISTER_CONFLICT_ERROR_PREFIX = "登録失敗: ";
+export const POPUP_REGISTER_FAILED_PREFIX =
+  "ブックマークの登録に失敗しました。ステータス: ";
+export const POPUP_UNEXPECTED_ERROR_PREFIX = "予期せぬエラーが発生しました: ";
