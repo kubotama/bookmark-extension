@@ -4,14 +4,15 @@ import { act, render, screen } from "@testing-library/react";
 import userEvent, { type UserEvent } from "@testing-library/user-event";
 
 import {
+  OPTION_SAVE_BUTTON_TEXT,
+  OPTION_SUBTITLE_TEXT,
+  PLACEHOLDER_URL,
   SAVE_MESSAGE_TIMEOUT_MS,
   STORAGE_KEY_BOOKMARK_URL,
 } from "../constants/constants";
 import Options from "./Options";
 
 describe("Options", () => {
-  const URL_PLACEHOLDER = "ブックマークするURL";
-  const SAVE_BUTTON_NAME = "保存";
   let user: UserEvent;
 
   // chrome.storage.localのモック
@@ -46,13 +47,13 @@ describe("Options", () => {
       render(<Options />);
 
       expect(
-        await screen.findByRole("heading", { name: "オプション" })
+        await screen.findByRole("heading", { name: OPTION_SUBTITLE_TEXT })
       ).toBeInTheDocument();
       expect(
-        await screen.findByPlaceholderText(URL_PLACEHOLDER)
+        await screen.findByPlaceholderText(PLACEHOLDER_URL)
       ).toBeInTheDocument();
       expect(
-        await screen.findByRole("button", { name: SAVE_BUTTON_NAME })
+        await screen.findByRole("button", { name: OPTION_SAVE_BUTTON_TEXT })
       ).toBeInTheDocument();
     });
 
@@ -62,7 +63,7 @@ describe("Options", () => {
 
       render(<Options />);
 
-      expect(await screen.findByPlaceholderText(URL_PLACEHOLDER)).toHaveValue(
+      expect(await screen.findByPlaceholderText(PLACEHOLDER_URL)).toHaveValue(
         savedUrl
       );
 
@@ -72,7 +73,7 @@ describe("Options", () => {
     it("updates the input value on change", async () => {
       render(<Options />);
 
-      const input = await screen.findByPlaceholderText(URL_PLACEHOLDER);
+      const input = await screen.findByPlaceholderText(PLACEHOLDER_URL);
       const newUrl = "https://example.com/new";
 
       await user.clear(input);
@@ -84,9 +85,9 @@ describe("Options", () => {
     it("saves the URL to storage when the save button is clicked", async () => {
       render(<Options />);
 
-      const input = await screen.findByPlaceholderText(URL_PLACEHOLDER);
+      const input = await screen.findByPlaceholderText(PLACEHOLDER_URL);
       const button = await screen.findByRole("button", {
-        name: SAVE_BUTTON_NAME,
+        name: OPTION_SAVE_BUTTON_TEXT,
       });
       const newUrl = "https://example.com/new";
 
@@ -103,7 +104,7 @@ describe("Options", () => {
       mockGet.mockResolvedValue({});
       render(<Options />);
       const button = await screen.findByRole("button", {
-        name: SAVE_BUTTON_NAME,
+        name: OPTION_SAVE_BUTTON_TEXT,
       });
 
       await user.click(button);
@@ -129,9 +130,9 @@ describe("Options", () => {
 
     it("displays a save message and clears it after 3 seconds", async () => {
       render(<Options />);
-      const input = await screen.findByPlaceholderText(URL_PLACEHOLDER);
+      const input = await screen.findByPlaceholderText(PLACEHOLDER_URL);
       const button = await screen.findByRole("button", {
-        name: SAVE_BUTTON_NAME,
+        name: OPTION_SAVE_BUTTON_TEXT,
       });
       const newUrl = "https://example.com/new-url-for-message-test";
 
@@ -155,9 +156,9 @@ describe("Options", () => {
       const MESSAGE_TIMEOUT = SAVE_MESSAGE_TIMEOUT_MS;
       const HALF_TIMEOUT = MESSAGE_TIMEOUT / 2;
       render(<Options />);
-      const input = await screen.findByPlaceholderText(URL_PLACEHOLDER);
+      const input = await screen.findByPlaceholderText(PLACEHOLDER_URL);
       const button = await screen.findByRole("button", {
-        name: SAVE_BUTTON_NAME,
+        name: OPTION_SAVE_BUTTON_TEXT,
       });
       const newUrl = "https://example.com/multiple-clicks-test";
 
