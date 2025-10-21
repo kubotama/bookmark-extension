@@ -4,6 +4,7 @@ import "./Popup.css";
 
 import { useRef } from "react";
 
+import Message from "../components/Message/Message";
 import LabeledInputField from "../components/LabeledInputField";
 import { LABEL_TITLE, LABEL_URL } from "../constants/constants";
 import { useDynamicPopupWidth } from "../hooks/useDynamicPopupWidth";
@@ -15,7 +16,7 @@ const Popup = () => {
     activeTabTitle,
     isLoading,
     setActiveTabTitle,
-    messageText,
+    message,
     registerClick,
     handleUrlChange,
     isRegisterDisabled,
@@ -54,11 +55,7 @@ const Popup = () => {
           onChange={(e) => setActiveTabTitle(e.target.value)}
           className="popup-input"
         />
-        {messageText && (
-          <div className="popup-message">
-            <div className="popup-message-text">{messageText}</div>
-          </div>
-        )}
+        {message && <Message message={message} />}
       </div>
     </>
   );

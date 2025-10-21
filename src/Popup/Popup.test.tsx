@@ -174,9 +174,12 @@ describe("Popup", () => {
     });
     await user.click(registerButton);
 
-    expect(
-      await screen.findByText(POPUP_REGISTER_SUCCESS_MESSAGE)
-    ).toBeInTheDocument();
+    await waitFor(async () => {
+      const message = await screen.findByText(POPUP_REGISTER_SUCCESS_MESSAGE);
+      expect(message).toBeInTheDocument();
+      expect(message.parentElement).toHaveClass("message message--success");
+    });
+
     expect(global.fetch).toBeCalledTimes(1);
     expect(global.fetch).toBeCalledWith(API_BOOKMARK_ADD, {
       method: "POST",
@@ -218,11 +221,14 @@ describe("Popup", () => {
     });
     await user.click(registerButton);
 
-    expect(
-      await screen.findByText(
+    await waitFor(async () => {
+      const message = await screen.findByText(
         `${POPUP_REGISTER_CONFLICT_ERROR_PREFIX}指定されたURLのブックマークは既に登録されています。`
-      )
-    ).toBeInTheDocument();
+      );
+      expect(message).toBeInTheDocument();
+      expect(message.parentElement).toHaveClass("message message--error");
+    });
+
     expect(global.fetch).toBeCalledTimes(1);
     expect(global.fetch).toBeCalledWith(API_BOOKMARK_ADD, {
       method: "POST",
@@ -357,9 +363,11 @@ describe("Popup", () => {
         },
         body: '{"url":"https://www.google.com/","title":"Google"}',
       });
-      expect(
-        await screen.findByText(POPUP_REGISTER_SUCCESS_MESSAGE)
-      ).toBeInTheDocument();
+      await waitFor(async () => {
+        const message = await screen.findByText(POPUP_REGISTER_SUCCESS_MESSAGE);
+        expect(message).toBeInTheDocument();
+        expect(message.parentElement).toHaveClass("message message--success");
+      });
     });
   });
 
@@ -418,7 +426,12 @@ describe("Popup", () => {
         });
         await user.click(registerButton);
 
-        expect(await screen.findByText(expectedMessage)).toBeInTheDocument();
+        await waitFor(async () => {
+          const message = await screen.findByText(expectedMessage);
+          expect(message).toBeInTheDocument();
+          expect(message.parentElement).toHaveClass("message message--error");
+        });
+
         expect(global.fetch).toBeCalledTimes(1);
         expect(global.fetch).toBeCalledWith(API_BOOKMARK_ADD, {
           method: "POST",
