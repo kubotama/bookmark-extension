@@ -1,15 +1,13 @@
-
-import React from 'react';
-import './Message.css';
+import "./Message.css";
 
 type MessageProps = {
   message: {
     text: string;
-    type: 'success' | 'error' | 'info';
+    type: "success" | "error" | "info";
   };
 };
 
-const Message: React.FC<MessageProps> = ({ message }) => {
+const Message = ({ message }: MessageProps) => {
   if (!message) {
     return null;
   }
