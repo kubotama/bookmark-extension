@@ -20,12 +20,6 @@
   font-size: small; /* popup-inputのフォントサイズと合わせる */
 }
 
-.popup-button,
-.popup-message {
-  /* 2列にまたがるように設定 */
-  grid-column: 1 / -1;
-}
-
 .popup-input {
   display: flex;
   width: 100%; /* 1frの幅全体を使う */
@@ -39,19 +33,22 @@
 
 .popup-button {
   display: flex;
+  margin-left: 1rem;
+  margin-top: 1rem;
   align-items: center;
   justify-content: center;
   background-color: darkcyan;
   color: white;
   font-size: small;
 }
-
 .popup-separator {
   display: flex;
 }
 
 .popup-message {
   display: flex;
+  grid-column: 1 / -1;
+  margin-top: 1rem;
   align-items: center;
 }
 

@@ -1,28 +1,35 @@
-.options-container {
+.options-page .options-container {
   padding: 1rem;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: auto 1fr; /* ラベル, 入力欄 */
+  gap: 1rem 0.5rem; /* 行間, 列間 */
   align-items: center;
-  gap: 1rem;
 }
 
-.options-container input {
-  width: 300px;
+.options-page .options-container input {
+  width: 500px;
   padding: 0.5rem;
 }
 
-.options-container button {
+.options-page .save-button {
   padding: 0.5rem 1rem;
   background-color: darkcyan;
   color: white;
   border: none;
   cursor: pointer;
+  margin-left: 1rem;
 }
 
-.save-message {
+.options-page .option-title,
+.options-page .option-subtitle {
+  margin-left: 1rem;
+}
+
+.options-page .save-message {
   color: #28a745; /* Bootstrapの成功時の色に近い緑 */
   font-weight: bold;
   margin-top: 1rem;
+  margin-left: 1rem;
   padding: 0.5rem;
   border: 1px solid #28a745;
   border-radius: 4px;

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import {
+  OPTION_SAVE_SUCCESS_MESSAGE,
   SAVE_MESSAGE_TIMEOUT_MS,
   STORAGE_KEY_BOOKMARK_URL,
 } from "../constants/constants";
@@ -41,7 +42,7 @@ export const useOptions = () => {
   const handleSave = async () => {
     if (url) {
       await chrome.storage.local.set({ [STORAGE_KEY_BOOKMARK_URL]: url });
-      setSaveMessage("保存しました！");
+      setSaveMessage(OPTION_SAVE_SUCCESS_MESSAGE);
 
       // 既存のタイマーをクリア
       if (timerRef.current) {
