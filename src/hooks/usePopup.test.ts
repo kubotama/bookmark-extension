@@ -12,7 +12,11 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { useActiveTabInfo } from "../hooks/useActiveTabInfo";
 import { useApiUrl } from "../hooks/useApiUrl";
 
-import { API_BOOKMARK_ADD } from "../constants/constants";
+import {
+  API_BOOKMARK_ADD,
+  POPUP_REGISTER_CONFLICT_ERROR_PREFIX,
+  POPUP_RESPONSE_MESSAGE_PARSE_ERROR,
+} from "../constants/constants";
 import { usePopup } from "./usePopup";
 
 // モック用の変数を定義
@@ -91,7 +95,9 @@ describe("usePopup", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.message?.text).toBe("ブックマークが登録されました。");
+      expect(result.current.message?.text).toBe(
+        "ブックマークが登録されました。"
+      );
       expect(result.current.message?.type).toBe("success");
     });
   });
@@ -152,7 +158,9 @@ describe("usePopup", () => {
 
     await waitFor(() => {
       // response.statusTextがフォールバックとして使用されることを確認
-      expect(result.current.message?.text).toBe("登録失敗: Bad Request");
+      expect(result.current.message?.text).toBe(
+        `${POPUP_REGISTER_CONFLICT_ERROR_PREFIX}${POPUP_RESPONSE_MESSAGE_PARSE_ERROR}`
+      );
       expect(result.current.message?.type).toBe("error");
     });
   });

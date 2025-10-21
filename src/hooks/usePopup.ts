@@ -4,6 +4,7 @@ import {
   POPUP_REGISTER_CONFLICT_ERROR_PREFIX,
   POPUP_REGISTER_FAILED_PREFIX,
   POPUP_REGISTER_SUCCESS_MESSAGE,
+  POPUP_RESPONSE_MESSAGE_PARSE_ERROR,
   POPUP_UNEXPECTED_ERROR_PREFIX,
 } from "../constants/constants";
 import { useActiveTabInfo } from "./useActiveTabInfo";
@@ -72,7 +73,7 @@ export const usePopup = () => {
           const errorData = await response.json();
           setMessage({
             text: `${POPUP_REGISTER_CONFLICT_ERROR_PREFIX}${
-              errorData.message || response.statusText
+              errorData.message || POPUP_RESPONSE_MESSAGE_PARSE_ERROR
             }`,
             type: "error",
           });

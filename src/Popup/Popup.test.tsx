@@ -19,6 +19,7 @@ import {
   POPUP_REGISTER_BUTTON_TEXT,
   POPUP_REGISTER_CONFLICT_ERROR_PREFIX,
   POPUP_REGISTER_SUCCESS_MESSAGE,
+  POPUP_RESPONSE_MESSAGE_PARSE_ERROR,
   POPUP_URL_FETCH_ERROR_MESSAGE,
   STORAGE_KEY_BOOKMARK_URL,
 } from "../constants/constants";
@@ -412,7 +413,7 @@ describe("Popup", () => {
               statusText: "Bad Request",
             })
           ),
-        expectedMessage: "登録失敗: Bad Request",
+        expectedMessage: `${POPUP_REGISTER_CONFLICT_ERROR_PREFIX}${POPUP_RESPONSE_MESSAGE_PARSE_ERROR}`,
         // このケースではconsole.errorは呼ばれない
         expectedConsoleError: undefined,
       },
