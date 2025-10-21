@@ -16,6 +16,10 @@ import {
   API_BOOKMARK_ADD,
   LABEL_TITLE,
   LABEL_URL,
+  POPUP_REGISTER_BUTTON_TEXT,
+  POPUP_REGISTER_CONFLICT_ERROR_PREFIX,
+  POPUP_REGISTER_SUCCESS_MESSAGE,
+  POPUP_URL_FETCH_ERROR_MESSAGE,
   STORAGE_KEY_BOOKMARK_URL,
 } from "../constants/constants";
 import Popup from "./Popup";
@@ -104,7 +108,7 @@ describe("Popup", () => {
     render(<Popup />);
 
     expect(
-      await screen.findByRole("button", { name: "登録" })
+      await screen.findByRole("button", { name: POPUP_REGISTER_BUTTON_TEXT })
     ).toBeInTheDocument();
     expect(await screen.findByLabelText(LABEL_URL)).toHaveValue(
       "https://example.com"
@@ -119,9 +123,11 @@ describe("Popup", () => {
 
     render(<Popup />);
 
-    expect(await screen.findByText("登録")).toBeInTheDocument();
+    expect(
+      await screen.findByText(POPUP_REGISTER_BUTTON_TEXT)
+    ).toBeInTheDocument();
     expect(await screen.findByLabelText(LABEL_URL)).toHaveValue(
-      "URLの取得に失敗しました。"
+      POPUP_URL_FETCH_ERROR_MESSAGE
     );
   });
 
@@ -133,7 +139,9 @@ describe("Popup", () => {
     render(<Popup />);
 
     expect(await screen.findByLabelText(LABEL_TITLE)).toHaveValue("");
-    const registerButton = await screen.findByRole("button", { name: "登録" });
+    const registerButton = await screen.findByRole("button", {
+      name: POPUP_REGISTER_BUTTON_TEXT,
+    });
     expect(registerButton).toBeInTheDocument();
     expect(registerButton).toBeDisabled();
   });
@@ -161,11 +169,13 @@ describe("Popup", () => {
     await user.clear(titleInput);
     await user.type(titleInput, "Google");
 
-    const registerButton = await screen.findByRole("button", { name: "登録" });
+    const registerButton = await screen.findByRole("button", {
+      name: POPUP_REGISTER_BUTTON_TEXT,
+    });
     await user.click(registerButton);
 
     expect(
-      await screen.findByText("ブックマークが登録されました。")
+      await screen.findByText(POPUP_REGISTER_SUCCESS_MESSAGE)
     ).toBeInTheDocument();
     expect(global.fetch).toBeCalledTimes(1);
     expect(global.fetch).toBeCalledWith(API_BOOKMARK_ADD, {
@@ -203,12 +213,14 @@ describe("Popup", () => {
     await user.clear(titleInput);
     await user.type(titleInput, "Google");
 
-    const registerButton = await screen.findByRole("button", { name: "登録" });
+    const registerButton = await screen.findByRole("button", {
+      name: POPUP_REGISTER_BUTTON_TEXT,
+    });
     await user.click(registerButton);
 
     expect(
       await screen.findByText(
-        "登録失敗: 指定されたURLのブックマークは既に登録されています。"
+        `${POPUP_REGISTER_CONFLICT_ERROR_PREFIX}指定されたURLのブックマークは既に登録されています。`
       )
     ).toBeInTheDocument();
     expect(global.fetch).toBeCalledTimes(1);
@@ -228,14 +240,18 @@ describe("Popup", () => {
     await user.clear(urlInput);
     await user.type(urlInput, "invalid-url");
 
-    const registerButton = await screen.findByRole("button", { name: "登録" });
+    const registerButton = await screen.findByRole("button", {
+      name: POPUP_REGISTER_BUTTON_TEXT,
+    });
     expect(registerButton).toBeDisabled();
   });
 
   it("タイトルが空の場合、登録ボタンは無効になる", async () => {
     render(<Popup />);
 
-    const registerButton = await screen.findByRole("button", { name: "登録" });
+    const registerButton = await screen.findByRole("button", {
+      name: POPUP_REGISTER_BUTTON_TEXT,
+    });
     const titleInput = await screen.findByLabelText(LABEL_TITLE);
 
     // Initially, with a valid title, the button is enabled.
@@ -270,7 +286,9 @@ describe("Popup", () => {
 
     render(<Popup />);
 
-    const registerButton = await screen.findByRole("button", { name: "登録" });
+    const registerButton = await screen.findByRole("button", {
+      name: POPUP_REGISTER_BUTTON_TEXT,
+    });
     expect(registerButton).toBeEnabled();
 
     // user.clickは非同期イベントなので、完了を待つ
@@ -327,7 +345,7 @@ describe("Popup", () => {
       await user.type(titleInput, "Google");
 
       const registerButton = await screen.findByRole("button", {
-        name: "登録",
+        name: POPUP_REGISTER_BUTTON_TEXT,
       });
       await user.click(registerButton);
 
@@ -340,7 +358,7 @@ describe("Popup", () => {
         body: '{"url":"https://www.google.com/","title":"Google"}',
       });
       expect(
-        await screen.findByText("ブックマークが登録されました。")
+        await screen.findByText(POPUP_REGISTER_SUCCESS_MESSAGE)
       ).toBeInTheDocument();
     });
   });

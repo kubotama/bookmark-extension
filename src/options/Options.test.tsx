@@ -4,14 +4,17 @@ import { act, render, screen } from "@testing-library/react";
 import userEvent, { type UserEvent } from "@testing-library/user-event";
 
 import {
+  OPTION_SAVE_SUCCESS_MESSAGE,
+  OPTION_LABEL_API_URL,
+  OPTION_SAVE_BUTTON_TEXT,
+  OPTION_SUBTITLE_TEXT,
+  PLACEHOLDER_URL,
   SAVE_MESSAGE_TIMEOUT_MS,
   STORAGE_KEY_BOOKMARK_URL,
 } from "../constants/constants";
 import Options from "./Options";
 
 describe("Options", () => {
-  const URL_PLACEHOLDER = "ブックマークするURL";
-  const SAVE_BUTTON_NAME = "保存";
   let user: UserEvent;
 
   // chrome.storage.localのモック
@@ -46,13 +49,19 @@ describe("Options", () => {
       render(<Options />);
 
       expect(
-        await screen.findByRole("heading", { name: "オプション" })
+        await screen.findByRole("heading", { name: OPTION_SUBTITLE_TEXT })
       ).toBeInTheDocument();
       expect(
-        await screen.findByPlaceholderText(URL_PLACEHOLDER)
+        await screen.findByPlaceholderText(PLACEHOLDER_URL)
       ).toBeInTheDocument();
       expect(
-        await screen.findByRole("button", { name: SAVE_BUTTON_NAME })
+        await screen.findByRole("button", { name: OPTION_SAVE_BUTTON_TEXT })
+      ).toBeInTheDocument();
+      // LabeledInputFieldはlabel要素とinput要素を持つため、
+      // labelテキストで取得するのが一般的です。
+      // 定数を使用することで、将来のラベル変更に強くなります。
+      expect(
+        await screen.findByLabelText(OPTION_LABEL_API_URL)
       ).toBeInTheDocument();
     });
 
@@ -62,7 +71,7 @@ describe("Options", () => {
 
       render(<Options />);
 
-      expect(await screen.findByPlaceholderText(URL_PLACEHOLDER)).toHaveValue(
+      expect(await screen.findByLabelText(OPTION_LABEL_API_URL)).toHaveValue(
         savedUrl
       );
 
@@ -72,7 +81,7 @@ describe("Options", () => {
     it("updates the input value on change", async () => {
       render(<Options />);
 
-      const input = await screen.findByPlaceholderText(URL_PLACEHOLDER);
+      const input = await screen.findByLabelText(OPTION_LABEL_API_URL);
       const newUrl = "https://example.com/new";
 
       await user.clear(input);
@@ -84,9 +93,9 @@ describe("Options", () => {
     it("saves the URL to storage when the save button is clicked", async () => {
       render(<Options />);
 
-      const input = await screen.findByPlaceholderText(URL_PLACEHOLDER);
+      const input = await screen.findByLabelText(OPTION_LABEL_API_URL);
       const button = await screen.findByRole("button", {
-        name: SAVE_BUTTON_NAME,
+        name: OPTION_SAVE_BUTTON_TEXT,
       });
       const newUrl = "https://example.com/new";
 
@@ -103,7 +112,7 @@ describe("Options", () => {
       mockGet.mockResolvedValue({});
       render(<Options />);
       const button = await screen.findByRole("button", {
-        name: SAVE_BUTTON_NAME,
+        name: OPTION_SAVE_BUTTON_TEXT,
       });
 
       await user.click(button);
@@ -129,9 +138,9 @@ describe("Options", () => {
 
     it("displays a save message and clears it after 3 seconds", async () => {
       render(<Options />);
-      const input = await screen.findByPlaceholderText(URL_PLACEHOLDER);
+      const input = await screen.findByLabelText(OPTION_LABEL_API_URL);
       const button = await screen.findByRole("button", {
-        name: SAVE_BUTTON_NAME,
+        name: OPTION_SAVE_BUTTON_TEXT,
       });
       const newUrl = "https://example.com/new-url-for-message-test";
 
@@ -141,23 +150,27 @@ describe("Options", () => {
       await user.click(button);
 
       // メッセージが表示されることを確認
-      expect(await screen.findByText("保存しました！")).toBeInTheDocument();
+      expect(
+        await screen.findByText(OPTION_SAVE_SUCCESS_MESSAGE)
+      ).toBeInTheDocument();
 
       await act(async () => {
         await vi.runAllTimersAsync();
       });
 
       // メッセージが消えることを確認
-      expect(screen.queryByText("保存しました！")).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(OPTION_SAVE_SUCCESS_MESSAGE)
+      ).not.toBeInTheDocument();
     });
 
     it("should reset the message timer when the save button is clicked again before the message disappears", async () => {
       const MESSAGE_TIMEOUT = SAVE_MESSAGE_TIMEOUT_MS;
       const HALF_TIMEOUT = MESSAGE_TIMEOUT / 2;
       render(<Options />);
-      const input = await screen.findByPlaceholderText(URL_PLACEHOLDER);
+      const input = await screen.findByLabelText(OPTION_LABEL_API_URL);
       const button = await screen.findByRole("button", {
-        name: SAVE_BUTTON_NAME,
+        name: OPTION_SAVE_BUTTON_TEXT,
       });
       const newUrl = "https://example.com/multiple-clicks-test";
 
@@ -166,7 +179,9 @@ describe("Options", () => {
 
       // 1回目のクリック
       await user.click(button);
-      expect(await screen.findByText("保存しました！")).toBeInTheDocument();
+      expect(
+        await screen.findByText(OPTION_SAVE_SUCCESS_MESSAGE)
+      ).toBeInTheDocument();
 
       // タイマーが半分経過（1500ms）
       await act(async () => {
@@ -181,13 +196,15 @@ describe("Options", () => {
       await act(async () => {
         await vi.advanceTimersByTimeAsync(HALF_TIMEOUT);
       });
-      expect(screen.getByText("保存しました！")).toBeInTheDocument();
+      expect(screen.getByText(OPTION_SAVE_SUCCESS_MESSAGE)).toBeInTheDocument();
 
       // 2回目のタイマーが切れる時間まで進める（さらに+1500ms）
       await act(async () => {
         await vi.advanceTimersByTimeAsync(HALF_TIMEOUT);
       });
-      expect(screen.queryByText("保存しました！")).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(OPTION_SAVE_SUCCESS_MESSAGE)
+      ).not.toBeInTheDocument();
     });
   });
 });
