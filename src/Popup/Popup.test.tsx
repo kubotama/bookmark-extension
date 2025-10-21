@@ -175,11 +175,8 @@ describe("Popup", () => {
     });
     await user.click(registerButton);
 
-    await waitFor(async () => {
-      const message = await screen.findByText(POPUP_REGISTER_SUCCESS_MESSAGE);
-      expect(message).toBeInTheDocument();
-      expect(message.parentElement).toHaveClass("message message--success");
-    });
+    const message = await screen.findByText(POPUP_REGISTER_SUCCESS_MESSAGE);
+    expect(message.parentElement).toHaveClass("message message--success");
 
     expect(global.fetch).toBeCalledTimes(1);
     expect(global.fetch).toBeCalledWith(API_BOOKMARK_ADD, {
@@ -222,13 +219,10 @@ describe("Popup", () => {
     });
     await user.click(registerButton);
 
-    await waitFor(async () => {
-      const message = await screen.findByText(
-        `${POPUP_REGISTER_CONFLICT_ERROR_PREFIX}指定されたURLのブックマークは既に登録されています。`
-      );
-      expect(message).toBeInTheDocument();
-      expect(message.parentElement).toHaveClass("message message--error");
-    });
+    const message = await screen.findByText(
+      `${POPUP_REGISTER_CONFLICT_ERROR_PREFIX}指定されたURLのブックマークは既に登録されています。`
+    );
+    expect(message.parentElement).toHaveClass("message message--error");
 
     expect(global.fetch).toBeCalledTimes(1);
     expect(global.fetch).toBeCalledWith(API_BOOKMARK_ADD, {
@@ -364,11 +358,8 @@ describe("Popup", () => {
         },
         body: '{"url":"https://www.google.com/","title":"Google"}',
       });
-      await waitFor(async () => {
-        const message = await screen.findByText(POPUP_REGISTER_SUCCESS_MESSAGE);
-        expect(message).toBeInTheDocument();
-        expect(message.parentElement).toHaveClass("message message--success");
-      });
+      const message = await screen.findByText(POPUP_REGISTER_SUCCESS_MESSAGE);
+      expect(message.parentElement).toHaveClass("message message--success");
     });
   });
 
@@ -427,11 +418,8 @@ describe("Popup", () => {
         });
         await user.click(registerButton);
 
-        await waitFor(async () => {
-          const message = await screen.findByText(expectedMessage);
-          expect(message).toBeInTheDocument();
-          expect(message.parentElement).toHaveClass("message message--error");
-        });
+        const message = await screen.findByText(expectedMessage);
+        expect(message.parentElement).toHaveClass("message message--error");
 
         expect(global.fetch).toBeCalledTimes(1);
         expect(global.fetch).toBeCalledWith(API_BOOKMARK_ADD, {
