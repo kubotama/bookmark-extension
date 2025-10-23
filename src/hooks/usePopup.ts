@@ -4,6 +4,7 @@ import {
   POPUP_REGISTER_CONFLICT_ERROR_PREFIX,
   POPUP_REGISTER_FAILED_PREFIX,
   POPUP_REGISTER_SUCCESS_MESSAGE,
+  POPUP_RESPONSE_MESSAGE_PARSE_ERROR,
   POPUP_UNEXPECTED_ERROR_PREFIX,
 } from "../constants/constants";
 import { useActiveTabInfo } from "./useActiveTabInfo";
@@ -26,15 +27,19 @@ export const usePopup = () => {
     setTitle: setActiveTabTitle,
   } = useActiveTabInfo();
   const { apiUrl, isApiUrlLoaded } = useApiUrl();
-  const [messageText, setMessageText] = useState<string | undefined>(undefined);
+  const [message, setMessage] = useState<
+    { text: string; type: "success" | "error" | "info" } | undefined
+  >(undefined);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleUrlChange = useCallback(
     (newUrl: string) => {
       setActiveTabUrl(newUrl);
 
-      setMessageText(
-        isValidUrl(newUrl) ? undefined : `無効なURLです: ${newUrl}`
+      setMessage(
+        isValidUrl(newUrl)
+          ? undefined
+          : { text: `無効なURLです: ${newUrl}`, type: "error" }
       );
     },
     [setActiveTabUrl]
@@ -47,7 +52,7 @@ export const usePopup = () => {
     };
 
     setIsLoading(true);
-    setMessageText(undefined); // メッセージをリセット
+    setMessage(undefined); // メッセージをリセット
 
     try {
       const response = await fetch(apiUrl, {
@@ -59,18 +64,22 @@ export const usePopup = () => {
       });
 
       if (response.ok) {
-        setMessageText(POPUP_REGISTER_SUCCESS_MESSAGE);
+        setMessage({
+          text: POPUP_REGISTER_SUCCESS_MESSAGE,
+          type: "success",
+        });
       } else {
         try {
           const errorData = await response.json();
-          setMessageText(
-            `${POPUP_REGISTER_CONFLICT_ERROR_PREFIX}${
-              errorData.message || response.statusText
-            }`
-          );
+          setMessage({
+            text: `${POPUP_REGISTER_CONFLICT_ERROR_PREFIX}${
+              errorData.message || POPUP_RESPONSE_MESSAGE_PARSE_ERROR
+            }`,
+            type: "error",
+          });
         } catch (error) {
           const errorMessage = `${POPUP_REGISTER_FAILED_PREFIX}${response.status}`;
-          setMessageText(errorMessage);
+          setMessage({ text: errorMessage, type: "error" });
           console.error(`${errorMessage}:`, error);
         }
       }
@@ -78,7 +87,7 @@ export const usePopup = () => {
       // fetchがrejectするエラーは通常Errorインスタンスですが、予期せぬケースを考慮します。
       // 文字列やオブジェクトがthrowされる可能性も考えられます。
       const errorMessage = `${POPUP_UNEXPECTED_ERROR_PREFIX}${String(error)}`;
-      setMessageText(errorMessage);
+      setMessage({ text: errorMessage, type: "error" });
       console.error(error);
     } finally {
       setIsLoading(false);
@@ -102,7 +111,7 @@ export const usePopup = () => {
     // API status
     isLoading,
     // UI state and handlers
-    messageText,
+    message,
     registerClick,
     handleUrlChange,
     isRegisterDisabled,

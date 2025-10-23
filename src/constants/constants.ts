@@ -21,3 +21,5 @@ export const POPUP_REGISTER_CONFLICT_ERROR_PREFIX = "登録失敗: ";
 export const POPUP_REGISTER_FAILED_PREFIX =
   "ブックマークの登録に失敗しました。ステータス: ";
 export const POPUP_UNEXPECTED_ERROR_PREFIX = "予期せぬエラーが発生しました: ";
+export const POPUP_RESPONSE_MESSAGE_PARSE_ERROR =
+  "エラー応答の解析に失敗しました。";

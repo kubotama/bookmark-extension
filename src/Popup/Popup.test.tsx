@@ -19,6 +19,7 @@ import {
   POPUP_REGISTER_BUTTON_TEXT,
   POPUP_REGISTER_CONFLICT_ERROR_PREFIX,
   POPUP_REGISTER_SUCCESS_MESSAGE,
+  POPUP_RESPONSE_MESSAGE_PARSE_ERROR,
   POPUP_URL_FETCH_ERROR_MESSAGE,
   STORAGE_KEY_BOOKMARK_URL,
 } from "../constants/constants";
@@ -174,9 +175,9 @@ describe("Popup", () => {
     });
     await user.click(registerButton);
 
-    expect(
-      await screen.findByText(POPUP_REGISTER_SUCCESS_MESSAGE)
-    ).toBeInTheDocument();
+    const message = await screen.findByText(POPUP_REGISTER_SUCCESS_MESSAGE);
+    expect(message.parentElement).toHaveClass("message message--success");
+
     expect(global.fetch).toBeCalledTimes(1);
     expect(global.fetch).toBeCalledWith(API_BOOKMARK_ADD, {
       method: "POST",
@@ -218,11 +219,11 @@ describe("Popup", () => {
     });
     await user.click(registerButton);
 
-    expect(
-      await screen.findByText(
-        `${POPUP_REGISTER_CONFLICT_ERROR_PREFIX}指定されたURLのブックマークは既に登録されています。`
-      )
-    ).toBeInTheDocument();
+    const message = await screen.findByText(
+      `${POPUP_REGISTER_CONFLICT_ERROR_PREFIX}指定されたURLのブックマークは既に登録されています。`
+    );
+    expect(message.parentElement).toHaveClass("message message--error");
+
     expect(global.fetch).toBeCalledTimes(1);
     expect(global.fetch).toBeCalledWith(API_BOOKMARK_ADD, {
       method: "POST",
@@ -357,9 +358,8 @@ describe("Popup", () => {
         },
         body: '{"url":"https://www.google.com/","title":"Google"}',
       });
-      expect(
-        await screen.findByText(POPUP_REGISTER_SUCCESS_MESSAGE)
-      ).toBeInTheDocument();
+      const message = await screen.findByText(POPUP_REGISTER_SUCCESS_MESSAGE);
+      expect(message.parentElement).toHaveClass("message message--success");
     });
   });
 
@@ -404,7 +404,7 @@ describe("Popup", () => {
               statusText: "Bad Request",
             })
           ),
-        expectedMessage: "登録失敗: Bad Request",
+        expectedMessage: `${POPUP_REGISTER_CONFLICT_ERROR_PREFIX}${POPUP_RESPONSE_MESSAGE_PARSE_ERROR}`,
         // このケースではconsole.errorは呼ばれない
         expectedConsoleError: undefined,
       },
@@ -418,7 +418,9 @@ describe("Popup", () => {
         });
         await user.click(registerButton);
 
-        expect(await screen.findByText(expectedMessage)).toBeInTheDocument();
+        const message = await screen.findByText(expectedMessage);
+        expect(message.parentElement).toHaveClass("message message--error");
+
         expect(global.fetch).toBeCalledTimes(1);
         expect(global.fetch).toBeCalledWith(API_BOOKMARK_ADD, {
           method: "POST",

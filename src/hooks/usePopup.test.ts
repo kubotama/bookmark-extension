@@ -12,7 +12,11 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { useActiveTabInfo } from "../hooks/useActiveTabInfo";
 import { useApiUrl } from "../hooks/useApiUrl";
 
-import { API_BOOKMARK_ADD } from "../constants/constants";
+import {
+  API_BOOKMARK_ADD,
+  POPUP_REGISTER_CONFLICT_ERROR_PREFIX,
+  POPUP_RESPONSE_MESSAGE_PARSE_ERROR,
+} from "../constants/constants";
 import { usePopup } from "./usePopup";
 
 // モック用の変数を定義
@@ -65,7 +69,7 @@ describe("usePopup", () => {
     expect(result.current.activeTabUrl).toBe("https://example.com");
     expect(result.current.activeTabTitle).toBe("Test Title");
     expect(result.current.isRegisterDisabled).toBe(false);
-    expect(result.current.messageText).toBeUndefined();
+    expect(result.current.message).toBeUndefined();
   });
 
   it("ブックマークが正常に登録されること", async () => {
@@ -91,7 +95,10 @@ describe("usePopup", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.messageText).toBe("ブックマークが登録されました。");
+      expect(result.current.message?.text).toBe(
+        "ブックマークが登録されました。"
+      );
+      expect(result.current.message?.type).toBe("success");
     });
   });
 
@@ -110,7 +117,8 @@ describe("usePopup", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.messageText).toBe("登録失敗: Error message");
+      expect(result.current.message?.text).toBe("登録失敗: Error message");
+      expect(result.current.message?.type).toBe("error");
     });
   });
 
@@ -126,9 +134,10 @@ describe("usePopup", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.messageText).toBe(
+      expect(result.current.message?.text).toBe(
         "予期せぬエラーが発生しました: Error: Network error"
       );
+      expect(result.current.message?.type).toBe("error");
       expect(consoleErrorSpy).toHaveBeenCalledWith(new Error("Network error"));
     });
   });
@@ -149,7 +158,10 @@ describe("usePopup", () => {
 
     await waitFor(() => {
       // response.statusTextがフォールバックとして使用されることを確認
-      expect(result.current.messageText).toBe("登録失敗: Bad Request");
+      expect(result.current.message?.text).toBe(
+        `${POPUP_REGISTER_CONFLICT_ERROR_PREFIX}${POPUP_RESPONSE_MESSAGE_PARSE_ERROR}`
+      );
+      expect(result.current.message?.type).toBe("error");
     });
   });
 
