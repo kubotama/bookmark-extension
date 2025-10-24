@@ -17,9 +17,7 @@ import {
   LABEL_TITLE,
   LABEL_URL,
   POPUP_REGISTER_BUTTON_TEXT,
-  POPUP_REGISTER_CONFLICT_ERROR_PREFIX,
   POPUP_REGISTER_SUCCESS_MESSAGE,
-  POPUP_RESPONSE_MESSAGE_PARSE_ERROR,
   POPUP_URL_FETCH_ERROR_MESSAGE,
   STORAGE_KEY_BOOKMARK_URL,
 } from "../constants/constants";
@@ -220,7 +218,7 @@ describe("Popup", () => {
     await user.click(registerButton);
 
     const message = await screen.findByText(
-      `${POPUP_REGISTER_CONFLICT_ERROR_PREFIX}指定されたURLのブックマークは既に登録されています。`
+      "登録失敗: 指定されたURLのブックマークは既に登録されています。"
     );
     expect(message.parentElement).toHaveClass("message message--error");
 
@@ -404,7 +402,7 @@ describe("Popup", () => {
               statusText: "Bad Request",
             })
           ),
-        expectedMessage: `${POPUP_REGISTER_CONFLICT_ERROR_PREFIX}${POPUP_RESPONSE_MESSAGE_PARSE_ERROR}`,
+        expectedMessage: "登録失敗: エラー応答の解析に失敗しました。",
         // このケースではconsole.errorは呼ばれない
         expectedConsoleError: undefined,
       },
