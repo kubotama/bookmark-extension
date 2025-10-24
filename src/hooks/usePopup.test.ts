@@ -131,10 +131,13 @@ describe("usePopup", () => {
 
     await waitFor(() => {
       expect(result.current.message?.text).toBe(
-        "予期せぬエラーが発生しました: Error: Network error"
+        "予期せぬエラーが発生しました: Network error"
       );
       expect(result.current.message?.type).toBe("error");
-      expect(consoleErrorSpy).toHaveBeenCalledWith(new Error("Network error"));
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        "予期せぬエラーが発生しました: Network error",
+        new Error("Network error")
+      );
     });
   });
 
