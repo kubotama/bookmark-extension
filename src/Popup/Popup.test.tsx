@@ -390,7 +390,7 @@ describe("Popup", () => {
           Promise.resolve(new Response("invalid json", { status: 500 })),
         expectedMessage: "ブックマークの登録に失敗しました。ステータス: 500",
         expectedConsoleError: [
-          "ブックマークの登録に失敗しました。ステータス: 500:",
+          "ブックマークの登録に失敗しました。ステータス: 500",
           new SyntaxError(
             "Unexpected token 'i', \"invalid json\" is not valid JSON"
           ),

@@ -94,7 +94,7 @@ export const usePopup = () => {
           response.status
         );
         setMessage({ text: errorMessage, type: "error" });
-        console.error(`${errorMessage}:`, parseError);
+        console.error(errorMessage, parseError);
       }
     } catch (fetchError) {
       const errorMessage = createErrorMessage(
