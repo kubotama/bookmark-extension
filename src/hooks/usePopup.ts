@@ -21,17 +21,13 @@ const isValidUrl = (url: string): boolean => {
 };
 
 const createErrorMessage = (prefix: string, error?: unknown) => {
+  if (error == null) {
+    return prefix.trim();
+  }
   if (error instanceof Error) {
     return `${prefix}${error.message}`;
   }
-  if (typeof error === "string") {
-    return `${prefix}${error}`;
-  }
-  // レスポンスボディが空、またはJSON以外の形式でパースに失敗した場合など
-  if (error != null) {
-    return `${prefix}${String(error)}`;
-  }
-  return prefix.trim();
+  return `${prefix}${String(error)}`;
 };
 
 export const usePopup = () => {
@@ -50,17 +46,13 @@ export const usePopup = () => {
   const handleUrlChange = useCallback(
     (newUrl: string) => {
       setActiveTabUrl(newUrl);
-      setMessage(
-        isValidUrl(newUrl)
-          ? undefined
-          : {
-              text: createErrorMessage(
-                POPUP_INVALID_URL_MESSAGE_PREFIX,
-                newUrl
-              ),
-              type: "error",
-            }
-      );
+      const message = isValidUrl(newUrl)
+        ? undefined
+        : {
+            text: `${POPUP_INVALID_URL_MESSAGE_PREFIX}${newUrl}`,
+            type: "error" as const,
+          };
+      setMessage(message);
     },
     [setActiveTabUrl]
   );
