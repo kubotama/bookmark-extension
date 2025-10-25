@@ -11,7 +11,7 @@ import {
 import { useOptions } from "../hooks/useOptions";
 
 const Options = () => {
-  const { url, setUrl, saveMessage, handleSave } = useOptions();
+  const { baseUrl, setBaseUrl, saveMessage, handleSave } = useOptions();
 
   return (
     <main className="options-page">
@@ -21,8 +21,8 @@ const Options = () => {
         <LabeledInputField
           label={OPTION_LABEL_API_URL}
           type="text"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
+          value={baseUrl}
+          onChange={(e) => setBaseUrl(e.target.value)}
           placeholder={PLACEHOLDER_URL}
         />
       </div>

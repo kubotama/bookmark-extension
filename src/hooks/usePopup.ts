@@ -37,7 +37,7 @@ export const usePopup = () => {
     title: activeTabTitle,
     setTitle: setActiveTabTitle,
   } = useActiveTabInfo();
-  const { apiUrl, isApiUrlLoaded } = useApiUrl();
+  const { getApiBookmarkAddUrl, isApiUrlLoaded } = useApiUrl();
   const [message, setMessage] = useState<
     { text: string; type: "success" | "error" | "info" } | undefined
   >(undefined);
@@ -67,6 +67,7 @@ export const usePopup = () => {
     setMessage(undefined);
 
     try {
+      const apiUrl = getApiBookmarkAddUrl();
       const response = await fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -96,17 +97,24 @@ export const usePopup = () => {
         setMessage({ text: errorMessage, type: "error" });
         console.error(errorMessage, parseError);
       }
-    } catch (fetchError) {
-      const errorMessage = createErrorMessage(
-        POPUP_UNEXPECTED_ERROR_PREFIX,
-        fetchError
-      );
-      setMessage({ text: errorMessage, type: "error" });
-      console.error(errorMessage, fetchError);
+    } catch (error) {
+      if (error instanceof TypeError) {
+        // `new URL()` に起因するエラーの可能性が高い
+        const urlErrorMessage = "APIのベースURL設定が不正です。";
+        setMessage({ text: urlErrorMessage, type: "error" });
+        console.error(urlErrorMessage, error);
+      } else {
+        const errorMessage = createErrorMessage(
+          POPUP_UNEXPECTED_ERROR_PREFIX,
+          error
+        );
+        setMessage({ text: errorMessage, type: "error" });
+        console.error(errorMessage, error);
+      }
     } finally {
       setIsLoading(false);
     }
-  }, [apiUrl, activeTabUrl, activeTabTitle]);
+  }, [getApiBookmarkAddUrl, activeTabUrl, activeTabTitle]);
 
   const isRegisterDisabled = useMemo(() => {
     return (

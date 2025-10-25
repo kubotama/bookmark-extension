@@ -12,8 +12,10 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { useActiveTabInfo } from "../hooks/useActiveTabInfo";
 import { useApiUrl } from "../hooks/useApiUrl";
 
-import { API_BOOKMARK_ADD } from "../constants/constants";
+import { API_BASE_URL, API_ENDPOINT } from "../constants/constants";
 import { usePopup } from "./usePopup";
+
+const API_BOOKMARK_ADD = new URL(API_ENDPOINT.ADD_BOOKMARK, API_BASE_URL).href;
 
 // モック用の変数を定義
 let mockActiveTabInfo: ReturnType<typeof useActiveTabInfo>;
@@ -47,7 +49,7 @@ describe("usePopup", () => {
       setTitle: vi.fn(),
     };
     mockApiUrl = {
-      apiUrl: API_BOOKMARK_ADD,
+      getApiBookmarkAddUrl: () => API_BOOKMARK_ADD,
       isApiUrlLoaded: true,
     };
     vi.stubGlobal("fetch", vi.fn());
@@ -137,6 +139,31 @@ describe("usePopup", () => {
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         "予期せぬエラーが発生しました: Network error",
         new Error("Network error")
+      );
+    });
+  });
+
+  it("不正なベースURLでTypeErrorが発生した際の処理が正しく行われること", async () => {
+    const typeErrorMessage =
+      "Cannot read properties of undefined (reading 'ok')";
+    mockApiUrl.getApiBookmarkAddUrl = vi.fn().mockImplementation(() => {
+      throw new TypeError(typeErrorMessage);
+    });
+
+    const { result } = hookResult;
+
+    await act(async () => {
+      await result.current.registerClick();
+    });
+
+    await waitFor(() => {
+      expect(result.current.message?.text).toBe(
+        "APIのベースURL設定が不正です。"
+      );
+      expect(result.current.message?.type).toBe("error");
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        "APIのベースURL設定が不正です。",
+        new TypeError(typeErrorMessage)
       );
     });
   });

@@ -1,20 +1,28 @@
 /// <reference types="chrome"/>
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-import { API_BOOKMARK_ADD } from "../constants/constants";
+import {
+  API_BASE_URL,
+  API_ENDPOINT,
+  STORAGE_KEY_API_BASE_URL,
+} from "../constants/constants";
 
 export const useApiUrl = () => {
-  const [apiUrl, setApiUrl] = useState<string>(API_BOOKMARK_ADD);
+  const [apiBaseUrl, setApiBaseUrl] = useState<string>(API_BASE_URL);
   const [isApiUrlLoaded, setIsApiUrlLoaded] = useState<boolean>(false);
+
+  const getApiBookmarkAddUrl = useCallback(() => {
+    return new URL(API_ENDPOINT.ADD_BOOKMARK, apiBaseUrl).href;
+  }, [apiBaseUrl]);
 
   useEffect(() => {
     let isMounted = true;
     const fetchApiUrl = async () => {
       try {
-        const result = await chrome.storage.local.get("bookmarkUrl");
-        if (isMounted && result.bookmarkUrl) {
-          setApiUrl(result.bookmarkUrl);
+        const result = await chrome.storage.local.get(STORAGE_KEY_API_BASE_URL);
+        if (isMounted && result.apiBaseUrl) {
+          setApiBaseUrl(result.apiBaseUrl);
         }
       } catch (error) {
         if (error instanceof Error) {
@@ -34,5 +42,5 @@ export const useApiUrl = () => {
     };
   }, []);
 
-  return { apiUrl, isApiUrlLoaded };
+  return { getApiBookmarkAddUrl, isApiUrlLoaded };
 };

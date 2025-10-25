@@ -3,11 +3,11 @@ import { useEffect, useRef, useState } from "react";
 import {
   OPTION_SAVE_SUCCESS_MESSAGE,
   SAVE_MESSAGE_TIMEOUT_MS,
-  STORAGE_KEY_BOOKMARK_URL,
+  STORAGE_KEY_API_BASE_URL,
 } from "../constants/constants";
 
 export const useOptions = () => {
-  const [url, setUrl] = useState("");
+  const [baseUrl, setBaseUrl] = useState("");
   const [saveMessage, setSaveMessage] = useState("");
 
   const timerRef = useRef<number | null>(null);
@@ -17,9 +17,9 @@ export const useOptions = () => {
     const abortController = new AbortController();
     const loadUrl = async () => {
       try {
-        const data = await chrome.storage.local.get(STORAGE_KEY_BOOKMARK_URL);
-        if (!abortController.signal.aborted && data.bookmarkUrl) {
-          setUrl(data.bookmarkUrl);
+        const data = await chrome.storage.local.get(STORAGE_KEY_API_BASE_URL);
+        if (!abortController.signal.aborted && data.apiBaseUrl) {
+          setBaseUrl(data.apiBaseUrl);
         }
       } catch (error) {
         if (!abortController.signal.aborted) {
@@ -40,8 +40,8 @@ export const useOptions = () => {
 
   // 保存ボタンがクリックされたときの処理
   const handleSave = async () => {
-    if (url) {
-      await chrome.storage.local.set({ [STORAGE_KEY_BOOKMARK_URL]: url });
+    if (baseUrl) {
+      await chrome.storage.local.set({ [STORAGE_KEY_API_BASE_URL]: baseUrl });
       setSaveMessage(OPTION_SAVE_SUCCESS_MESSAGE);
 
       // 既存のタイマーをクリア
@@ -57,8 +57,8 @@ export const useOptions = () => {
   };
 
   return {
-    url,
-    setUrl,
+    baseUrl,
+    setBaseUrl,
     saveMessage,
     handleSave,
   };
