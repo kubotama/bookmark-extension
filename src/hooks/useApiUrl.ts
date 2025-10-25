@@ -9,7 +9,7 @@ export const useApiUrl = () => {
   const [isApiUrlLoaded, setIsApiUrlLoaded] = useState<boolean>(false);
 
   const getApiBookmarkAddUrl = useCallback(() => {
-    return new URL("api/bookmarks", apiBaseUrl).href;
+    return new URL("/api/bookmarks", apiBaseUrl).href;
   }, [apiBaseUrl]);
 
   useEffect(() => {
