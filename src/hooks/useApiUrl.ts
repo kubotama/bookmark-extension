@@ -2,14 +2,18 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import { API_BASE_URL, STORAGE_KEY_API_BASE_URL } from "../constants/constants";
+import {
+  API_BASE_URL,
+  API_ENDPOINT,
+  STORAGE_KEY_API_BASE_URL,
+} from "../constants/constants";
 
 export const useApiUrl = () => {
   const [apiBaseUrl, setApiBaseUrl] = useState<string>(API_BASE_URL);
   const [isApiUrlLoaded, setIsApiUrlLoaded] = useState<boolean>(false);
 
   const getApiBookmarkAddUrl = useCallback(() => {
-    return new URL("/api/bookmarks", apiBaseUrl).href;
+    return new URL(API_ENDPOINT.ADD_BOOKMARK, apiBaseUrl).href;
   }, [apiBaseUrl]);
 
   useEffect(() => {

@@ -1,4 +1,8 @@
 export const API_BASE_URL = "http://localhost:3000";
+export const API_ENDPOINT = {
+  ADD_BOOKMARK: "/api/bookmarks",
+};
+
 export const STORAGE_KEY_API_BASE_URL = "apiBaseUrl";
 export const SAVE_MESSAGE_TIMEOUT_MS = 3000;
 

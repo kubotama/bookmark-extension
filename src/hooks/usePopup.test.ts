@@ -12,10 +12,10 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { useActiveTabInfo } from "../hooks/useActiveTabInfo";
 import { useApiUrl } from "../hooks/useApiUrl";
 
-import { API_BASE_URL } from "../constants/constants";
+import { API_BASE_URL, API_ENDPOINT } from "../constants/constants";
 import { usePopup } from "./usePopup";
 
-const API_BOOKMARK_ADD = new URL("/api/bookmarks", API_BASE_URL).href;
+const API_BOOKMARK_ADD = new URL(API_ENDPOINT.ADD_BOOKMARK, API_BASE_URL).href;
 
 // モック用の変数を定義
 let mockActiveTabInfo: ReturnType<typeof useActiveTabInfo>;
