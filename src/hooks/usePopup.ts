@@ -37,19 +37,11 @@ export const usePopup = () => {
     title: activeTabTitle,
     setTitle: setActiveTabTitle,
   } = useActiveTabInfo();
-  const { apiBaseUrl, isApiUrlLoaded } = useApiUrl();
+  const { getApiBookmarkAddUrl, isApiUrlLoaded } = useApiUrl();
   const [message, setMessage] = useState<
     { text: string; type: "success" | "error" | "info" } | undefined
   >(undefined);
   const [isLoading, setIsLoading] = useState(false);
-
-  const apiBookmarkAddUrl = useMemo(() => {
-    try {
-      return new URL("api/bookmarks", apiBaseUrl).href;
-    } catch (e) {
-      return (e as Error).message; // 不正なベースURLの場合
-    }
-  }, [apiBaseUrl]);
 
   const handleUrlChange = useCallback(
     (newUrl: string) => {
@@ -75,7 +67,8 @@ export const usePopup = () => {
     setMessage(undefined);
 
     try {
-      const response = await fetch(apiBookmarkAddUrl, {
+      const apiUrl = getApiBookmarkAddUrl();
+      const response = await fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(bookmark),
@@ -104,17 +97,24 @@ export const usePopup = () => {
         setMessage({ text: errorMessage, type: "error" });
         console.error(errorMessage, parseError);
       }
-    } catch (fetchError) {
-      const errorMessage = createErrorMessage(
-        POPUP_UNEXPECTED_ERROR_PREFIX,
-        fetchError
-      );
-      setMessage({ text: errorMessage, type: "error" });
-      console.error(errorMessage, fetchError);
+    } catch (error) {
+      if (error instanceof TypeError) {
+        // `new URL()` に起因するエラーの可能性が高い
+        const urlErrorMessage = "APIのベースURL設定が不正です。";
+        setMessage({ text: urlErrorMessage, type: "error" });
+        console.error(urlErrorMessage, error);
+      } else {
+        const errorMessage = createErrorMessage(
+          POPUP_UNEXPECTED_ERROR_PREFIX,
+          error
+        );
+        setMessage({ text: errorMessage, type: "error" });
+        console.error(errorMessage, error);
+      }
     } finally {
       setIsLoading(false);
     }
-  }, [apiBookmarkAddUrl, activeTabUrl, activeTabTitle]);
+  }, [getApiBookmarkAddUrl, activeTabUrl, activeTabTitle]);
 
   const isRegisterDisabled = useMemo(() => {
     return (

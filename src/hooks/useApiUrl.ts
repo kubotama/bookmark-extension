@@ -1,12 +1,16 @@
 /// <reference types="chrome"/>
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { API_BASE_URL, STORAGE_KEY_API_BASE_URL } from "../constants/constants";
 
 export const useApiUrl = () => {
   const [apiBaseUrl, setApiBaseUrl] = useState<string>(API_BASE_URL);
   const [isApiUrlLoaded, setIsApiUrlLoaded] = useState<boolean>(false);
+
+  const getApiBookmarkAddUrl = useCallback(() => {
+    return new URL("api/bookmarks", apiBaseUrl).href;
+  }, [apiBaseUrl]);
 
   useEffect(() => {
     let isMounted = true;
@@ -38,5 +42,5 @@ export const useApiUrl = () => {
     };
   }, []);
 
-  return { apiBaseUrl, isApiUrlLoaded };
+  return { getApiBookmarkAddUrl, isApiUrlLoaded };
 };
