@@ -22,8 +22,7 @@ export const useApiUrl = () => {
       try {
         const result = await chrome.storage.local.get(STORAGE_KEY_API_BASE_URL);
         if (isMounted && result.apiBaseUrl) {
-          const baseUrl = new URL(result.apiBaseUrl).href;
-          setApiBaseUrl(baseUrl);
+          setApiBaseUrl(result.apiBaseUrl);
         }
       } catch (error) {
         if (error instanceof Error) {
