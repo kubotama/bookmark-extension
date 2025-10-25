@@ -15,7 +15,7 @@ import { useApiUrl } from "../hooks/useApiUrl";
 import { API_BASE_URL } from "../constants/constants";
 import { usePopup } from "./usePopup";
 
-const API_BOOKMARK_ADD = `${API_BASE_URL}api/bookmarks`;
+const API_BOOKMARK_ADD = new URL("/api/bookmarks", API_BASE_URL).href;
 
 // モック用の変数を定義
 let mockActiveTabInfo: ReturnType<typeof useActiveTabInfo>;
