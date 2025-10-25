@@ -378,8 +378,11 @@ describe("Popup", () => {
       {
         testName: "APIリクエストで例外が発生",
         mockFetch: () => Promise.reject(new Error("APIエラー")),
-        expectedMessage: "予期せぬエラーが発生しました: Error: APIエラー",
-        expectedConsoleError: new Error("APIエラー"),
+        expectedMessage: "予期せぬエラーが発生しました: APIエラー",
+        expectedConsoleError: [
+          "予期せぬエラーが発生しました: APIエラー",
+          new Error("APIエラー"),
+        ],
       },
       {
         testName: "エラーのレスポンスがJSON形式でないエラー",
@@ -387,7 +390,7 @@ describe("Popup", () => {
           Promise.resolve(new Response("invalid json", { status: 500 })),
         expectedMessage: "ブックマークの登録に失敗しました。ステータス: 500",
         expectedConsoleError: [
-          "ブックマークの登録に失敗しました。ステータス: 500:",
+          "ブックマークの登録に失敗しました。ステータス: 500",
           new SyntaxError(
             "Unexpected token 'i', \"invalid json\" is not valid JSON"
           ),
@@ -429,13 +432,11 @@ describe("Popup", () => {
         });
         if (expectedConsoleError) {
           expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
-          if (Array.isArray(expectedConsoleError)) {
-            expect(consoleErrorSpy).toHaveBeenCalledWith(
-              ...expectedConsoleError
-            );
-          } else {
-            expect(consoleErrorSpy).toHaveBeenCalledWith(expectedConsoleError);
-          }
+          // 配列でない場合もスプレッド構文で対応可能
+          const args = Array.isArray(expectedConsoleError)
+            ? expectedConsoleError
+            : [expectedConsoleError];
+          expect(consoleErrorSpy).toHaveBeenCalledWith(...args);
         } else {
           expect(consoleErrorSpy).not.toHaveBeenCalled();
         }
