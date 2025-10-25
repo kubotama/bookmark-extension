@@ -23,7 +23,7 @@ import {
 } from "../constants/constants";
 import Popup from "./Popup";
 
-const API_BOOKMARK_ADD = `${API_BASE_URL}api/bookmarks`;
+const API_BOOKMARK_ADD = `${API_BASE_URL}/api/bookmarks`;
 
 const createMockTab = (
   url: string,
@@ -88,7 +88,7 @@ describe("Popup", () => {
     vi.restoreAllMocks();
   });
 
-  const keyContainsApiBaseUrl = (
+  const isRequestingApiBaseUrl = (
     keys: string | string[] | { [key: string]: unknown } | null
   ): boolean => {
     if (keys === STORAGE_KEY_API_BASE_URL) return true;
@@ -314,7 +314,7 @@ describe("Popup", () => {
 
     beforeEach(() => {
       mockStorageGet.mockImplementation((keys) => {
-        if (keyContainsApiBaseUrl(keys)) {
+        if (isRequestingApiBaseUrl(keys)) {
           return Promise.resolve({
             [STORAGE_KEY_API_BASE_URL]: customApiBaseUrl,
           });
