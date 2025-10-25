@@ -2,19 +2,23 @@
 
 import { useEffect, useState } from "react";
 
-import { API_BOOKMARK_ADD } from "../constants/constants";
+import { API_BASE_URL, STORAGE_KEY_API_BASE_URL } from "../constants/constants";
 
 export const useApiUrl = () => {
-  const [apiUrl, setApiUrl] = useState<string>(API_BOOKMARK_ADD);
+  const [apiBaseUrl, setApiBaseUrl] = useState<string>(API_BASE_URL);
   const [isApiUrlLoaded, setIsApiUrlLoaded] = useState<boolean>(false);
 
   useEffect(() => {
     let isMounted = true;
     const fetchApiUrl = async () => {
       try {
-        const result = await chrome.storage.local.get("bookmarkUrl");
-        if (isMounted && result.bookmarkUrl) {
-          setApiUrl(result.bookmarkUrl);
+        const result = await chrome.storage.local.get(STORAGE_KEY_API_BASE_URL);
+        if (isMounted && result.apiBaseUrl) {
+          // ベースURLの末尾にスラッシュがなければ追加し、パスを結合
+          const baseUrl = result.apiBaseUrl.endsWith("/")
+            ? result.apiBaseUrl
+            : `${result.apiBaseUrl}/`;
+          setApiBaseUrl(baseUrl);
         }
       } catch (error) {
         if (error instanceof Error) {
@@ -34,5 +38,5 @@ export const useApiUrl = () => {
     };
   }, []);
 
-  return { apiUrl, isApiUrlLoaded };
+  return { apiBaseUrl, isApiUrlLoaded };
 };

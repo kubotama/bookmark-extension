@@ -13,15 +13,17 @@ import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent, { type UserEvent } from "@testing-library/user-event";
 
 import {
-  API_BOOKMARK_ADD,
+  API_BASE_URL,
   LABEL_TITLE,
   LABEL_URL,
   POPUP_REGISTER_BUTTON_TEXT,
   POPUP_REGISTER_SUCCESS_MESSAGE,
   POPUP_URL_FETCH_ERROR_MESSAGE,
-  STORAGE_KEY_BOOKMARK_URL,
+  STORAGE_KEY_API_BASE_URL,
 } from "../constants/constants";
 import Popup from "./Popup";
+
+const API_BOOKMARK_ADD = `${API_BASE_URL}api/bookmarks`;
 
 const createMockTab = (
   url: string,
@@ -86,17 +88,17 @@ describe("Popup", () => {
     vi.restoreAllMocks();
   });
 
-  const keyContainsBookmarkUrl = (
+  const keyContainsApiBaseUrl = (
     keys: string | string[] | { [key: string]: unknown } | null
   ): boolean => {
-    if (keys === STORAGE_KEY_BOOKMARK_URL) return true;
-    if (Array.isArray(keys) && keys.includes(STORAGE_KEY_BOOKMARK_URL))
+    if (keys === STORAGE_KEY_API_BASE_URL) return true;
+    if (Array.isArray(keys) && keys.includes(STORAGE_KEY_API_BASE_URL))
       return true;
     if (
       typeof keys === "object" &&
       keys !== null &&
       !Array.isArray(keys) &&
-      Object.prototype.hasOwnProperty.call(keys, STORAGE_KEY_BOOKMARK_URL)
+      Object.prototype.hasOwnProperty.call(keys, STORAGE_KEY_API_BASE_URL)
     ) {
       return true;
     }
@@ -308,12 +310,14 @@ describe("Popup", () => {
   });
 
   describe("オプションページで設定したURLを利用する", () => {
-    const customApiUrl = "https://custom-api.example.com/bookmarks";
+    const customApiBaseUrl = "https://custom-api.example.com";
 
     beforeEach(() => {
       mockStorageGet.mockImplementation((keys) => {
-        if (keyContainsBookmarkUrl(keys)) {
-          return Promise.resolve({ [STORAGE_KEY_BOOKMARK_URL]: customApiUrl });
+        if (keyContainsApiBaseUrl(keys)) {
+          return Promise.resolve({
+            [STORAGE_KEY_API_BASE_URL]: customApiBaseUrl,
+          });
         } else {
           return Promise.resolve({});
         }
@@ -349,7 +353,7 @@ describe("Popup", () => {
       await user.click(registerButton);
 
       expect(global.fetch).toBeCalledTimes(1);
-      expect(global.fetch).toBeCalledWith(customApiUrl, {
+      expect(global.fetch).toBeCalledWith(`${customApiBaseUrl}/api/bookmarks`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -360,7 +364,6 @@ describe("Popup", () => {
       expect(message.parentElement).toHaveClass("message message--success");
     });
   });
-
   describe("エラーメッセージが出力される場合", () => {
     // フォームへの入力と登録ボタンのクリックを共通化
     beforeEach(async () => {

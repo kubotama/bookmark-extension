@@ -10,7 +10,7 @@ import {
   OPTION_SUBTITLE_TEXT,
   PLACEHOLDER_URL,
   SAVE_MESSAGE_TIMEOUT_MS,
-  STORAGE_KEY_BOOKMARK_URL,
+  STORAGE_KEY_API_BASE_URL,
 } from "../constants/constants";
 import Options from "./Options";
 
@@ -32,7 +32,7 @@ describe("Options", () => {
       },
     });
     mockGet.mockResolvedValue({
-      [STORAGE_KEY_BOOKMARK_URL]: "https://example.com/saved",
+      [STORAGE_KEY_API_BASE_URL]: "https://example.com/saved",
     });
     mockSet.mockResolvedValue(undefined);
   });
@@ -67,7 +67,7 @@ describe("Options", () => {
 
     it("loads and displays the saved URL on mount", async () => {
       const savedUrl = "https://example.com/saved";
-      mockGet.mockResolvedValue({ [STORAGE_KEY_BOOKMARK_URL]: savedUrl });
+      mockGet.mockResolvedValue({ [STORAGE_KEY_API_BASE_URL]: savedUrl });
 
       render(<Options />);
 
@@ -75,7 +75,7 @@ describe("Options", () => {
         savedUrl
       );
 
-      expect(mockGet).toHaveBeenCalledWith(STORAGE_KEY_BOOKMARK_URL);
+      expect(mockGet).toHaveBeenCalledWith(STORAGE_KEY_API_BASE_URL);
     });
 
     it("updates the input value on change", async () => {
@@ -104,7 +104,7 @@ describe("Options", () => {
       await user.click(button);
 
       expect(mockSet).toHaveBeenCalledWith({
-        [STORAGE_KEY_BOOKMARK_URL]: newUrl,
+        [STORAGE_KEY_API_BASE_URL]: newUrl,
       });
     });
 

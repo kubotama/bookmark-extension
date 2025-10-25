@@ -37,11 +37,19 @@ export const usePopup = () => {
     title: activeTabTitle,
     setTitle: setActiveTabTitle,
   } = useActiveTabInfo();
-  const { apiUrl, isApiUrlLoaded } = useApiUrl();
+  const { apiBaseUrl, isApiUrlLoaded } = useApiUrl();
   const [message, setMessage] = useState<
     { text: string; type: "success" | "error" | "info" } | undefined
   >(undefined);
   const [isLoading, setIsLoading] = useState(false);
+
+  const apiBookmarkAddUrl = useMemo(() => {
+    try {
+      return new URL("api/bookmarks", apiBaseUrl).href;
+    } catch (e) {
+      return (e as Error).message; // 不正なベースURLの場合
+    }
+  }, [apiBaseUrl]);
 
   const handleUrlChange = useCallback(
     (newUrl: string) => {
@@ -67,7 +75,7 @@ export const usePopup = () => {
     setMessage(undefined);
 
     try {
-      const response = await fetch(apiUrl, {
+      const response = await fetch(apiBookmarkAddUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(bookmark),
@@ -106,7 +114,7 @@ export const usePopup = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [apiUrl, activeTabUrl, activeTabTitle]);
+  }, [apiBookmarkAddUrl, activeTabUrl, activeTabTitle]);
 
   const isRegisterDisabled = useMemo(() => {
     return (

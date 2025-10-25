@@ -4,7 +4,7 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 
 import {
   SAVE_MESSAGE_TIMEOUT_MS,
-  STORAGE_KEY_BOOKMARK_URL,
+  STORAGE_KEY_API_BASE_URL,
 } from "../constants/constants";
 import { useOptions } from "./useOptions";
 
@@ -35,28 +35,28 @@ describe("useOptions", () => {
     const testCases = [
       {
         description:
-          "ストレージに値が保存されている場合、URLがセットされること",
+          "ストレージに値が保存されている場合、ベースURLがセットされること",
         expectedUrl: "https://example.com/saved",
       },
       {
-        description: "ストレージに保存されていない場合、URLは空のまま",
+        description: "ストレージに保存されていない場合、ベースURLは空のまま",
         expectedUrl: "",
       },
     ];
 
     it.each(testCases)("$description", async ({ expectedUrl }) => {
       mockGet.mockResolvedValue(
-        expectedUrl ? { [STORAGE_KEY_BOOKMARK_URL]: expectedUrl } : {}
+        expectedUrl ? { [STORAGE_KEY_API_BASE_URL]: expectedUrl } : {}
       );
 
       const { result } = renderHook(() => useOptions());
 
       // 初期値が空文字列であることを確認
-      expect(result.current.url).toBe("");
+      expect(result.current.baseUrl).toBe("");
 
       // 非同期処理が完了し、値がセットされるのを待つ
       await waitFor(() => {
-        expect(result.current.url).toBe(expectedUrl);
+        expect(result.current.baseUrl).toBe(expectedUrl);
       });
     });
   });
@@ -64,7 +64,7 @@ describe("useOptions", () => {
   describe("handleSave", () => {
     const newUrl = "https://example.com/new";
 
-    it("URLが空の場合、storage.setは呼ばれないこと", async () => {
+    it("ベースURLが空の場合、storage.setは呼ばれないこと", async () => {
       const { result } = renderHook(() => useOptions());
 
       await act(async () => {
@@ -74,11 +74,11 @@ describe("useOptions", () => {
       expect(mockSet).not.toHaveBeenCalled();
     });
 
-    it("URLがセットされている場合、storage.setが呼ばれ、メッセージが表示されること", async () => {
+    it("ベースURLがセットされている場合、storage.setが呼ばれ、メッセージが表示されること", async () => {
       const { result } = renderHook(() => useOptions());
 
       act(() => {
-        result.current.setUrl(newUrl);
+        result.current.setBaseUrl(newUrl);
       });
 
       await act(async () => {
@@ -86,7 +86,7 @@ describe("useOptions", () => {
       });
 
       expect(mockSet).toHaveBeenCalledWith({
-        [STORAGE_KEY_BOOKMARK_URL]: newUrl,
+        [STORAGE_KEY_API_BASE_URL]: newUrl,
       });
       expect(result.current.saveMessage).toBe("保存しました！");
     });
@@ -104,7 +104,7 @@ describe("useOptions", () => {
         const { result } = renderHook(() => useOptions());
 
         act(() => {
-          result.current.setUrl(newUrl);
+          result.current.setBaseUrl(newUrl);
         });
 
         await act(async () => {
@@ -125,7 +125,7 @@ describe("useOptions", () => {
         const halfTimeout = SAVE_MESSAGE_TIMEOUT_MS / 2;
 
         act(() => {
-          result.current.setUrl(newUrl);
+          result.current.setBaseUrl(newUrl);
         });
 
         // 1回目の保存

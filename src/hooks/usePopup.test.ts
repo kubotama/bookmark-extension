@@ -12,8 +12,10 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import { useActiveTabInfo } from "../hooks/useActiveTabInfo";
 import { useApiUrl } from "../hooks/useApiUrl";
 
-import { API_BOOKMARK_ADD } from "../constants/constants";
+import { API_BASE_URL } from "../constants/constants";
 import { usePopup } from "./usePopup";
+
+const API_BOOKMARK_ADD = `${API_BASE_URL}api/bookmarks`;
 
 // モック用の変数を定義
 let mockActiveTabInfo: ReturnType<typeof useActiveTabInfo>;
@@ -47,7 +49,7 @@ describe("usePopup", () => {
       setTitle: vi.fn(),
     };
     mockApiUrl = {
-      apiUrl: API_BOOKMARK_ADD,
+      apiBaseUrl: API_BASE_URL,
       isApiUrlLoaded: true,
     };
     vi.stubGlobal("fetch", vi.fn());
