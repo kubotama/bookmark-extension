@@ -18,10 +18,7 @@ export const useApiUrl = () => {
       try {
         const result = await chrome.storage.local.get(STORAGE_KEY_API_BASE_URL);
         if (isMounted && result.apiBaseUrl) {
-          // ベースURLの末尾にスラッシュがなければ追加し、パスを結合
-          const baseUrl = result.apiBaseUrl.endsWith("/")
-            ? result.apiBaseUrl
-            : `${result.apiBaseUrl}/`;
+          const baseUrl = new URL(result.apiBaseUrl).href;
           setApiBaseUrl(baseUrl);
         }
       } catch (error) {
