@@ -15,6 +15,7 @@ describe("Message", () => {
     const message = {
       text: "This is a test message",
       type: "success" as const,
+      id: "test-id",
     };
     render(<Message message={message} duration={3000} />);
 
@@ -33,6 +34,7 @@ describe("Message", () => {
     const message = {
       text: "This is a test message",
       type: "success" as const,
+      id: "test-id",
     };
     render(<Message message={message} />);
 
@@ -46,7 +48,11 @@ describe("Message", () => {
   });
 
   it("新しいメッセージを受け取ったときにタイマーをリセットすること", () => {
-    const message1 = { text: "First message", type: "success" as const };
+    const message1 = {
+      text: "First message",
+      type: "success" as const,
+      id: "test-id",
+    };
     const { rerender } = render(<Message message={message1} duration={3000} />);
 
     act(() => {
@@ -54,7 +60,11 @@ describe("Message", () => {
     });
 
     // 2秒後に新しいメッセージで再レンダリング
-    const message2 = { text: "Second message", type: "success" as const };
+    const message2 = {
+      text: "Second message",
+      type: "success" as const,
+      id: "test-id-2",
+    };
     rerender(<Message message={message2} duration={3000} />);
 
     expect(screen.getByText("Second message")).toBeInTheDocument();

@@ -2,11 +2,14 @@ import "./Message.css";
 
 import { useEffect, useState } from "react";
 
+export type MessageData = {
+  text: string;
+  type: "success" | "error" | "info";
+  id: string;
+};
+
 type MessageProps = {
-  message: {
-    text: string;
-    type: "success" | "error" | "info";
-  };
+  message: MessageData;
   duration?: number;
 };
 
