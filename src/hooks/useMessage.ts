@@ -23,6 +23,17 @@ export const createMessage = (
   };
 };
 
+export const createErrorMessage = (prefix: string, error?: unknown) => {
+  let messageText = prefix.trim();
+  if (error != null) {
+    messageText =
+      error instanceof Error
+        ? `${prefix}${error.message}`
+        : `${prefix}${String(error)}`;
+  }
+  return createMessage(messageText, "error");
+};
+
 export const useMessage = ({ message, duration }: MessageProps) => {
   const [isVisible, setIsVisible] = useState(true);
 

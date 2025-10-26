@@ -1,6 +1,10 @@
 import { useCallback, useMemo, useState } from "react";
 
-import { createMessage, type MessageData } from "./useMessage";
+import {
+  createErrorMessage,
+  createMessage,
+  type MessageData,
+} from "./useMessage";
 import {
   POPUP_INVALID_URL_MESSAGE_PREFIX,
   POPUP_REGISTER_CONFLICT_ERROR_PREFIX,
@@ -19,16 +23,6 @@ const isValidUrl = (url: string): boolean => {
   } catch {
     return false;
   }
-};
-
-const createErrorMessage = (prefix: string, error?: unknown) => {
-  if (error == null) {
-    return prefix.trim();
-  }
-  if (error instanceof Error) {
-    return `${prefix}${error.message}`;
-  }
-  return `${prefix}${String(error)}`;
 };
 
 export const usePopup = () => {
@@ -84,14 +78,14 @@ export const usePopup = () => {
           POPUP_REGISTER_CONFLICT_ERROR_PREFIX,
           errorData.message || POPUP_RESPONSE_MESSAGE_PARSE_ERROR
         );
-        setMessage(createMessage(errorMessage, "error"));
+        setMessage(errorMessage);
       } catch (parseError) {
         const errorMessage = createErrorMessage(
           POPUP_REGISTER_FAILED_PREFIX,
           response.status
         );
-        setMessage(createMessage(errorMessage, "error"));
-        console.error(errorMessage, parseError);
+        setMessage(errorMessage);
+        console.error(errorMessage.text, parseError);
       }
     } catch (error) {
       if (error instanceof TypeError) {
@@ -104,8 +98,8 @@ export const usePopup = () => {
           POPUP_UNEXPECTED_ERROR_PREFIX,
           error
         );
-        setMessage(createMessage(errorMessage, "error"));
-        console.error(errorMessage, error);
+        setMessage(errorMessage);
+        console.error(errorMessage.text, error);
       }
     } finally {
       setIsLoading(false);
