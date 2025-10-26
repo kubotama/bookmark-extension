@@ -7,7 +7,7 @@ export type MessageData = {
 };
 
 export type MessageProps = {
-  message: MessageData;
+  message: MessageData | null;
   duration?: number;
 };
 
@@ -35,17 +35,19 @@ export const createErrorMessage = (prefix: string, error?: unknown) => {
 };
 
 export const useMessage = ({ message, duration }: MessageProps) => {
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    // 新しいメッセージが渡されたら、表示状態にリセットする
-    setIsVisible(true);
-
-    if (duration) {
-      const timer = setTimeout(() => {
-        setIsVisible(false);
-      }, duration);
-      return () => clearTimeout(timer);
+    if (message) {
+      setIsVisible(true);
+      if (duration) {
+        const timer = setTimeout(() => {
+          setIsVisible(false);
+        }, duration);
+        return () => clearTimeout(timer);
+      }
+    } else {
+      setIsVisible(false);
     }
   }, [message, duration]);
 
