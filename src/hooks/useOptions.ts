@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-import { type MessageData } from "./useMessage";
+import { createMessage, type MessageData } from "./useMessage";
 import {
   OPTION_SAVE_SUCCESS_MESSAGE,
   SAVE_MESSAGE_TIMEOUT_MS,
@@ -43,11 +43,7 @@ export const useOptions = () => {
   const handleSave = async () => {
     if (baseUrl) {
       await chrome.storage.local.set({ [STORAGE_KEY_API_BASE_URL]: baseUrl });
-      setSaveMessage({
-        text: OPTION_SAVE_SUCCESS_MESSAGE,
-        type: "success",
-        id: "save-success",
-      });
+      setSaveMessage(createMessage(OPTION_SAVE_SUCCESS_MESSAGE, "success"));
 
       // 既存のタイマーをクリア
       if (timerRef.current) {

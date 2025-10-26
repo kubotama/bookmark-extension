@@ -91,7 +91,7 @@ describe("useOptions", () => {
       expect(result.current.saveMessage).toEqual({
         text: "保存しました！",
         type: "success",
-        id: "save-success",
+        id: expect.any(String),
       });
     });
 
@@ -118,7 +118,7 @@ describe("useOptions", () => {
         expect(result.current.saveMessage).toEqual({
           text: "保存しました！",
           type: "success",
-          id: "save-success",
+          id: expect.any(String),
         });
 
         await act(async () => {
@@ -143,7 +143,7 @@ describe("useOptions", () => {
         expect(result.current.saveMessage).toEqual({
           text: "保存しました！",
           type: "success",
-          id: "save-success",
+          id: expect.any(String),
         });
 
         // 時間を半分進める
@@ -163,7 +163,7 @@ describe("useOptions", () => {
         expect(result.current.saveMessage).toEqual({
           text: "保存しました！",
           type: "success",
-          id: "save-success",
+          id: expect.any(String),
         });
 
         // さらに時間を進めるとメッセージが消える
