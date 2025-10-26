@@ -1,4 +1,12 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+  type MockInstance,
+} from "vitest";
 
 import { act, renderHook, waitFor } from "@testing-library/react";
 
@@ -19,9 +27,17 @@ describe("useOptions", () => {
 
   const newUrl = "https://example.com";
 
+  let consoleErrorSpy: MockInstance;
+
   beforeEach(() => {
+    // console.errorをモック化して、コンソールへの出力を抑制する
+    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     set.mockClear();
     get.mockClear();
+  });
+
+  afterEach(() => {
+    consoleErrorSpy.mockRestore();
   });
 
   describe("URLの初期化", () => {
@@ -44,9 +60,6 @@ describe("useOptions", () => {
     });
 
     it("ストレージからの読み込みに失敗した場合、コンソールにエラーが出力されること", async () => {
-      const consoleErrorSpy = vi
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
       get.mockRejectedValue(new Error("Failed to get"));
       renderHook(() => useOptions());
 
@@ -56,8 +69,6 @@ describe("useOptions", () => {
           new Error("Failed to get")
         );
       });
-
-      consoleErrorSpy.mockRestore();
     });
   });
 
