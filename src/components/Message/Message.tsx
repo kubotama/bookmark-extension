@@ -1,14 +1,28 @@
 import "./Message.css";
 
+import { useEffect, useState } from "react";
+
 type MessageProps = {
   message: {
     text: string;
     type: "success" | "error" | "info";
   };
+  duration?: number;
 };
 
-const Message = ({ message }: MessageProps) => {
-  if (!message) {
+const Message = ({ message, duration }: MessageProps) => {
+  const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    if (duration) {
+      const timer = setTimeout(() => {
+        setIsVisible(false);
+      }, duration);
+      return () => clearTimeout(timer);
+    }
+  }, [duration]);
+
+  if (!message || !isVisible) {
     return null;
   }
 
