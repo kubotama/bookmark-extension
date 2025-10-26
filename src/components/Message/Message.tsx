@@ -20,7 +20,7 @@ const Message = ({ message, duration }: MessageProps) => {
       }, duration);
       return () => clearTimeout(timer);
     }
-  }, [duration]);
+  }, [duration, message]);
 
   if (!message || !isVisible) {
     return null;
