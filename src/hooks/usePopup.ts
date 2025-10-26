@@ -41,10 +41,7 @@ export const usePopup = () => {
       setActiveTabUrl(newUrl);
       const message = isValidUrl(newUrl)
         ? undefined
-        : createMessage(
-            `${POPUP_INVALID_URL_MESSAGE_PREFIX}${newUrl}`,
-            "error"
-          );
+        : createErrorMessage(`${POPUP_INVALID_URL_MESSAGE_PREFIX}${newUrl}`);
       setMessage(message);
     },
     [setActiveTabUrl]
