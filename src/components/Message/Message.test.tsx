@@ -11,7 +11,7 @@ describe("Message", () => {
     vi.useRealTimers();
   });
 
-  it("should hide the message after the specified duration", () => {
+  it("指定された時間が経過するとメッセージを非表示にすること", () => {
     const message = {
       text: "This is a test message",
       type: "success" as const,
@@ -29,7 +29,7 @@ describe("Message", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("should not hide the message if no duration is specified", () => {
+  it("durationが指定されていない場合、メッセージは非表示にならないこと", () => {
     const message = {
       text: "This is a test message",
       type: "success" as const,
@@ -45,7 +45,7 @@ describe("Message", () => {
     expect(screen.getByText("This is a test message")).toBeInTheDocument();
   });
 
-  it("should reset timer when a new message is received", () => {
+  it("新しいメッセージを受け取ったときにタイマーをリセットすること", () => {
     const message1 = { text: "First message", type: "success" as const };
     const { rerender } = render(<Message message={message1} duration={3000} />);
 
