@@ -35,3 +35,7 @@
   border-radius: 4px;
   background-color: #e9f7ef;
 }
+
+.options-page .message-container {
+  margin-left: 1rem;
+}

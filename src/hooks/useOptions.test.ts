@@ -88,7 +88,11 @@ describe("useOptions", () => {
       expect(mockSet).toHaveBeenCalledWith({
         [STORAGE_KEY_API_BASE_URL]: newUrl,
       });
-      expect(result.current.saveMessage).toBe("保存しました！");
+      expect(result.current.saveMessage).toEqual({
+        text: "保存しました！",
+        type: "success",
+        id: "save-success",
+      });
     });
 
     describe("タイマー関連", () => {
@@ -111,13 +115,17 @@ describe("useOptions", () => {
           await result.current.handleSave();
         });
 
-        expect(result.current.saveMessage).toBe("保存しました！");
+        expect(result.current.saveMessage).toEqual({
+          text: "保存しました！",
+          type: "success",
+          id: "save-success",
+        });
 
         await act(async () => {
           await vi.advanceTimersByTimeAsync(SAVE_MESSAGE_TIMEOUT_MS);
         });
 
-        expect(result.current.saveMessage).toBe("");
+        expect(result.current.saveMessage).toBeNull();
       });
 
       it("保存ボタンが連続で押された場合、タイマーがリセットされること", async () => {
@@ -132,7 +140,11 @@ describe("useOptions", () => {
         await act(async () => {
           await result.current.handleSave();
         });
-        expect(result.current.saveMessage).toBe("保存しました！");
+        expect(result.current.saveMessage).toEqual({
+          text: "保存しました！",
+          type: "success",
+          id: "save-success",
+        });
 
         // 時間を半分進める
         await act(async () => {
@@ -148,13 +160,17 @@ describe("useOptions", () => {
         await act(async () => {
           await vi.advanceTimersByTimeAsync(halfTimeout);
         });
-        expect(result.current.saveMessage).toBe("保存しました！");
+        expect(result.current.saveMessage).toEqual({
+          text: "保存しました！",
+          type: "success",
+          id: "save-success",
+        });
 
         // さらに時間を進めるとメッセージが消える
         await act(async () => {
           await vi.advanceTimersByTimeAsync(halfTimeout);
         });
-        expect(result.current.saveMessage).toBe("");
+        expect(result.current.saveMessage).toBeNull();
       });
     });
   });

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
+import { type MessageData } from "../components/Message/Message";
 import {
   OPTION_SAVE_SUCCESS_MESSAGE,
   SAVE_MESSAGE_TIMEOUT_MS,
@@ -8,7 +9,7 @@ import {
 
 export const useOptions = () => {
   const [baseUrl, setBaseUrl] = useState("");
-  const [saveMessage, setSaveMessage] = useState("");
+  const [saveMessage, setSaveMessage] = useState<MessageData | null>(null);
 
   const timerRef = useRef<number | null>(null);
 
@@ -42,7 +43,11 @@ export const useOptions = () => {
   const handleSave = async () => {
     if (baseUrl) {
       await chrome.storage.local.set({ [STORAGE_KEY_API_BASE_URL]: baseUrl });
-      setSaveMessage(OPTION_SAVE_SUCCESS_MESSAGE);
+      setSaveMessage({
+        text: OPTION_SAVE_SUCCESS_MESSAGE,
+        type: "success",
+        id: "save-success",
+      });
 
       // 既存のタイマーをクリア
       if (timerRef.current) {
@@ -51,7 +56,7 @@ export const useOptions = () => {
 
       // 新しいタイマーをセット
       timerRef.current = window.setTimeout(() => {
-        setSaveMessage("");
+        setSaveMessage(null);
       }, SAVE_MESSAGE_TIMEOUT_MS);
     }
   };
