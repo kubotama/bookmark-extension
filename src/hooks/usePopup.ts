@@ -39,7 +39,7 @@ export const usePopup = () => {
   } = useActiveTabInfo();
   const { getApiBookmarkAddUrl, isApiUrlLoaded } = useApiUrl();
   const [message, setMessage] = useState<
-    { text: string; type: "success" | "error" | "info" } | undefined
+    { text: string; type: "success" | "error" | "info"; id: string } | undefined
   >(undefined);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -51,6 +51,7 @@ export const usePopup = () => {
         : {
             text: `${POPUP_INVALID_URL_MESSAGE_PREFIX}${newUrl}`,
             type: "error" as const,
+            id: Date.now().toString(),
           };
       setMessage(message);
     },
@@ -78,6 +79,7 @@ export const usePopup = () => {
         setMessage({
           text: POPUP_REGISTER_SUCCESS_MESSAGE,
           type: "success",
+          id: Date.now().toString(),
         });
         return;
       }
@@ -88,27 +90,43 @@ export const usePopup = () => {
           POPUP_REGISTER_CONFLICT_ERROR_PREFIX,
           errorData.message || POPUP_RESPONSE_MESSAGE_PARSE_ERROR
         );
-        setMessage({ text: errorMessage, type: "error" });
+        setMessage({
+          text: errorMessage,
+          type: "error",
+          id: Date.now().toString(),
+        });
       } catch (parseError) {
         const errorMessage = createErrorMessage(
           POPUP_REGISTER_FAILED_PREFIX,
           response.status
         );
-        setMessage({ text: errorMessage, type: "error" });
+        setMessage({
+          text: errorMessage,
+          type: "error",
+          id: Date.now().toString(),
+        });
         console.error(errorMessage, parseError);
       }
     } catch (error) {
       if (error instanceof TypeError) {
         // `new URL()` に起因するエラーの可能性が高い
         const urlErrorMessage = "APIのベースURL設定が不正です。";
-        setMessage({ text: urlErrorMessage, type: "error" });
+        setMessage({
+          text: urlErrorMessage,
+          type: "error",
+          id: Date.now().toString(),
+        });
         console.error(urlErrorMessage, error);
       } else {
         const errorMessage = createErrorMessage(
           POPUP_UNEXPECTED_ERROR_PREFIX,
           error
         );
-        setMessage({ text: errorMessage, type: "error" });
+        setMessage({
+          text: errorMessage,
+          type: "error",
+          id: Date.now().toString(),
+        });
         console.error(errorMessage, error);
       }
     } finally {
