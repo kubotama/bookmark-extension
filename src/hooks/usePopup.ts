@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 
-import { type MessageData } from "../components/Message/Message";
+import { createMessage, type MessageData } from "./useMessage";
 import {
   POPUP_INVALID_URL_MESSAGE_PREFIX,
   POPUP_REGISTER_CONFLICT_ERROR_PREFIX,
@@ -29,18 +29,6 @@ const createErrorMessage = (prefix: string, error?: unknown) => {
     return `${prefix}${error.message}`;
   }
   return `${prefix}${String(error)}`;
-};
-
-const createMessage = (
-  text: string,
-  type: "success" | "error" | "info",
-  id: string = crypto.randomUUID()
-) => {
-  return {
-    text,
-    type,
-    id,
-  };
 };
 
 export const usePopup = () => {

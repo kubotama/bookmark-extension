@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-import { type MessageData } from "../components/Message/Message";
+import { type MessageData } from "./useMessage";
 import {
   OPTION_SAVE_SUCCESS_MESSAGE,
   SAVE_MESSAGE_TIMEOUT_MS,
