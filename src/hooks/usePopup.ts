@@ -34,7 +34,7 @@ const createErrorMessage = (prefix: string, error?: unknown) => {
 const createMessage = (
   text: string,
   type: "success" | "error" | "info",
-  id: string = Date.now().toString()
+  id: string = crypto.randomUUID()
 ) => {
   return {
     text,
