@@ -14,13 +14,17 @@ const Message = ({ message, duration }: MessageProps) => {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
-    if (duration) {
+    // 新しいメッセージが渡されたら、表示状態にリセットする
+    setIsVisible(true);
+  }, [message]);
+  useEffect(() => {
+    if (duration && isVisible) {
       const timer = setTimeout(() => {
         setIsVisible(false);
       }, duration);
       return () => clearTimeout(timer);
     }
-  }, [duration, message]);
+  }, [isVisible, duration, message]);
 
   if (!message || !isVisible) {
     return null;
