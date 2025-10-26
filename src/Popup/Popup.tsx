@@ -4,9 +4,13 @@ import "./Popup.css";
 
 import { useRef } from "react";
 
-import Message from "../components/Message/Message";
 import LabeledInputField from "../components/LabeledInputField";
-import { LABEL_TITLE, LABEL_URL } from "../constants/constants";
+import Message from "../components/Message/Message";
+import {
+  LABEL_TITLE,
+  LABEL_URL,
+  SAVE_MESSAGE_TIMEOUT_MS,
+} from "../constants/constants";
 import { useDynamicPopupWidth } from "../hooks/useDynamicPopupWidth";
 import { usePopup } from "../hooks/usePopup";
 
@@ -55,7 +59,15 @@ const Popup = () => {
           onChange={(e) => setActiveTabTitle(e.target.value)}
           className="popup-input"
         />
-        {message && <Message message={message} />}
+        {message && (
+          <Message
+            key={message.id}
+            message={message}
+            duration={
+              message.type === "success" ? SAVE_MESSAGE_TIMEOUT_MS : undefined
+            }
+          />
+        )}
       </div>
     </>
   );
