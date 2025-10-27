@@ -30,7 +30,7 @@ export const useApiUrl = () => {
         }
       } catch (error) {
         if (!signal.aborted && error instanceof Error) {
-          console.error(error.message);
+          console.error(error);
         }
       } finally {
         if (!signal.aborted) {
