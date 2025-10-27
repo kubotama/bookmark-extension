@@ -17,19 +17,21 @@ export const useApiUrl = () => {
   }, [apiBaseUrl]);
 
   useEffect(() => {
-    let isMounted = true;
+    const abortController = new AbortController();
+    const { signal } = abortController;
+
     const fetchApiUrl = async () => {
       try {
         const result = await chrome.storage.local.get(STORAGE_KEY_API_BASE_URL);
-        if (isMounted && result.apiBaseUrl) {
+        if (!signal.aborted && result.apiBaseUrl) {
           setApiBaseUrl(result.apiBaseUrl);
         }
       } catch (error) {
-        if (error instanceof Error) {
+        if (!signal.aborted && error instanceof Error) {
           console.error(error.message);
         }
       } finally {
-        if (isMounted) {
+        if (!signal.aborted) {
           setIsApiUrlLoaded(true);
         }
       }
@@ -38,7 +40,7 @@ export const useApiUrl = () => {
     fetchApiUrl();
 
     return () => {
-      isMounted = false;
+      abortController.abort();
     };
   }, []);
 

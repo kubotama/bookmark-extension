@@ -10,27 +10,31 @@ export const useOptions = () => {
   const [baseUrl, setBaseUrl] = useState("");
   const [saveMessage, setSaveMessage] = useState<MessageData | null>(null);
 
-  // コンポーネントのマウント時にストレージからURLを読み込む
   useEffect(() => {
     const abortController = new AbortController();
-    const signal = abortController.signal;
+    const { signal } = abortController;
 
-    chrome.storage.local
-      .get([STORAGE_KEY_API_BASE_URL])
-      .then((result) => {
+    const loadUrl = async () => {
+      try {
+        const result = await chrome.storage.local.get([
+          STORAGE_KEY_API_BASE_URL,
+        ]);
         if (!signal.aborted) {
           setBaseUrl(result[STORAGE_KEY_API_BASE_URL] || "");
         }
-      })
-      .catch((error) => {
-        console.error("Failed to get base URL:", error);
-      });
+      } catch (error) {
+        if (!signal.aborted) {
+          console.error("Failed to get base URL:", error);
+        }
+      }
+    };
+
+    loadUrl();
 
     return () => {
       abortController.abort();
     };
   }, []);
-
   const handleSave = async () => {
     if (baseUrl) {
       await chrome.storage.local.set({ [STORAGE_KEY_API_BASE_URL]: baseUrl });
