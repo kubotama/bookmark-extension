@@ -35,19 +35,17 @@ export const createErrorMessage = (prefix: string, error?: unknown) => {
 };
 
 export const useMessage = ({ message, duration }: MessageProps) => {
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(!!message);
 
   useEffect(() => {
-    if (message) {
-      setIsVisible(true);
-      if (duration) {
-        const timer = setTimeout(() => {
-          setIsVisible(false);
-        }, duration);
-        return () => clearTimeout(timer);
-      }
-    } else {
-      setIsVisible(false);
+    // メッセージが変更されたときに表示状態をリセット
+    setIsVisible(!!message);
+
+    if (message && duration) {
+      const timer = setTimeout(() => {
+        setIsVisible(false);
+      }, duration);
+      return () => clearTimeout(timer);
     }
   }, [message, duration]);
 
