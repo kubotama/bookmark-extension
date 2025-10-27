@@ -28,8 +28,8 @@ export const createErrorMessage = (prefix: string, error?: unknown) => {
   if (error != null) {
     messageText =
       error instanceof Error
-        ? `${prefix}${error.message}`
-        : `${prefix}${String(error)}`;
+        ? `${messageText} ${error.message}`
+        : `${messageText} ${String(error)}`;
   }
   return createMessage(messageText, "error");
 };
