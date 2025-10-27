@@ -9,6 +9,7 @@ describe("useMessage", () => {
 
   afterEach(() => {
     vi.useRealTimers();
+    vi.restoreAllMocks();
   });
 
   it("should return isVisible true when a message is provided", () => {
@@ -73,14 +74,11 @@ describe("useMessage", () => {
   });
 
   it("should clear the timer on unmount", () => {
+    const clearTimeoutSpy = vi.spyOn(global, "clearTimeout");
     const message = createMessage("Test message", "info");
     const duration = 10000; // Long duration
     const { unmount } = renderHook(() => useMessage({ message, duration }));
-
-    const clearTimeoutSpy = vi.spyOn(global, "clearTimeout");
-
     unmount();
-
     expect(clearTimeoutSpy).toHaveBeenCalled();
   });
 });
