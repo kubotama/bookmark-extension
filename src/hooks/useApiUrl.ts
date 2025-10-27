@@ -22,9 +22,11 @@ export const useApiUrl = () => {
 
     const fetchApiUrl = async () => {
       try {
-        const result = await chrome.storage.local.get(STORAGE_KEY_API_BASE_URL);
-        if (!signal.aborted && result.apiBaseUrl) {
-          setApiBaseUrl(result.apiBaseUrl);
+        const result = await chrome.storage.local.get([
+          STORAGE_KEY_API_BASE_URL,
+        ]);
+        if (!signal.aborted && result[STORAGE_KEY_API_BASE_URL]) {
+          setApiBaseUrl(result[STORAGE_KEY_API_BASE_URL]);
         }
       } catch (error) {
         if (!signal.aborted && error instanceof Error) {
