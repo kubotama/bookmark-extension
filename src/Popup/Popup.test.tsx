@@ -459,8 +459,8 @@ describe("Popup", () => {
     });
 
     it("chrome.storage.local.getでエラーが発生した場合", async () => {
-      const errorMessage = "storage.local.get failed";
-      mockStorageGet.mockRejectedValue(new Error(errorMessage));
+      const errorMessage = new Error("storage.local.get failed");
+      mockStorageGet.mockRejectedValue(errorMessage);
 
       render(<Popup />);
 

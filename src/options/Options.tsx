@@ -1,12 +1,14 @@
 import "./Options.css";
 
 import LabeledInputField from "../components/LabeledInputField";
+import Message from "../components/Message/Message";
 import {
   OPTION_LABEL_API_URL,
   OPTION_SAVE_BUTTON_TEXT,
   OPTION_SUBTITLE_TEXT,
   OPTION_TITLE_TEXT,
   PLACEHOLDER_URL,
+  SAVE_MESSAGE_TIMEOUT_MS,
 } from "../constants/constants";
 import { useOptions } from "../hooks/useOptions";
 
@@ -29,8 +31,11 @@ const Options = () => {
       <button className="save-button" onClick={handleSave}>
         {OPTION_SAVE_BUTTON_TEXT}
       </button>
-      {saveMessage && <p className="save-message">{saveMessage}</p>}
-      {/* メッセージの表示 */}
+      <div className="message-container">
+        {saveMessage && (
+          <Message message={saveMessage} duration={SAVE_MESSAGE_TIMEOUT_MS} />
+        )}
+      </div>
     </main>
   );
 };

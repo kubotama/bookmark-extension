@@ -1,80 +1,89 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+  type MockInstance,
+} from "vitest";
 
 import { act, renderHook, waitFor } from "@testing-library/react";
 
-import {
-  SAVE_MESSAGE_TIMEOUT_MS,
-  STORAGE_KEY_API_BASE_URL,
-} from "../constants/constants";
+import { STORAGE_KEY_API_BASE_URL } from "../constants/constants";
 import { useOptions } from "./useOptions";
 
 describe("useOptions", () => {
-  // chrome.storage.localのモック
-  const mockGet = vi.fn();
-  const mockSet = vi.fn();
+  const set = vi.fn();
+  const get = vi.fn();
+  global.chrome = {
+    storage: {
+      local: {
+        set,
+        get,
+      },
+    },
+  } as unknown as typeof chrome;
+
+  const newUrl = "https://example.com";
+
+  let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
-    vi.clearAllMocks();
-    vi.stubGlobal("chrome", {
-      storage: {
-        local: {
-          get: mockGet,
-          set: mockSet,
-        },
-      },
-    });
-    mockGet.mockResolvedValue({});
-    mockSet.mockResolvedValue(undefined);
+    // console.errorをモック化して、コンソールへの出力を抑制する
+    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    set.mockClear();
+    get.mockClear();
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    consoleErrorSpy.mockRestore();
   });
 
-  describe("初期化", () => {
-    const testCases = [
-      {
-        description:
-          "ストレージに値が保存されている場合、ベースURLがセットされること",
-        expectedUrl: "https://example.com/saved",
-      },
-      {
-        description: "ストレージに保存されていない場合、ベースURLは空のまま",
-        expectedUrl: "",
-      },
-    ];
-
-    it.each(testCases)("$description", async ({ expectedUrl }) => {
-      mockGet.mockResolvedValue(
-        expectedUrl ? { [STORAGE_KEY_API_BASE_URL]: expectedUrl } : {}
-      );
-
+  describe("URLの初期化", () => {
+    it("ストレージからURLを読み込んで設定すること", async () => {
+      get.mockResolvedValue({ [STORAGE_KEY_API_BASE_URL]: newUrl });
       const { result } = renderHook(() => useOptions());
 
-      // 初期値が空文字列であることを確認
-      expect(result.current.baseUrl).toBe("");
-
-      // 非同期処理が完了し、値がセットされるのを待つ
       await waitFor(() => {
-        expect(result.current.baseUrl).toBe(expectedUrl);
+        expect(result.current.baseUrl).toBe(newUrl);
+      });
+    });
+
+    it("ストレージにURLがない場合、空文字に設定されること", async () => {
+      get.mockResolvedValue({});
+      const { result } = renderHook(() => useOptions());
+
+      await waitFor(() => {
+        expect(result.current.baseUrl).toBe("");
+      });
+    });
+
+    it("ストレージからの読み込みに失敗した場合、コンソールにエラーが出力されること", async () => {
+      get.mockRejectedValue(new Error("Failed to get"));
+      renderHook(() => useOptions());
+
+      await waitFor(() => {
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+          "Failed to get base URL:",
+          new Error("Failed to get")
+        );
       });
     });
   });
 
-  describe("handleSave", () => {
-    const newUrl = "https://example.com/new";
-
-    it("ベースURLが空の場合、storage.setは呼ばれないこと", async () => {
+  describe("URLの保存", () => {
+    it("URLが空の場合、ストレージに保存されないこと", async () => {
       const { result } = renderHook(() => useOptions());
 
       await act(async () => {
         await result.current.handleSave();
       });
 
-      expect(mockSet).not.toHaveBeenCalled();
+      expect(set).not.toHaveBeenCalled();
     });
 
-    it("ベースURLがセットされている場合、storage.setが呼ばれ、メッセージが表示されること", async () => {
+    it("URLが入力されている場合、ストレージに保存されること", async () => {
       const { result } = renderHook(() => useOptions());
 
       act(() => {
@@ -85,76 +94,24 @@ describe("useOptions", () => {
         await result.current.handleSave();
       });
 
-      expect(mockSet).toHaveBeenCalledWith({
-        [STORAGE_KEY_API_BASE_URL]: newUrl,
-      });
-      expect(result.current.saveMessage).toBe("保存しました！");
+      expect(set).toHaveBeenCalledWith({ [STORAGE_KEY_API_BASE_URL]: newUrl });
     });
 
-    describe("タイマー関連", () => {
-      beforeEach(() => {
-        vi.useFakeTimers();
+    it("保存後、メッセージが設定されること", async () => {
+      const { result } = renderHook(() => useOptions());
+
+      act(() => {
+        result.current.setBaseUrl(newUrl);
       });
 
-      afterEach(() => {
-        vi.useRealTimers();
+      await act(async () => {
+        await result.current.handleSave();
       });
 
-      it("保存後、指定時間が経過するとメッセージが消えること", async () => {
-        const { result } = renderHook(() => useOptions());
-
-        act(() => {
-          result.current.setBaseUrl(newUrl);
-        });
-
-        await act(async () => {
-          await result.current.handleSave();
-        });
-
-        expect(result.current.saveMessage).toBe("保存しました！");
-
-        await act(async () => {
-          await vi.advanceTimersByTimeAsync(SAVE_MESSAGE_TIMEOUT_MS);
-        });
-
-        expect(result.current.saveMessage).toBe("");
-      });
-
-      it("保存ボタンが連続で押された場合、タイマーがリセットされること", async () => {
-        const { result } = renderHook(() => useOptions());
-        const halfTimeout = SAVE_MESSAGE_TIMEOUT_MS / 2;
-
-        act(() => {
-          result.current.setBaseUrl(newUrl);
-        });
-
-        // 1回目の保存
-        await act(async () => {
-          await result.current.handleSave();
-        });
-        expect(result.current.saveMessage).toBe("保存しました！");
-
-        // 時間を半分進める
-        await act(async () => {
-          await vi.advanceTimersByTimeAsync(halfTimeout);
-        });
-
-        // 2回目の保存（タイマーがリセットされる）
-        await act(async () => {
-          await result.current.handleSave();
-        });
-
-        // 時間を半分進めてもメッセージは消えない
-        await act(async () => {
-          await vi.advanceTimersByTimeAsync(halfTimeout);
-        });
-        expect(result.current.saveMessage).toBe("保存しました！");
-
-        // さらに時間を進めるとメッセージが消える
-        await act(async () => {
-          await vi.advanceTimersByTimeAsync(halfTimeout);
-        });
-        expect(result.current.saveMessage).toBe("");
+      expect(result.current.saveMessage).toEqual({
+        text: "保存しました！",
+        type: "success",
+        id: expect.any(String),
       });
     });
   });

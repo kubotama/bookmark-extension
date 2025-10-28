@@ -1,6 +1,10 @@
 import { useCallback, useMemo, useState } from "react";
 
-import { type MessageData } from "../components/Message/Message";
+import {
+  createErrorMessage,
+  createMessage,
+  type MessageData,
+} from "./useMessage";
 import {
   POPUP_INVALID_URL_MESSAGE_PREFIX,
   POPUP_REGISTER_CONFLICT_ERROR_PREFIX,
@@ -21,28 +25,6 @@ const isValidUrl = (url: string): boolean => {
   }
 };
 
-const createErrorMessage = (prefix: string, error?: unknown) => {
-  if (error == null) {
-    return prefix.trim();
-  }
-  if (error instanceof Error) {
-    return `${prefix}${error.message}`;
-  }
-  return `${prefix}${String(error)}`;
-};
-
-const createMessage = (
-  text: string,
-  type: "success" | "error" | "info",
-  id: string = crypto.randomUUID()
-) => {
-  return {
-    text,
-    type,
-    id,
-  };
-};
-
 export const usePopup = () => {
   const {
     url: activeTabUrl,
@@ -59,10 +41,7 @@ export const usePopup = () => {
       setActiveTabUrl(newUrl);
       const message = isValidUrl(newUrl)
         ? undefined
-        : createMessage(
-            `${POPUP_INVALID_URL_MESSAGE_PREFIX}${newUrl}`,
-            "error"
-          );
+        : createErrorMessage(`${POPUP_INVALID_URL_MESSAGE_PREFIX}${newUrl}`);
       setMessage(message);
     },
     [setActiveTabUrl]
@@ -96,14 +75,14 @@ export const usePopup = () => {
           POPUP_REGISTER_CONFLICT_ERROR_PREFIX,
           errorData.message || POPUP_RESPONSE_MESSAGE_PARSE_ERROR
         );
-        setMessage(createMessage(errorMessage, "error"));
+        setMessage(errorMessage);
       } catch (parseError) {
         const errorMessage = createErrorMessage(
           POPUP_REGISTER_FAILED_PREFIX,
           response.status
         );
-        setMessage(createMessage(errorMessage, "error"));
-        console.error(errorMessage, parseError);
+        setMessage(errorMessage);
+        console.error(errorMessage.text, parseError);
       }
     } catch (error) {
       if (error instanceof TypeError) {
@@ -116,8 +95,8 @@ export const usePopup = () => {
           POPUP_UNEXPECTED_ERROR_PREFIX,
           error
         );
-        setMessage(createMessage(errorMessage, "error"));
-        console.error(errorMessage, error);
+        setMessage(errorMessage);
+        console.error(errorMessage.text, error);
       }
     } finally {
       setIsLoading(false);
