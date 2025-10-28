@@ -16,6 +16,7 @@ import {
   API_BASE_URL,
   LABEL_TITLE,
   LABEL_URL,
+  POPUP_FAILED_TO_RETRIEVE_ACTIVE_TAB_INFO,
   POPUP_REGISTER_BUTTON_TEXT,
   POPUP_REGISTER_SUCCESS_MESSAGE,
   POPUP_URL_FETCH_ERROR_MESSAGE,
@@ -383,7 +384,7 @@ describe("Popup", () => {
         mockFetch: () => Promise.reject(new Error("APIエラー")),
         expectedMessage: "予期せぬエラーが発生しました: APIエラー",
         expectedConsoleError: [
-          "予期せぬエラーが発生しました: APIエラー",
+          "予期せぬエラーが発生しました: ",
           new Error("APIエラー"),
         ],
       },
@@ -393,7 +394,8 @@ describe("Popup", () => {
           Promise.resolve(new Response("invalid json", { status: 500 })),
         expectedMessage: "ブックマークの登録に失敗しました。ステータス: 500",
         expectedConsoleError: [
-          "ブックマークの登録に失敗しました。ステータス: 500",
+          "ブックマークの登録に失敗しました。ステータス: ",
+          500,
           new SyntaxError(
             "Unexpected token 'i', \"invalid json\" is not valid JSON"
           ),
@@ -476,9 +478,12 @@ describe("Popup", () => {
       render(<Popup />);
 
       expect(await screen.findByLabelText(LABEL_TITLE)).toHaveValue("");
-      expect(consoleErrorSpy).toHaveBeenCalledWith(errorMessage);
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        POPUP_FAILED_TO_RETRIEVE_ACTIVE_TAB_INFO,
+        new Error(errorMessage)
+      );
       expect(await screen.findByLabelText(LABEL_URL)).toHaveValue(
-        "URLの取得に失敗しました。"
+        POPUP_URL_FETCH_ERROR_MESSAGE
       );
       const registerButton = await screen.findByRole("button", {
         name: "登録",
