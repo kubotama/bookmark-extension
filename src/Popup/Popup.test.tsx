@@ -478,7 +478,7 @@ describe("Popup", () => {
 
       expect(await screen.findByLabelText(LABEL_TITLE)).toHaveValue("");
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        "Failed to fetch active tab info:",
+        "アクティブなタブ情報の取得に失敗しました:",
         new Error(errorMessage)
       );
       expect(await screen.findByLabelText(LABEL_URL)).toHaveValue(

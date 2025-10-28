@@ -10,7 +10,10 @@ export const useActiveTabInfo = () => {
     let isMounted = true;
     const fetchActiveTabInfo = async () => {
       try {
-        const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+        const tabs = await chrome.tabs.query({
+          active: true,
+          currentWindow: true,
+        });
         if (isMounted && tabs[0]?.url) {
           setUrl(tabs[0].url);
           setTitle(tabs[0].title || "");
@@ -21,7 +24,7 @@ export const useActiveTabInfo = () => {
         }
       } catch (error) {
         if (error instanceof Error) {
-          console.error("Failed to fetch active tab info:", error);
+          console.error("アクティブなタブ情報の取得に失敗しました:", error);
         }
         setUrl("URLの取得に失敗しました。");
         setTitle("");
