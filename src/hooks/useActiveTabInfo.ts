@@ -24,7 +24,10 @@ export const useActiveTabInfo = () => {
           setUrl(tabs[0].url);
           setTitle(tabs[0].title || "");
         } else {
-          console.error(POPUP_NO_ACTIVE_TAB_ERROR);
+          console.error(
+            POPUP_NO_ACTIVE_TAB_ERROR,
+            new Error(POPUP_NO_ACTIVE_TAB_ERROR)
+          );
           setUrl(POPUP_URL_FETCH_ERROR_MESSAGE);
           setTitle("");
         }
