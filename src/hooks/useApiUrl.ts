@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import {
   API_BASE_URL,
   API_ENDPOINT,
+  POPUP_FAILED_TO_FETCH_API_URL,
   STORAGE_KEY_API_BASE_URL,
 } from "../constants/constants";
 
@@ -29,8 +30,8 @@ export const useApiUrl = () => {
           setApiBaseUrl(result[STORAGE_KEY_API_BASE_URL]);
         }
       } catch (error) {
-        if (!signal.aborted && error instanceof Error) {
-          console.error(error);
+        if (!signal.aborted) {
+          console.error(POPUP_FAILED_TO_FETCH_API_URL, error);
         }
       } finally {
         if (!signal.aborted) {

@@ -32,3 +32,5 @@ export const POPUP_FAILED_TO_RETRIEVE_ACTIVE_TAB_INFO =
   "アクティブなタブ情報の取得に失敗しました: ";
 export const POPUP_NO_ACTIVE_TAB_ERROR =
   "アクティブなタブまたはURLが見つかりませんでした。";
+export const POPUP_FAILED_TO_FETCH_API_URL =
+  "ストレージからAPIのURLを取得できませんでした";

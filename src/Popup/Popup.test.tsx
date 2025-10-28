@@ -16,6 +16,7 @@ import {
   API_BASE_URL,
   LABEL_TITLE,
   LABEL_URL,
+  POPUP_FAILED_TO_FETCH_API_URL,
   POPUP_FAILED_TO_RETRIEVE_ACTIVE_TAB_INFO,
   POPUP_REGISTER_BUTTON_TEXT,
   POPUP_REGISTER_SUCCESS_MESSAGE,
@@ -467,7 +468,10 @@ describe("Popup", () => {
       render(<Popup />);
 
       await waitFor(() => {
-        expect(consoleErrorSpy).toHaveBeenCalledWith(errorMessage);
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+          POPUP_FAILED_TO_FETCH_API_URL,
+          errorMessage
+        );
       });
     });
 
