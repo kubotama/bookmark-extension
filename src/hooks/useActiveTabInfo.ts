@@ -29,9 +29,7 @@ export const useActiveTabInfo = () => {
           setTitle("");
         }
       } catch (error) {
-        if (error instanceof Error) {
-          console.error(POPUP_FAILED_TO_RETRIEVE_ACTIVE_TAB_INFO, error);
-        }
+        console.error(POPUP_FAILED_TO_RETRIEVE_ACTIVE_TAB_INFO, error);
         setUrl(POPUP_URL_FETCH_ERROR_MESSAGE);
         setTitle("");
       }
