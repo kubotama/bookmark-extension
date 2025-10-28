@@ -28,3 +28,7 @@ export const POPUP_UNEXPECTED_ERROR_PREFIX = "予期せぬエラーが発生し�
 export const POPUP_RESPONSE_MESSAGE_PARSE_ERROR =
   "エラー応答の解析に失敗しました。";
 export const POPUP_INVALID_URL_MESSAGE_PREFIX = "無効なURLです: ";
+export const POPUP_FAILED_TO_RETRIEVE_ACTIVE_TAB_INFO =
+  "アクティブなタブ情報の取得に失敗しました: ";
+export const POPUP_NO_ACTIVE_TAB_ERROR =
+  "アクティブなタブまたはURLが見つかりませんでした。";

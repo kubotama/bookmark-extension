@@ -2,6 +2,12 @@
 
 import { useEffect, useState } from "react";
 
+import {
+  POPUP_FAILED_TO_RETRIEVE_ACTIVE_TAB_INFO,
+  POPUP_NO_ACTIVE_TAB_ERROR,
+  POPUP_URL_FETCH_ERROR_MESSAGE,
+} from "../constants/constants";
+
 export const useActiveTabInfo = () => {
   const [url, setUrl] = useState<string>("URLの取得中...");
   const [title, setTitle] = useState<string>("タイトルの取得中...");
@@ -18,15 +24,15 @@ export const useActiveTabInfo = () => {
           setUrl(tabs[0].url);
           setTitle(tabs[0].title || "");
         } else {
-          console.error("アクティブなタブまたはURLが見つかりませんでした。");
-          setUrl("URLの取得に失敗しました。");
+          console.error(POPUP_NO_ACTIVE_TAB_ERROR);
+          setUrl(POPUP_URL_FETCH_ERROR_MESSAGE);
           setTitle("");
         }
       } catch (error) {
         if (error instanceof Error) {
-          console.error("アクティブなタブ情報の取得に失敗しました:", error);
+          console.error(POPUP_FAILED_TO_RETRIEVE_ACTIVE_TAB_INFO, error);
         }
-        setUrl("URLの取得に失敗しました。");
+        setUrl(POPUP_URL_FETCH_ERROR_MESSAGE);
         setTitle("");
       }
     };
