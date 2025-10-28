@@ -25,7 +25,7 @@ export const useActiveTabInfo = () => {
           setTitle(tabs[0].title || "");
         } else {
           console.error(
-            POPUP_NO_ACTIVE_TAB_ERROR,
+            POPUP_FAILED_TO_RETRIEVE_ACTIVE_TAB_INFO,
             new Error(POPUP_NO_ACTIVE_TAB_ERROR)
           );
           setUrl(POPUP_URL_FETCH_ERROR_MESSAGE);
