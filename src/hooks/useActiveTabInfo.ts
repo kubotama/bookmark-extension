@@ -21,7 +21,7 @@ export const useActiveTabInfo = () => {
         }
       } catch (error) {
         if (error instanceof Error) {
-          console.error(error.message);
+          console.error("Failed to fetch active tab info:", error);
         }
         setUrl("URLの取得に失敗しました。");
         setTitle("");

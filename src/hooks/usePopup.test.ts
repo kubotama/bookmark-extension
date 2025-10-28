@@ -137,7 +137,7 @@ describe("usePopup", () => {
       );
       expect(result.current.message?.type).toBe("error");
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        "予期せぬエラーが発生しました: Network error",
+        "予期せぬエラーが発生しました: ",
         new Error("Network error")
       );
     });

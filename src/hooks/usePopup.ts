@@ -82,7 +82,7 @@ export const usePopup = () => {
           response.status
         );
         setMessage(errorMessage);
-        console.error(errorMessage.text, parseError);
+        console.error(POPUP_REGISTER_FAILED_PREFIX, response.status, parseError);
       }
     } catch (error) {
       if (error instanceof TypeError) {
@@ -96,7 +96,7 @@ export const usePopup = () => {
           error
         );
         setMessage(errorMessage);
-        console.error(errorMessage.text, error);
+        console.error(POPUP_UNEXPECTED_ERROR_PREFIX, error);
       }
     } finally {
       setIsLoading(false);

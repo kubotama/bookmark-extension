@@ -383,7 +383,7 @@ describe("Popup", () => {
         mockFetch: () => Promise.reject(new Error("APIエラー")),
         expectedMessage: "予期せぬエラーが発生しました: APIエラー",
         expectedConsoleError: [
-          "予期せぬエラーが発生しました: APIエラー",
+          "予期せぬエラーが発生しました: ",
           new Error("APIエラー"),
         ],
       },
@@ -393,7 +393,8 @@ describe("Popup", () => {
           Promise.resolve(new Response("invalid json", { status: 500 })),
         expectedMessage: "ブックマークの登録に失敗しました。ステータス: 500",
         expectedConsoleError: [
-          "ブックマークの登録に失敗しました。ステータス: 500",
+          "ブックマークの登録に失敗しました。ステータス: ",
+          500,
           new SyntaxError(
             "Unexpected token 'i', \"invalid json\" is not valid JSON"
           ),
@@ -476,7 +477,10 @@ describe("Popup", () => {
       render(<Popup />);
 
       expect(await screen.findByLabelText(LABEL_TITLE)).toHaveValue("");
-      expect(consoleErrorSpy).toHaveBeenCalledWith(errorMessage);
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        "Failed to fetch active tab info:",
+        new Error(errorMessage)
+      );
       expect(await screen.findByLabelText(LABEL_URL)).toHaveValue(
         "URLの取得に失敗しました。"
       );
