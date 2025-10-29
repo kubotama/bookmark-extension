@@ -24,14 +24,13 @@ export const createMessage = (
 };
 
 export const createErrorMessage = (prefix: string, error?: unknown) => {
-  let messageText = prefix.trim();
-  if (error != null) {
-    messageText =
-      error instanceof Error
-        ? `${messageText} ${error.message}`
-        : `${messageText} ${String(error)}`;
-  }
-  return createMessage(messageText, "error");
+  const message = [
+    prefix.trim(),
+    error != null && (error instanceof Error ? error.message : String(error)),
+  ]
+    .filter(Boolean)
+    .join(" ");
+  return createMessage(message, "error");
 };
 
 export const useMessage = ({ message, duration }: MessageProps) => {
