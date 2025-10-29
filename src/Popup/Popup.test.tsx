@@ -16,7 +16,8 @@ import {
   API_BASE_URL,
   LABEL_TITLE,
   LABEL_URL,
-  POPUP_FAILED_TO_RETRIEVE_ACTIVE_TAB_INFO,
+  POPUP_FAILED_TO_FETCH_API_URL_PREFIX,
+  POPUP_FAILED_TO_RETRIEVE_ACTIVE_TAB_INFO_PREFIX,
   POPUP_REGISTER_BUTTON_TEXT,
   POPUP_REGISTER_SUCCESS_MESSAGE,
   POPUP_URL_FETCH_ERROR_MESSAGE,
@@ -467,7 +468,10 @@ describe("Popup", () => {
       render(<Popup />);
 
       await waitFor(() => {
-        expect(consoleErrorSpy).toHaveBeenCalledWith(errorMessage);
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+          POPUP_FAILED_TO_FETCH_API_URL_PREFIX,
+          errorMessage
+        );
       });
     });
 
@@ -479,7 +483,7 @@ describe("Popup", () => {
 
       expect(await screen.findByLabelText(LABEL_TITLE)).toHaveValue("");
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        POPUP_FAILED_TO_RETRIEVE_ACTIVE_TAB_INFO,
+        POPUP_FAILED_TO_RETRIEVE_ACTIVE_TAB_INFO_PREFIX,
         new Error(errorMessage)
       );
       expect(await screen.findByLabelText(LABEL_URL)).toHaveValue(
