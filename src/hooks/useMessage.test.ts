@@ -1,6 +1,64 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useMessage, createMessage } from "./useMessage";
+import { useMessage, createMessage, createErrorMessage } from "./useMessage";
+
+describe("createErrorMessage", () => {
+  it("should return a message with only the prefix when error is null or undefined", () => {
+    const prefix = "Test prefix";
+    const messageNull = createErrorMessage(prefix, null);
+    const messageUndefined = createErrorMessage(prefix, undefined);
+
+    expect(messageNull.text).toBe(prefix);
+    expect(messageNull.type).toBe("error");
+    expect(messageUndefined.text).toBe(prefix);
+    expect(messageUndefined.type).toBe("error");
+  });
+
+  it("should return a message with prefix and error message when error is an Error instance", () => {
+    const prefix = "Test prefix";
+    const errorMessage = "This is an error";
+    const error = new Error(errorMessage);
+    const message = createErrorMessage(prefix, error);
+
+    expect(message.text).toBe(`${prefix} ${errorMessage}`);
+    expect(message.type).toBe("error");
+  });
+
+  it("should return a message with prefix and stringified error when error is not an Error instance", () => {
+    const prefix = "Test prefix";
+    const errorObject = { code: 500, status: "Internal Server Error" };
+    const errorString = "A custom error occurred";
+
+    const messageObject = createErrorMessage(prefix, errorObject);
+    const messageString = createErrorMessage(prefix, errorString);
+
+    expect(messageObject.text).toBe(`${prefix} ${String(errorObject)}`);
+    expect(messageObject.type).toBe("error");
+    expect(messageString.text).toBe(`${prefix} ${errorString}`);
+    expect(messageString.type).toBe("error");
+  });
+
+  it("should trim the prefix", () => {
+    const prefix = "  Test prefix  ";
+    const message = createErrorMessage(prefix, null);
+
+    expect(message.text).toBe(prefix.trim());
+  });
+
+  it("should return an empty message when prefix is empty and error is null", () => {
+    const message = createErrorMessage("", null);
+    expect(message.text).toBe("");
+  });
+
+  it("should handle prefix with only whitespace", () => {
+    const prefix = "   ";
+    const errorMessage = "This is an error";
+    const error = new Error(errorMessage);
+    const message = createErrorMessage(prefix, error);
+
+    expect(message.text).toBe(errorMessage);
+  });
+});
 
 describe("useMessage", () => {
   beforeEach(() => {
