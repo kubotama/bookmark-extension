@@ -26,18 +26,20 @@ describe("createErrorMessage", () => {
     expect(message.type).toBe("error");
   });
 
-  it("should return a message with prefix and stringified error when error is not an Error instance", () => {
+  it("should return a message with prefix and stringified error when error is an object", () => {
     const prefix = "Test prefix";
     const errorObject = { code: 500, status: "Internal Server Error" };
+    const message = createErrorMessage(prefix, errorObject);
+    expect(message.text).toBe(`${prefix} ${String(errorObject)}`);
+    expect(message.type).toBe("error");
+  });
+
+  it("should return a message with prefix and stringified error when error is a string", () => {
+    const prefix = "Test prefix";
     const errorString = "A custom error occurred";
-
-    const messageObject = createErrorMessage(prefix, errorObject);
-    const messageString = createErrorMessage(prefix, errorString);
-
-    expect(messageObject.text).toBe(`${prefix} ${String(errorObject)}`);
-    expect(messageObject.type).toBe("error");
-    expect(messageString.text).toBe(`${prefix} ${errorString}`);
-    expect(messageString.type).toBe("error");
+    const message = createErrorMessage(prefix, errorString);
+    expect(message.text).toBe(`${prefix} ${errorString}`);
+    expect(message.type).toBe("error");
   });
 
   it("should trim the prefix", () => {
