@@ -25,7 +25,7 @@ export const createMessage = (
 
 export const createErrorMessage = (prefix: string, error?: unknown) => {
   const parts = [prefix.trim()];
-  if (error) {
+  if (error != null) {
     parts.push(error instanceof Error ? error.message : String(error));
   }
   const message = parts.filter(Boolean).join(" ");
