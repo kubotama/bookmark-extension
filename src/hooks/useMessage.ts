@@ -29,7 +29,12 @@ export const createErrorMessage = (prefix: string, error?: unknown) => {
     if (error instanceof Error) {
       errorPart = error.message;
     } else if (typeof error === "object") {
-      errorPart = JSON.stringify(error);
+      try {
+        errorPart = JSON.stringify(error);
+      } catch {
+        // 循環参照やその他のシリアライズエラーをハンドルします
+        errorPart = "[Unserializable object]";
+      }
     } else {
       errorPart = String(error);
     }
