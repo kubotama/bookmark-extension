@@ -19,18 +19,21 @@ export const OPTION_LABEL_API_URL = "ブックマークを管理するAPIのベ�
 export const OPTION_SAVE_SUCCESS_MESSAGE = "保存しました！";
 
 export const POPUP_REGISTER_BUTTON_TEXT = "登録";
+
 export const POPUP_URL_FETCH_ERROR_MESSAGE = "URLの取得に失敗しました。";
 export const POPUP_REGISTER_SUCCESS_MESSAGE = "ブックマークが登録されました。";
+
 export const POPUP_REGISTER_CONFLICT_ERROR_PREFIX = "登録失敗: ";
 export const POPUP_REGISTER_FAILED_PREFIX =
   "ブックマークの登録に失敗しました。ステータス: ";
 export const POPUP_UNEXPECTED_ERROR_PREFIX = "予期せぬエラーが発生しました: ";
+export const POPUP_INVALID_URL_MESSAGE_PREFIX = "無効なURLです: ";
+export const POPUP_FAILED_TO_RETRIEVE_ACTIVE_TAB_INFO_PREFIX =
+  "アクティブなタブ情報の取得に失敗しました: ";
+export const POPUP_FAILED_TO_FETCH_API_URL_PREFIX =
+  "ストレージからAPIのURLを取得できませんでした: ";
+
 export const POPUP_RESPONSE_MESSAGE_PARSE_ERROR =
   "エラー応答の解析に失敗しました。";
-export const POPUP_INVALID_URL_MESSAGE_PREFIX = "無効なURLです: ";
-export const POPUP_FAILED_TO_RETRIEVE_ACTIVE_TAB_INFO =
-  "アクティブなタブ情報の取得に失敗しました: ";
 export const POPUP_NO_ACTIVE_TAB_ERROR =
   "アクティブなタブまたはURLが見つかりませんでした。";
-export const POPUP_FAILED_TO_FETCH_API_URL =
-  "ストレージからAPIのURLを取得できませんでした";

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 import {
-  POPUP_FAILED_TO_RETRIEVE_ACTIVE_TAB_INFO,
+  POPUP_FAILED_TO_RETRIEVE_ACTIVE_TAB_INFO_PREFIX,
   POPUP_NO_ACTIVE_TAB_ERROR,
   POPUP_URL_FETCH_ERROR_MESSAGE,
 } from "../constants/constants";
@@ -25,14 +25,14 @@ export const useActiveTabInfo = () => {
           setTitle(tabs[0].title || "");
         } else {
           console.error(
-            POPUP_FAILED_TO_RETRIEVE_ACTIVE_TAB_INFO,
+            POPUP_FAILED_TO_RETRIEVE_ACTIVE_TAB_INFO_PREFIX,
             new Error(POPUP_NO_ACTIVE_TAB_ERROR)
           );
           setUrl(POPUP_URL_FETCH_ERROR_MESSAGE);
           setTitle("");
         }
       } catch (error) {
-        console.error(POPUP_FAILED_TO_RETRIEVE_ACTIVE_TAB_INFO, error);
+        console.error(POPUP_FAILED_TO_RETRIEVE_ACTIVE_TAB_INFO_PREFIX, error);
         setUrl(POPUP_URL_FETCH_ERROR_MESSAGE);
         setTitle("");
       }

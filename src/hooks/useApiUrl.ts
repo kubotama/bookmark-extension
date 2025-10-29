@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import {
   API_BASE_URL,
   API_ENDPOINT,
-  POPUP_FAILED_TO_FETCH_API_URL,
+  POPUP_FAILED_TO_FETCH_API_URL_PREFIX,
   STORAGE_KEY_API_BASE_URL,
 } from "../constants/constants";
 
@@ -31,7 +31,7 @@ export const useApiUrl = () => {
         }
       } catch (error) {
         if (!signal.aborted) {
-          console.error(POPUP_FAILED_TO_FETCH_API_URL, error);
+          console.error(POPUP_FAILED_TO_FETCH_API_URL_PREFIX, error);
         }
       } finally {
         if (!signal.aborted) {
