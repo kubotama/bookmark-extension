@@ -30,7 +30,7 @@ describe("createErrorMessage", () => {
     const prefix = "Test prefix";
     const errorObject = { code: 500, status: "Internal Server Error" };
     const message = createErrorMessage(prefix, errorObject);
-    expect(message.text).toBe(`${prefix} ${String(errorObject)}`);
+    expect(message.text).toBe(`${prefix} ${JSON.stringify(errorObject)}`);
     expect(message.type).toBe("error");
   });
 
