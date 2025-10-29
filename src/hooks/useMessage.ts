@@ -24,11 +24,12 @@ export const createMessage = (
 };
 
 export const createErrorMessage = (prefix: string, error?: unknown) => {
-  const parts = [
+  const message = [
     prefix.trim(),
     error != null && (error instanceof Error ? error.message : String(error)),
-  ];
-  const message = parts.filter(Boolean).join(" ");
+  ]
+    .filter(Boolean)
+    .join(" ");
   return createMessage(message, "error");
 };
 
