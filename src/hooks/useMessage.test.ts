@@ -3,16 +3,18 @@ import { renderHook, act } from "@testing-library/react";
 import { useMessage, createMessage, createErrorMessage } from "./useMessage";
 
 describe("createErrorMessage", () => {
-  it("should return a message with only the prefix when error is null or undefined", () => {
-    const prefix = "Test prefix";
-    const messageNull = createErrorMessage(prefix, null);
-    const messageUndefined = createErrorMessage(prefix, undefined);
-
-    expect(messageNull.text).toBe(prefix);
-    expect(messageNull.type).toBe("error");
-    expect(messageUndefined.text).toBe(prefix);
-    expect(messageUndefined.type).toBe("error");
-  });
+  it.each([
+    { error: null, case: "null" },
+    { error: undefined, case: "undefined" },
+  ])(
+    "should return a message with only the prefix when error is $case",
+    ({ error }) => {
+      const prefix = "Test prefix";
+      const message = createErrorMessage(prefix, error);
+      expect(message.text).toBe(prefix);
+      expect(message.type).toBe("error");
+    }
+  );
 
   it("should return a message with prefix and error message when error is an Error instance", () => {
     const prefix = "Test prefix";
