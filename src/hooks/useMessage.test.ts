@@ -4,43 +4,36 @@ import { useMessage, createMessage, createErrorMessage } from "./useMessage";
 
 describe("createErrorMessage", () => {
   it.each([
-    { error: null, case: "null" },
-    { error: undefined, case: "undefined" },
+    { error: null, expected: undefined, case: "null" },
+    { error: undefined, expected: undefined, case: "undefined" },
+    {
+      error: new Error("This is an error"),
+      expected: "This is an error",
+      case: "Error instance",
+    },
+    {
+      error: { code: 500, status: "Internal Server Error" },
+      expected: '{"code":500,"status":"Internal Server Error"}',
+      case: "object",
+    },
+    {
+      error: "A custom error occurred",
+      expected: "A custom error occurred",
+      case: "string",
+    },
   ])(
-    "should return a message with only the prefix when error is $case",
-    ({ error }) => {
+    "should return a message with prefix and error message for $case",
+    ({ error, expected }) => {
       const prefix = "Test prefix";
       const message = createErrorMessage(prefix, error);
-      expect(message.text).toBe(prefix);
+      if (expected === undefined) {
+        expect(message.text).toBe(prefix);
+      } else {
+        expect(message.text).toBe(`${prefix} ${expected}`);
+      }
       expect(message.type).toBe("error");
     }
   );
-
-  it("should return a message with prefix and error message when error is an Error instance", () => {
-    const prefix = "Test prefix";
-    const errorMessage = "This is an error";
-    const error = new Error(errorMessage);
-    const message = createErrorMessage(prefix, error);
-
-    expect(message.text).toBe(`${prefix} ${errorMessage}`);
-    expect(message.type).toBe("error");
-  });
-
-  it("should return a message with prefix and stringified error when error is an object", () => {
-    const prefix = "Test prefix";
-    const errorObject = { code: 500, status: "Internal Server Error" };
-    const message = createErrorMessage(prefix, errorObject);
-    expect(message.text).toBe(`${prefix} ${JSON.stringify(errorObject)}`);
-    expect(message.type).toBe("error");
-  });
-
-  it("should return a message with prefix and stringified error when error is a string", () => {
-    const prefix = "Test prefix";
-    const errorString = "A custom error occurred";
-    const message = createErrorMessage(prefix, errorString);
-    expect(message.text).toBe(`${prefix} ${errorString}`);
-    expect(message.type).toBe("error");
-  });
 
   it("should trim the prefix", () => {
     const prefix = "  Test prefix  ";
