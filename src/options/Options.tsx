@@ -13,7 +13,8 @@ import {
 import { useOptions } from "../hooks/useOptions";
 
 const Options = () => {
-  const { baseUrl, setBaseUrl, saveMessage, handleSave } = useOptions();
+  const { baseUrl, setBaseUrl, saveMessage, handleSave, verifyClick } =
+    useOptions();
 
   return (
     <main className="options-page">
@@ -30,6 +31,9 @@ const Options = () => {
       </div>
       <button className="save-button" onClick={handleSave}>
         {OPTION_SAVE_BUTTON_TEXT}
+      </button>
+      <button className="save-button" onClick={verifyClick}>
+        確認
       </button>
       <div className="message-container">
         {saveMessage && (

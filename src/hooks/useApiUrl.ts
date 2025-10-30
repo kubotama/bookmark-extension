@@ -17,6 +17,10 @@ export const useApiUrl = () => {
     return new URL(API_ENDPOINT.ADD_BOOKMARK, apiBaseUrl).href;
   }, [apiBaseUrl]);
 
+  const getApiBookmarkGetUrl = useCallback(() => {
+    return new URL(API_ENDPOINT.GET_BOOKMARKS, apiBaseUrl).href;
+  }, [apiBaseUrl]);
+
   useEffect(() => {
     const abortController = new AbortController();
     const { signal } = abortController;
@@ -47,5 +51,5 @@ export const useApiUrl = () => {
     };
   }, []);
 
-  return { getApiBookmarkAddUrl, isApiUrlLoaded };
+  return { getApiBookmarkAddUrl, getApiBookmarkGetUrl, isApiUrlLoaded };
 };
