@@ -35,6 +35,19 @@ describe("createErrorMessage", () => {
     }
   );
 
+  it("should handle circular references in error objects", () => {
+    const prefix = "Circular test";
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const obj: { a: any } = {
+      a: undefined,
+    };
+    obj.a = obj; // 循環参照を作成
+    const message = createErrorMessage(prefix, obj);
+
+    expect(message.text).toBe(`${prefix} [Unserializable object]`);
+    expect(message.type).toBe("error");
+  });
+
   it("should trim the prefix", () => {
     const prefix = "  Test prefix  ";
     const message = createErrorMessage(prefix, null);
