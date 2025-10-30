@@ -41,15 +41,34 @@ export const useOptions = () => {
   const verifyClick = useCallback(async () => {
     const apiUrl = getApiBookmarkGetUrl();
 
-    const response = await fetch(apiUrl);
-    if (response.ok) {
-      const data = await response.json();
+    try {
+      const response = await fetch(apiUrl);
+      if (response.ok) {
+        const data = await response.json();
+        setSaveMessage(
+          createMessage(
+            `${data.length}件のブックマークを取得しました。`,
+            "success"
+          )
+        );
+      } else {
+        // サーバーエラーの場合のメッセージ
+        setSaveMessage(
+          createMessage(
+            `APIへの接続に失敗しました (HTTP ${response.status})`,
+            "error"
+          )
+        );
+      }
+    } catch (error) {
+      // ネットワークエラーなどの場合のメッセージ
       setSaveMessage(
         createMessage(
-          `${data.length}件のブックマークを取得しました。`,
-          "success"
+          "APIへの接続に失敗しました。ネットワーク設定などを確認してください。",
+          "error"
         )
       );
+      console.error("APIへの接続に失敗しました:", error);
     }
   }, [getApiBookmarkGetUrl]);
 
