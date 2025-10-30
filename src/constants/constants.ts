@@ -1,6 +1,7 @@
 export const API_BASE_URL = "http://localhost:3000";
 export const API_ENDPOINT = {
   ADD_BOOKMARK: "/api/bookmarks",
+  GET_BOOKMARKS: "/api/bookmarks",
 };
 
 export const STORAGE_KEY_API_BASE_URL = "apiBaseUrl";

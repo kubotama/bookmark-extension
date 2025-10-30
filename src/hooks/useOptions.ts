@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { createMessage, type MessageData } from "./useMessage";
+import { useApiUrl } from "./useApiUrl";
 import {
   OPTION_SAVE_SUCCESS_MESSAGE,
   STORAGE_KEY_API_BASE_URL,
@@ -9,6 +10,7 @@ import {
 export const useOptions = () => {
   const [baseUrl, setBaseUrl] = useState("");
   const [saveMessage, setSaveMessage] = useState<MessageData | null>(null);
+  const { getApiBookmarkGetUrl } = useApiUrl();
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -35,6 +37,22 @@ export const useOptions = () => {
       abortController.abort();
     };
   }, []);
+
+  const verifyClick = useCallback(async () => {
+    const apiUrl = getApiBookmarkGetUrl();
+
+    const response = await fetch(apiUrl);
+    if (response.ok) {
+      const data = await response.json();
+      setSaveMessage(
+        createMessage(
+          `${data.length}件のブックマークを取得しました。`,
+          "success"
+        )
+      );
+    }
+  }, [getApiBookmarkGetUrl]);
+
   const handleSave = async () => {
     if (baseUrl) {
       await chrome.storage.local.set({ [STORAGE_KEY_API_BASE_URL]: baseUrl });
@@ -42,5 +60,5 @@ export const useOptions = () => {
     }
   };
 
-  return { baseUrl, setBaseUrl, saveMessage, handleSave };
+  return { baseUrl, setBaseUrl, saveMessage, handleSave, verifyClick };
 };
