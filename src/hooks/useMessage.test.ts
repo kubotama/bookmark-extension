@@ -3,37 +3,32 @@ import { renderHook, act } from "@testing-library/react";
 import { useMessage, createMessage, createErrorMessage } from "./useMessage";
 
 describe("createErrorMessage", () => {
+  const prefix = "Test prefix";
+
   it.each([
-    { error: null, expected: undefined, case: "null" },
-    { error: undefined, expected: undefined, case: "undefined" },
+    { error: null, expected: prefix, case: "null" },
+    { error: undefined, expected: prefix, case: "undefined" },
     {
       error: new Error("This is an error"),
-      expected: "This is an error",
+      expected: `${prefix} This is an error`,
       case: "Error instance",
     },
     {
       error: { code: 500, status: "Internal Server Error" },
-      expected: '{"code":500,"status":"Internal Server Error"}',
+      expected: `${prefix} {"code":500,"status":"Internal Server Error"}`,
       case: "object",
     },
     {
       error: "A custom error occurred",
-      expected: "A custom error occurred",
+      expected: `${prefix} A custom error occurred`,
       case: "string",
     },
-  ])(
-    "should return a message with prefix and error message for $case",
-    ({ error, expected }) => {
-      const prefix = "Test prefix";
-      const message = createErrorMessage(prefix, error);
-      if (expected === undefined) {
-        expect(message.text).toBe(prefix);
-      } else {
-        expect(message.text).toBe(`${prefix} ${expected}`);
-      }
-      expect(message.type).toBe("error");
-    }
-  );
+  ])("should generate correct message for $case", ({ error, expected }) => {
+    const prefix = "Test prefix";
+    const message = createErrorMessage(prefix, error);
+    expect(message.text).toBe(expected);
+    expect(message.type).toBe("error");
+  });
 
   it("should handle circular references in error objects", () => {
     const prefix = "Circular test";
