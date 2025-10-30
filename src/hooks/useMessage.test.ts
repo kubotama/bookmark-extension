@@ -24,7 +24,6 @@ describe("createErrorMessage", () => {
       case: "string",
     },
   ])("should generate correct message for $case", ({ error, expected }) => {
-    const prefix = "Test prefix";
     const message = createErrorMessage(prefix, error);
     expect(message.text).toBe(expected);
     expect(message.type).toBe("error");
