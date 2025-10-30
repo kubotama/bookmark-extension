@@ -115,4 +115,76 @@ describe("useOptions", () => {
       });
     });
   });
+
+  describe("verifyClick", () => {
+    let fetchSpy: MockInstance;
+
+    beforeEach(() => {
+      fetchSpy = vi.spyOn(global, "fetch");
+    });
+
+    afterEach(() => {
+      fetchSpy.mockRestore();
+    });
+
+    it("API通信が成功した場合、成功メッセージを設定すること", async () => {
+      const mockData = [{ id: 1 }, { id: 2 }];
+      fetchSpy.mockResolvedValue({
+        ok: true,
+        json: async () => mockData,
+      } as Response);
+
+      const { result } = renderHook(() => useOptions());
+
+      await act(async () => {
+        await result.current.verifyClick();
+      });
+
+      expect(result.current.saveMessage).toEqual({
+        text: "2件のブックマークを取得しました。",
+        type: "success",
+        id: expect.any(String),
+      });
+    });
+
+    it("APIがサーバーエラーを返した場合、エラーメッセージを設定すること", async () => {
+      fetchSpy.mockResolvedValue({
+        ok: false,
+        status: 500,
+      } as Response);
+
+      const { result } = renderHook(() => useOptions());
+
+      await act(async () => {
+        await result.current.verifyClick();
+      });
+
+      expect(result.current.saveMessage).toEqual({
+        text: "APIへの接続に失敗しました (HTTP 500)",
+        type: "error",
+        id: expect.any(String),
+      });
+    });
+
+    it("ネットワークエラーが発生した場合、エラーメッセージを設定し、コンソールにエラーを出力すること", async () => {
+      const error = new Error("Network error");
+      fetchSpy.mockRejectedValue(error);
+
+      const { result } = renderHook(() => useOptions());
+
+      await act(async () => {
+        await result.current.verifyClick();
+      });
+
+      expect(result.current.saveMessage).toEqual({
+        text: "APIへの接続に失敗しました。ネットワーク設定などを確認してください。",
+        type: "error",
+        id: expect.any(String),
+      });
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        "APIへの接続に失敗しました:",
+        error
+      );
+    });
+  });
 });
