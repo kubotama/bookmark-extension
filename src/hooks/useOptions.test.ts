@@ -11,7 +11,14 @@ import {
 import { act, renderHook, waitFor } from "@testing-library/react";
 
 import { STORAGE_KEY_API_BASE_URL } from "../constants/constants";
-import { useOptions } from "./useOptions";
+import {
+  API_ERROR_MESSAGE,
+  FAILED_TO_GET_BASE_URL_MESSAGE,
+  FAILED_TO_CONNECT_API_WITH_NETWORK,
+  FAILED_TO_CONNECT_API,
+  SUCCESS_MESSAGE,
+  useOptions,
+} from "./useOptions";
 
 describe("useOptions", () => {
   const set = vi.fn();
@@ -65,7 +72,7 @@ describe("useOptions", () => {
 
       await waitFor(() => {
         expect(consoleErrorSpy).toHaveBeenCalledWith(
-          "Failed to get base URL:",
+          FAILED_TO_GET_BASE_URL_MESSAGE,
           new Error("Failed to get")
         );
       });
@@ -141,7 +148,7 @@ describe("useOptions", () => {
       });
 
       expect(result.current.saveMessage).toEqual({
-        text: "2件のブックマークを取得しました。",
+        text: SUCCESS_MESSAGE(mockData.length),
         type: "success",
         id: expect.any(String),
       });
@@ -160,7 +167,7 @@ describe("useOptions", () => {
       });
 
       expect(result.current.saveMessage).toEqual({
-        text: "APIへの接続に失敗しました (HTTP 500)",
+        text: API_ERROR_MESSAGE(500),
         type: "error",
         id: expect.any(String),
       });
@@ -177,12 +184,12 @@ describe("useOptions", () => {
       });
 
       expect(result.current.saveMessage).toEqual({
-        text: "APIへの接続に失敗しました。ネットワーク設定などを確認してください。",
+        text: FAILED_TO_CONNECT_API_WITH_NETWORK,
         type: "error",
         id: expect.any(String),
       });
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        "APIへの接続に失敗しました:",
+        FAILED_TO_CONNECT_API,
         error
       );
     });
