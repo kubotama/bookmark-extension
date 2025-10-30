@@ -16,6 +16,7 @@ export const PLACEHOLDER_URL =
 export const OPTION_TITLE_TEXT = "bookmark-extension";
 export const OPTION_SUBTITLE_TEXT = "オプションの設定画面";
 export const OPTION_SAVE_BUTTON_TEXT = "保存";
+export const OPTION_VERIFY_BUTTON_TEXT = "API接続確認";
 export const OPTION_LABEL_API_URL = "ブックマークを管理するAPIのベースURL";
 export const OPTION_SAVE_SUCCESS_MESSAGE = "保存しました！";
 

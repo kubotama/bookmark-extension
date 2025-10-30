@@ -7,6 +7,7 @@ import {
   OPTION_SAVE_BUTTON_TEXT,
   OPTION_SUBTITLE_TEXT,
   OPTION_TITLE_TEXT,
+  OPTION_VERIFY_BUTTON_TEXT,
   PLACEHOLDER_URL,
   SAVE_MESSAGE_TIMEOUT_MS,
 } from "../constants/constants";
@@ -32,8 +33,8 @@ const Options = () => {
       <button className="save-button" onClick={handleSave}>
         {OPTION_SAVE_BUTTON_TEXT}
       </button>
-      <button className="save-button" onClick={verifyClick}>
-        確認
+      <button className="verify-button" onClick={verifyClick}>
+        {OPTION_VERIFY_BUTTON_TEXT}
       </button>
       <div className="message-container">
         {saveMessage && (
