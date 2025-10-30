@@ -7,6 +7,16 @@ import {
   STORAGE_KEY_API_BASE_URL,
 } from "../constants/constants";
 
+export const SUCCESS_MESSAGE = (count: number) =>
+  `${count}件のブックマークを取得しました。`;
+export const API_ERROR_MESSAGE = (status: number) =>
+  `APIへの接続に失敗しました (HTTP ${status})`;
+export const FAILED_TO_CONNECT_API_WITH_NETWORK =
+  "APIへの接続に失敗しました。ネットワーク設定などを確認してください。";
+export const FAILED_TO_GET_BASE_URL_MESSAGE =
+  "APIのベースURLを取得できませんでした:";
+export const FAILED_TO_CONNECT_API = "APIへの接続に失敗しました:";
+
 export const useOptions = () => {
   const [baseUrl, setBaseUrl] = useState("");
   const [saveMessage, setSaveMessage] = useState<MessageData | null>(null);
@@ -26,7 +36,7 @@ export const useOptions = () => {
         }
       } catch (error) {
         if (!signal.aborted) {
-          console.error("Failed to get base URL:", error);
+          console.error(FAILED_TO_GET_BASE_URL_MESSAGE, error);
         }
       }
     };
@@ -45,30 +55,19 @@ export const useOptions = () => {
       const response = await fetch(apiUrl);
       if (response.ok) {
         const data = await response.json();
-        setSaveMessage(
-          createMessage(
-            `${data.length}件のブックマークを取得しました。`,
-            "success"
-          )
-        );
+        setSaveMessage(createMessage(SUCCESS_MESSAGE(data.length), "success"));
       } else {
         // サーバーエラーの場合のメッセージ
         setSaveMessage(
-          createMessage(
-            `APIへの接続に失敗しました (HTTP ${response.status})`,
-            "error"
-          )
+          createMessage(API_ERROR_MESSAGE(response.status), "error")
         );
       }
     } catch (error) {
       // ネットワークエラーなどの場合のメッセージ
       setSaveMessage(
-        createMessage(
-          "APIへの接続に失敗しました。ネットワーク設定などを確認してください。",
-          "error"
-        )
+        createMessage(FAILED_TO_CONNECT_API_WITH_NETWORK, "error")
       );
-      console.error("APIへの接続に失敗しました:", error);
+      console.error(FAILED_TO_CONNECT_API, error);
     }
   }, [getApiBookmarkGetUrl]);
 
