@@ -19,6 +19,11 @@ export const OPTION_SAVE_BUTTON_TEXT = "保存";
 export const OPTION_VERIFY_BUTTON_TEXT = "API接続確認";
 export const OPTION_LABEL_API_URL = "ブックマークを管理するAPIのベースURL";
 export const OPTION_SAVE_SUCCESS_MESSAGE = "保存しました！";
+export const OPTION_UNEXPECTED_API_RESPONSE_ERROR =
+  "APIからの応答が予期しない形式です。";
+
+export const OPTION_UNEXPECTED_API_RESPONSE_PREFIX =
+  "APIからの応答が予期しない形式です: ";
 
 export const POPUP_REGISTER_BUTTON_TEXT = "登録";
 

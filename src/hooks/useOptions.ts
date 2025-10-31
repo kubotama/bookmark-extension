@@ -4,6 +4,8 @@ import { createMessage, type MessageData } from "./useMessage";
 import { useApiUrl } from "./useApiUrl";
 import {
   OPTION_SAVE_SUCCESS_MESSAGE,
+  OPTION_UNEXPECTED_API_RESPONSE_ERROR,
+  OPTION_UNEXPECTED_API_RESPONSE_PREFIX,
   STORAGE_KEY_API_BASE_URL,
 } from "../constants/constants";
 
@@ -55,7 +57,16 @@ export const useOptions = () => {
       const response = await fetch(apiUrl);
       if (response.ok) {
         const data = await response.json();
-        setSaveMessage(createMessage(SUCCESS_MESSAGE(data.length), "success"));
+        if (Array.isArray(data)) {
+          setSaveMessage(
+            createMessage(SUCCESS_MESSAGE(data.length), "success")
+          );
+        } else {
+          console.error(OPTION_UNEXPECTED_API_RESPONSE_PREFIX, data);
+          setSaveMessage(
+            createMessage(OPTION_UNEXPECTED_API_RESPONSE_ERROR, "error")
+          );
+        }
       } else {
         // サーバーエラーの場合のメッセージ
         setSaveMessage(

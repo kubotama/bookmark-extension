@@ -10,7 +10,11 @@ import {
 
 import { act, renderHook, waitFor } from "@testing-library/react";
 
-import { STORAGE_KEY_API_BASE_URL } from "../constants/constants";
+import {
+  STORAGE_KEY_API_BASE_URL,
+  OPTION_UNEXPECTED_API_RESPONSE_ERROR,
+  OPTION_UNEXPECTED_API_RESPONSE_PREFIX,
+} from "../constants/constants";
 import {
   API_ERROR_MESSAGE,
   FAILED_TO_GET_BASE_URL_MESSAGE,
@@ -191,6 +195,30 @@ describe("useOptions", () => {
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         FAILED_TO_CONNECT_API,
         error
+      );
+    });
+
+    it("APIが予期しない形式のデータを返した場合、エラーメッセージを設定すること", async () => {
+      const mockData = { message: "unexpected data" };
+      fetchSpy.mockResolvedValue({
+        ok: true,
+        json: async () => mockData,
+      } as Response);
+
+      const { result } = renderHook(() => useOptions());
+
+      await act(async () => {
+        await result.current.verifyClick();
+      });
+
+      expect(result.current.saveMessage).toEqual({
+        text: OPTION_UNEXPECTED_API_RESPONSE_ERROR,
+        type: "error",
+        id: expect.any(String),
+      });
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        OPTION_UNEXPECTED_API_RESPONSE_PREFIX,
+        mockData
       );
     });
   });
