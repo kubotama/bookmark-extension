@@ -221,5 +221,30 @@ describe("useOptions", () => {
         mockData
       );
     });
+
+    it("APIが不正なJSONを返した場合、エラーメッセージを設定すること", async () => {
+      fetchSpy.mockResolvedValue({
+        ok: true,
+        json: async () => {
+          throw new SyntaxError("Unexpected token in JSON");
+        },
+      } as unknown as Response);
+
+      const { result } = renderHook(() => useOptions());
+
+      await act(async () => {
+        await result.current.verifyClick();
+      });
+
+      expect(result.current.feedbackMessage).toEqual({
+        text: OPTION_UNEXPECTED_API_RESPONSE_ERROR,
+        type: "error",
+        id: expect.any(String),
+      });
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        OPTION_UNEXPECTED_API_RESPONSE_PREFIX,
+        expect.any(SyntaxError)
+      );
+    });
   });
 });
