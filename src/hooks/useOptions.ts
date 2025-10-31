@@ -58,13 +58,17 @@ export const useOptions = () => {
     try {
       const response = await fetch(apiUrl);
       if (response.ok) {
-        const data = await response.json();
-        if (Array.isArray(data)) {
-          setFeedbackMessage(
-            createMessage(SUCCESS_MESSAGE(data.length), "success")
-          );
-        } else {
-          console.error(OPTION_UNEXPECTED_API_RESPONSE_PREFIX, data);
+        try {
+          const data = await response.json();
+          if (Array.isArray(data)) {
+            setFeedbackMessage(
+              createMessage(SUCCESS_MESSAGE(data.length), "success")
+            );
+          } else {
+            throw data;
+          }
+        } catch (error) {
+          console.error(OPTION_UNEXPECTED_API_RESPONSE_PREFIX, error);
           setFeedbackMessage(
             createMessage(OPTION_UNEXPECTED_API_RESPONSE_ERROR, "error")
           );
