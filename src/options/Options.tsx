@@ -14,7 +14,7 @@ import {
 import { useOptions } from "../hooks/useOptions";
 
 const Options = () => {
-  const { baseUrl, setBaseUrl, saveMessage, handleSave, verifyClick } =
+  const { baseUrl, setBaseUrl, feedbackMessage, handleSave, verifyClick } =
     useOptions();
 
   return (
@@ -37,8 +37,11 @@ const Options = () => {
         {OPTION_VERIFY_BUTTON_TEXT}
       </button>
       <div className="message-container">
-        {saveMessage && (
-          <Message message={saveMessage} duration={SAVE_MESSAGE_TIMEOUT_MS} />
+        {feedbackMessage && (
+          <Message
+            message={feedbackMessage}
+            duration={SAVE_MESSAGE_TIMEOUT_MS}
+          />
         )}
       </div>
     </main>

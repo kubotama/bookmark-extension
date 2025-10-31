@@ -119,7 +119,7 @@ describe("useOptions", () => {
         await result.current.handleSave();
       });
 
-      expect(result.current.saveMessage).toEqual({
+      expect(result.current.feedbackMessage).toEqual({
         text: "保存しました！",
         type: "success",
         id: expect.any(String),
@@ -151,7 +151,7 @@ describe("useOptions", () => {
         await result.current.verifyClick();
       });
 
-      expect(result.current.saveMessage).toEqual({
+      expect(result.current.feedbackMessage).toEqual({
         text: SUCCESS_MESSAGE(mockData.length),
         type: "success",
         id: expect.any(String),
@@ -170,7 +170,7 @@ describe("useOptions", () => {
         await result.current.verifyClick();
       });
 
-      expect(result.current.saveMessage).toEqual({
+      expect(result.current.feedbackMessage).toEqual({
         text: API_ERROR_MESSAGE(500),
         type: "error",
         id: expect.any(String),
@@ -187,7 +187,7 @@ describe("useOptions", () => {
         await result.current.verifyClick();
       });
 
-      expect(result.current.saveMessage).toEqual({
+      expect(result.current.feedbackMessage).toEqual({
         text: FAILED_TO_CONNECT_API_WITH_NETWORK,
         type: "error",
         id: expect.any(String),
@@ -211,7 +211,7 @@ describe("useOptions", () => {
         await result.current.verifyClick();
       });
 
-      expect(result.current.saveMessage).toEqual({
+      expect(result.current.feedbackMessage).toEqual({
         text: OPTION_UNEXPECTED_API_RESPONSE_ERROR,
         type: "error",
         id: expect.any(String),

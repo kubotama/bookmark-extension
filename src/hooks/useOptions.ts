@@ -21,7 +21,9 @@ export const FAILED_TO_CONNECT_API = "APIへの接続に失敗しました:";
 
 export const useOptions = () => {
   const [baseUrl, setBaseUrl] = useState("");
-  const [saveMessage, setSaveMessage] = useState<MessageData | null>(null);
+  const [feedbackMessage, setFeedbackMessage] = useState<MessageData | null>(
+    null
+  );
   const { getApiBookmarkGetUrl } = useApiUrl();
 
   useEffect(() => {
@@ -58,24 +60,24 @@ export const useOptions = () => {
       if (response.ok) {
         const data = await response.json();
         if (Array.isArray(data)) {
-          setSaveMessage(
+          setFeedbackMessage(
             createMessage(SUCCESS_MESSAGE(data.length), "success")
           );
         } else {
           console.error(OPTION_UNEXPECTED_API_RESPONSE_PREFIX, data);
-          setSaveMessage(
+          setFeedbackMessage(
             createMessage(OPTION_UNEXPECTED_API_RESPONSE_ERROR, "error")
           );
         }
       } else {
         // サーバーエラーの場合のメッセージ
-        setSaveMessage(
+        setFeedbackMessage(
           createMessage(API_ERROR_MESSAGE(response.status), "error")
         );
       }
     } catch (error) {
       // ネットワークエラーなどの場合のメッセージ
-      setSaveMessage(
+      setFeedbackMessage(
         createMessage(FAILED_TO_CONNECT_API_WITH_NETWORK, "error")
       );
       console.error(FAILED_TO_CONNECT_API, error);
@@ -85,9 +87,15 @@ export const useOptions = () => {
   const handleSave = async () => {
     if (baseUrl) {
       await chrome.storage.local.set({ [STORAGE_KEY_API_BASE_URL]: baseUrl });
-      setSaveMessage(createMessage(OPTION_SAVE_SUCCESS_MESSAGE, "success"));
+      setFeedbackMessage(createMessage(OPTION_SAVE_SUCCESS_MESSAGE, "success"));
     }
   };
 
-  return { baseUrl, setBaseUrl, saveMessage, handleSave, verifyClick };
+  return {
+    baseUrl,
+    setBaseUrl,
+    feedbackMessage,
+    handleSave,
+    verifyClick,
+  };
 };
