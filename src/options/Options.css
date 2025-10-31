@@ -11,18 +11,9 @@
   padding: 0.5rem;
 }
 
-.options-page .save-button {
+.options-page .btn {
   padding: 0.5rem 1rem;
   background-color: darkcyan;
-  color: white;
-  border: none;
-  cursor: pointer;
-  margin-left: 1rem;
-}
-
-.options-page .verify-button {
-  padding: 0.5rem 1rem;
-  background-color: darkgreen;
   color: white;
   border: none;
   cursor: pointer;

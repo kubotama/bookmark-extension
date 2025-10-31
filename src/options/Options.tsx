@@ -30,10 +30,10 @@ const Options = () => {
           placeholder={PLACEHOLDER_URL}
         />
       </div>
-      <button className="save-button" onClick={handleSave}>
+      <button className="btn" onClick={handleSave}>
         {OPTION_SAVE_BUTTON_TEXT}
       </button>
-      <button className="verify-button" onClick={verifyClick}>
+      <button className="btn" onClick={verifyClick}>
         {OPTION_VERIFY_BUTTON_TEXT}
       </button>
       <div className="message-container">
