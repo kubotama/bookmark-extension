@@ -14,6 +14,8 @@ import {
   STORAGE_KEY_API_BASE_URL,
   OPTION_UNEXPECTED_API_RESPONSE_ERROR,
   OPTION_UNEXPECTED_API_RESPONSE_PREFIX,
+  OPTION_INVALID_BASE_URL_ERROR,
+  OPTION_INVALID_BASE_URL_PREFIX,
 } from "../constants/constants";
 import {
   API_ERROR_MESSAGE,
@@ -244,6 +246,27 @@ describe("useOptions", () => {
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         OPTION_UNEXPECTED_API_RESPONSE_PREFIX,
         expect.any(SyntaxError)
+      );
+    });
+
+    it("APIが不正なURLの場合、エラーメッセージを設定し、コンソールにエラーを出力すること", async () => {
+      const error = new TypeError("Invalid URL");
+      fetchSpy.mockRejectedValue(error);
+
+      const { result } = renderHook(() => useOptions());
+
+      await act(async () => {
+        await result.current.verifyClick();
+      });
+
+      expect(result.current.feedbackMessage).toEqual({
+        text: OPTION_INVALID_BASE_URL_ERROR,
+        type: "error",
+        id: expect.any(String),
+      });
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        OPTION_INVALID_BASE_URL_PREFIX,
+        error
       );
     });
   });
