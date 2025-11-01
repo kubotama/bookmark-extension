@@ -4,6 +4,8 @@ import { createMessage, type MessageData } from "./useMessage";
 import { useApiUrl } from "./useApiUrl";
 import {
   OPTION_SAVE_SUCCESS_MESSAGE,
+  OPTION_INVALID_BASE_URL_ERROR,
+  OPTION_INVALID_BASE_URL_PREFIX,
   OPTION_UNEXPECTED_API_RESPONSE_ERROR,
   OPTION_UNEXPECTED_API_RESPONSE_PREFIX,
   STORAGE_KEY_API_BASE_URL,
@@ -53,10 +55,10 @@ export const useOptions = () => {
   }, []);
 
   const verifyClick = useCallback(async () => {
-    const apiUrl = getApiBookmarkGetUrl();
-
     try {
+      const apiUrl = getApiBookmarkGetUrl();
       const response = await fetch(apiUrl);
+
       if (response.ok) {
         try {
           const data = await response.json();
@@ -80,11 +82,18 @@ export const useOptions = () => {
         );
       }
     } catch (error) {
-      // ネットワークエラーなどの場合のメッセージ
-      setFeedbackMessage(
-        createMessage(FAILED_TO_CONNECT_API_WITH_NETWORK, "error")
-      );
-      console.error(FAILED_TO_CONNECT_API, error);
+      if (error instanceof TypeError) {
+        console.error(OPTION_INVALID_BASE_URL_PREFIX, error);
+        setFeedbackMessage(
+          createMessage(OPTION_INVALID_BASE_URL_ERROR, "error")
+        );
+      } else {
+        // ネットワークエラーなどの場合のメッセージ
+        setFeedbackMessage(
+          createMessage(FAILED_TO_CONNECT_API_WITH_NETWORK, "error")
+        );
+        console.error(FAILED_TO_CONNECT_API, error);
+      }
     }
   }, [getApiBookmarkGetUrl]);
 
