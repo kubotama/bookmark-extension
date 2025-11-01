@@ -1,14 +1,32 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { createMessage, type MessageData } from "./useMessage";
+import { useApiUrl } from "./useApiUrl";
 import {
   OPTION_SAVE_SUCCESS_MESSAGE,
+  OPTION_INVALID_BASE_URL_ERROR,
+  OPTION_INVALID_BASE_URL_PREFIX,
+  OPTION_UNEXPECTED_API_RESPONSE_ERROR,
+  OPTION_UNEXPECTED_API_RESPONSE_PREFIX,
   STORAGE_KEY_API_BASE_URL,
 } from "../constants/constants";
 
+export const SUCCESS_MESSAGE = (count: number) =>
+  `${count}件のブックマークを取得しました。`;
+export const API_ERROR_MESSAGE = (status: number) =>
+  `APIへの接続に失敗しました (HTTP ${status})`;
+export const FAILED_TO_CONNECT_API_WITH_NETWORK =
+  "APIへの接続に失敗しました。ネットワーク設定などを確認してください。";
+export const FAILED_TO_GET_BASE_URL_MESSAGE =
+  "APIのベースURLを取得できませんでした:";
+export const FAILED_TO_CONNECT_API = "APIへの接続に失敗しました:";
+
 export const useOptions = () => {
   const [baseUrl, setBaseUrl] = useState("");
-  const [saveMessage, setSaveMessage] = useState<MessageData | null>(null);
+  const [feedbackMessage, setFeedbackMessage] = useState<MessageData | null>(
+    null
+  );
+  const { getApiBookmarkGetUrl } = useApiUrl();
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -24,7 +42,7 @@ export const useOptions = () => {
         }
       } catch (error) {
         if (!signal.aborted) {
-          console.error("Failed to get base URL:", error);
+          console.error(FAILED_TO_GET_BASE_URL_MESSAGE, error);
         }
       }
     };
@@ -35,12 +53,62 @@ export const useOptions = () => {
       abortController.abort();
     };
   }, []);
+
+  const verifyClick = useCallback(async () => {
+    try {
+      const apiUrl = getApiBookmarkGetUrl();
+      const response = await fetch(apiUrl);
+
+      if (response.ok) {
+        try {
+          const data = await response.json();
+          if (Array.isArray(data)) {
+            setFeedbackMessage(
+              createMessage(SUCCESS_MESSAGE(data.length), "success")
+            );
+          } else {
+            throw data;
+          }
+        } catch (error) {
+          console.error(OPTION_UNEXPECTED_API_RESPONSE_PREFIX, error);
+          setFeedbackMessage(
+            createMessage(OPTION_UNEXPECTED_API_RESPONSE_ERROR, "error")
+          );
+        }
+      } else {
+        // サーバーエラーの場合のメッセージ
+        setFeedbackMessage(
+          createMessage(API_ERROR_MESSAGE(response.status), "error")
+        );
+      }
+    } catch (error) {
+      if (error instanceof TypeError) {
+        console.error(OPTION_INVALID_BASE_URL_PREFIX, error);
+        setFeedbackMessage(
+          createMessage(OPTION_INVALID_BASE_URL_ERROR, "error")
+        );
+      } else {
+        // ネットワークエラーなどの場合のメッセージ
+        setFeedbackMessage(
+          createMessage(FAILED_TO_CONNECT_API_WITH_NETWORK, "error")
+        );
+        console.error(FAILED_TO_CONNECT_API, error);
+      }
+    }
+  }, [getApiBookmarkGetUrl]);
+
   const handleSave = async () => {
     if (baseUrl) {
       await chrome.storage.local.set({ [STORAGE_KEY_API_BASE_URL]: baseUrl });
-      setSaveMessage(createMessage(OPTION_SAVE_SUCCESS_MESSAGE, "success"));
+      setFeedbackMessage(createMessage(OPTION_SAVE_SUCCESS_MESSAGE, "success"));
     }
   };
 
-  return { baseUrl, setBaseUrl, saveMessage, handleSave };
+  return {
+    baseUrl,
+    setBaseUrl,
+    feedbackMessage,
+    handleSave,
+    verifyClick,
+  };
 };

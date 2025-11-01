@@ -11,7 +11,7 @@
   padding: 0.5rem;
 }
 
-.options-page .save-button {
+.options-page .btn {
   padding: 0.5rem 1rem;
   background-color: darkcyan;
   color: white;
@@ -23,17 +23,6 @@
 .options-page .option-title,
 .options-page .option-subtitle {
   margin-left: 1rem;
-}
-
-.options-page .save-message {
-  color: #28a745; /* Bootstrapの成功時の色に近い緑 */
-  font-weight: bold;
-  margin-top: 1rem;
-  margin-left: 1rem;
-  padding: 0.5rem;
-  border: 1px solid #28a745;
-  border-radius: 4px;
-  background-color: #e9f7ef;
 }
 
 .options-page .message-container {

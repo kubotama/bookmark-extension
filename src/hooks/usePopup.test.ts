@@ -50,6 +50,7 @@ describe("usePopup", () => {
     };
     mockApiUrl = {
       getApiBookmarkAddUrl: () => API_BOOKMARK_ADD,
+      getApiBookmarkGetUrl: () => API_BOOKMARK_ADD,
       isApiUrlLoaded: true,
     };
     vi.stubGlobal("fetch", vi.fn());

@@ -10,8 +10,21 @@ import {
 
 import { act, renderHook, waitFor } from "@testing-library/react";
 
-import { STORAGE_KEY_API_BASE_URL } from "../constants/constants";
-import { useOptions } from "./useOptions";
+import {
+  STORAGE_KEY_API_BASE_URL,
+  OPTION_UNEXPECTED_API_RESPONSE_ERROR,
+  OPTION_UNEXPECTED_API_RESPONSE_PREFIX,
+  OPTION_INVALID_BASE_URL_ERROR,
+  OPTION_INVALID_BASE_URL_PREFIX,
+} from "../constants/constants";
+import {
+  API_ERROR_MESSAGE,
+  FAILED_TO_GET_BASE_URL_MESSAGE,
+  FAILED_TO_CONNECT_API_WITH_NETWORK,
+  FAILED_TO_CONNECT_API,
+  SUCCESS_MESSAGE,
+  useOptions,
+} from "./useOptions";
 
 describe("useOptions", () => {
   const set = vi.fn();
@@ -65,7 +78,7 @@ describe("useOptions", () => {
 
       await waitFor(() => {
         expect(consoleErrorSpy).toHaveBeenCalledWith(
-          "Failed to get base URL:",
+          FAILED_TO_GET_BASE_URL_MESSAGE,
           new Error("Failed to get")
         );
       });
@@ -108,11 +121,153 @@ describe("useOptions", () => {
         await result.current.handleSave();
       });
 
-      expect(result.current.saveMessage).toEqual({
+      expect(result.current.feedbackMessage).toEqual({
         text: "保存しました！",
         type: "success",
         id: expect.any(String),
       });
+    });
+  });
+
+  describe("verifyClick", () => {
+    let fetchSpy: MockInstance;
+
+    beforeEach(() => {
+      fetchSpy = vi.spyOn(global, "fetch");
+    });
+
+    afterEach(() => {
+      fetchSpy.mockRestore();
+    });
+
+    it("API通信が成功した場合、成功メッセージを設定すること", async () => {
+      const mockData = [{ id: 1 }, { id: 2 }];
+      fetchSpy.mockResolvedValue({
+        ok: true,
+        json: async () => mockData,
+      } as Response);
+
+      const { result } = renderHook(() => useOptions());
+
+      await act(async () => {
+        await result.current.verifyClick();
+      });
+
+      expect(result.current.feedbackMessage).toEqual({
+        text: SUCCESS_MESSAGE(mockData.length),
+        type: "success",
+        id: expect.any(String),
+      });
+    });
+
+    it("APIがサーバーエラーを返した場合、エラーメッセージを設定すること", async () => {
+      fetchSpy.mockResolvedValue({
+        ok: false,
+        status: 500,
+      } as Response);
+
+      const { result } = renderHook(() => useOptions());
+
+      await act(async () => {
+        await result.current.verifyClick();
+      });
+
+      expect(result.current.feedbackMessage).toEqual({
+        text: API_ERROR_MESSAGE(500),
+        type: "error",
+        id: expect.any(String),
+      });
+    });
+
+    it("ネットワークエラーが発生した場合、エラーメッセージを設定し、コンソールにエラーを出力すること", async () => {
+      const error = new Error("Network error");
+      fetchSpy.mockRejectedValue(error);
+
+      const { result } = renderHook(() => useOptions());
+
+      await act(async () => {
+        await result.current.verifyClick();
+      });
+
+      expect(result.current.feedbackMessage).toEqual({
+        text: FAILED_TO_CONNECT_API_WITH_NETWORK,
+        type: "error",
+        id: expect.any(String),
+      });
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        FAILED_TO_CONNECT_API,
+        error
+      );
+    });
+
+    it("APIが予期しない形式のデータを返した場合、エラーメッセージを設定すること", async () => {
+      const mockData = { message: "unexpected data" };
+      fetchSpy.mockResolvedValue({
+        ok: true,
+        json: async () => mockData,
+      } as Response);
+
+      const { result } = renderHook(() => useOptions());
+
+      await act(async () => {
+        await result.current.verifyClick();
+      });
+
+      expect(result.current.feedbackMessage).toEqual({
+        text: OPTION_UNEXPECTED_API_RESPONSE_ERROR,
+        type: "error",
+        id: expect.any(String),
+      });
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        OPTION_UNEXPECTED_API_RESPONSE_PREFIX,
+        mockData
+      );
+    });
+
+    it("APIが不正なJSONを返した場合、エラーメッセージを設定すること", async () => {
+      fetchSpy.mockResolvedValue({
+        ok: true,
+        json: async () => {
+          throw new SyntaxError("Unexpected token in JSON");
+        },
+      } as unknown as Response);
+
+      const { result } = renderHook(() => useOptions());
+
+      await act(async () => {
+        await result.current.verifyClick();
+      });
+
+      expect(result.current.feedbackMessage).toEqual({
+        text: OPTION_UNEXPECTED_API_RESPONSE_ERROR,
+        type: "error",
+        id: expect.any(String),
+      });
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        OPTION_UNEXPECTED_API_RESPONSE_PREFIX,
+        expect.any(SyntaxError)
+      );
+    });
+
+    it("APIが不正なURLの場合、エラーメッセージを設定し、コンソールにエラーを出力すること", async () => {
+      const error = new TypeError("Invalid URL");
+      fetchSpy.mockRejectedValue(error);
+
+      const { result } = renderHook(() => useOptions());
+
+      await act(async () => {
+        await result.current.verifyClick();
+      });
+
+      expect(result.current.feedbackMessage).toEqual({
+        text: OPTION_INVALID_BASE_URL_ERROR,
+        type: "error",
+        id: expect.any(String),
+      });
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        OPTION_INVALID_BASE_URL_PREFIX,
+        error
+      );
     });
   });
 });

@@ -7,13 +7,15 @@ import {
   OPTION_SAVE_BUTTON_TEXT,
   OPTION_SUBTITLE_TEXT,
   OPTION_TITLE_TEXT,
+  OPTION_VERIFY_BUTTON_TEXT,
   PLACEHOLDER_URL,
   SAVE_MESSAGE_TIMEOUT_MS,
 } from "../constants/constants";
 import { useOptions } from "../hooks/useOptions";
 
 const Options = () => {
-  const { baseUrl, setBaseUrl, saveMessage, handleSave } = useOptions();
+  const { baseUrl, setBaseUrl, feedbackMessage, handleSave, verifyClick } =
+    useOptions();
 
   return (
     <main className="options-page">
@@ -28,12 +30,18 @@ const Options = () => {
           placeholder={PLACEHOLDER_URL}
         />
       </div>
-      <button className="save-button" onClick={handleSave}>
+      <button className="btn" onClick={handleSave}>
         {OPTION_SAVE_BUTTON_TEXT}
       </button>
+      <button className="btn" onClick={verifyClick}>
+        {OPTION_VERIFY_BUTTON_TEXT}
+      </button>
       <div className="message-container">
-        {saveMessage && (
-          <Message message={saveMessage} duration={SAVE_MESSAGE_TIMEOUT_MS} />
+        {feedbackMessage && (
+          <Message
+            message={feedbackMessage}
+            duration={SAVE_MESSAGE_TIMEOUT_MS}
+          />
         )}
       </div>
     </main>

@@ -1,6 +1,7 @@
 export const API_BASE_URL = "http://localhost:3000";
 export const API_ENDPOINT = {
   ADD_BOOKMARK: "/api/bookmarks",
+  GET_BOOKMARKS: "/api/bookmarks",
 };
 
 export const STORAGE_KEY_API_BASE_URL = "apiBaseUrl";
@@ -15,8 +16,16 @@ export const PLACEHOLDER_URL =
 export const OPTION_TITLE_TEXT = "bookmark-extension";
 export const OPTION_SUBTITLE_TEXT = "オプションの設定画面";
 export const OPTION_SAVE_BUTTON_TEXT = "保存";
+export const OPTION_VERIFY_BUTTON_TEXT = "API接続確認";
 export const OPTION_LABEL_API_URL = "ブックマークを管理するAPIのベースURL";
 export const OPTION_SAVE_SUCCESS_MESSAGE = "保存しました！";
+export const OPTION_UNEXPECTED_API_RESPONSE_ERROR =
+  "APIからの応答が予期しない形式です。";
+export const OPTION_INVALID_BASE_URL_ERROR = "APIのベースURL設定が不正です。";
+
+export const OPTION_UNEXPECTED_API_RESPONSE_PREFIX =
+  "APIからの応答が予期しない形式です: ";
+export const OPTION_INVALID_BASE_URL_PREFIX = "APIのベースURL設定が不正です: ";
 
 export const POPUP_REGISTER_BUTTON_TEXT = "登録";
 
