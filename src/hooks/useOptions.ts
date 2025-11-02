@@ -60,20 +60,26 @@ export const useOptions = () => {
       const response = await fetch(apiUrl);
 
       if (response.ok) {
-        try {
-          const data = await response.json();
-          if (Array.isArray(data)) {
-            setFeedbackMessage(
-              createMessage(SUCCESS_MESSAGE(data.length), "success")
-            );
-          } else {
-            throw data;
-          }
-        } catch (error) {
-          console.error(OPTION_UNEXPECTED_API_RESPONSE_PREFIX, error);
+        const handleUnexpectedApiResponse = (errorDetail: unknown) => {
+          console.error(OPTION_UNEXPECTED_API_RESPONSE_PREFIX, errorDetail);
           setFeedbackMessage(
             createMessage(OPTION_UNEXPECTED_API_RESPONSE_ERROR, "error")
           );
+        };
+
+        let data;
+        try {
+          data = await response.json();
+        } catch (error) {
+          handleUnexpectedApiResponse(error);
+          return;
+        }
+        if (Array.isArray(data)) {
+          setFeedbackMessage(
+            createMessage(SUCCESS_MESSAGE(data.length), "success")
+          );
+        } else {
+          handleUnexpectedApiResponse(data);
         }
       } else {
         // サーバーエラーの場合のメッセージ
