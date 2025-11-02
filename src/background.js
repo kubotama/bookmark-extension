@@ -1,3 +1,8 @@
+import {
+  BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX,
+  BACKGROUND_TAB_UPDATE_ERROR_PREFIX,
+} from "./constants";
+
 const updateIcon = async (tab) => {
   if (!tab || !tab.url || !tab.url.startsWith("http")) {
     return;
@@ -18,13 +23,21 @@ const updateIcon = async (tab) => {
   });
 };
 
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (changeInfo.status === "complete") {
-    updateIcon(tab);
+    try {
+      await updateIcon(tab);
+    } catch (e) {
+      console.error(`${BACKGROUND_TAB_UPDATE_ERROR_PREFIX}${e}`);
+    }
   }
 });
 
 chrome.tabs.onActivated.addListener(async (activeInfo) => {
-  const tab = await chrome.tabs.get(activeInfo.tabId);
-  updateIcon(tab);
+  try {
+    const tab = await chrome.tabs.get(activeInfo.tabId);
+    await updateIcon(tab);
+  } catch (e) {
+    console.error(`${BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX}${e}`);
+  }
 });
