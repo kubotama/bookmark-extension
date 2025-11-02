@@ -1,14 +1,17 @@
 import {
   BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX,
   BACKGROUND_TAB_UPDATE_ERROR_PREFIX,
-} from "./constants";
+} from "./constants/constants";
 
 const updateIcon = async (tab) => {
   if (!tab || !tab.url || !tab.url.startsWith("http")) {
     return;
   }
 
-  const isBookmarked = await chrome.bookmarks.search({ url: tab.url });
+  const url = new URL(tab.url);
+  // ページ内リンク（#sectionなど）を無視してブックマークを検索するため、ハッシュを削除
+  url.hash = "";
+  const isBookmarked = await chrome.bookmarks.search({ url: url.href });
   const iconPrefix = isBookmarked.length ? "icon-saved" : "icon";
 
   const iconPath = {
