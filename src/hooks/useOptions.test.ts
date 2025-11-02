@@ -4,28 +4,26 @@ import {
   describe,
   expect,
   it,
-  vi,
   type MockInstance,
+  vi,
 } from "vitest";
 
 import { act, renderHook, waitFor } from "@testing-library/react";
 
 import {
-  STORAGE_KEY_API_BASE_URL,
-  OPTION_UNEXPECTED_API_RESPONSE_ERROR,
-  OPTION_UNEXPECTED_API_RESPONSE_PREFIX,
+  API_ERROR_MESSAGE,
+  FAILED_TO_CONNECT_API,
+  FAILED_TO_CONNECT_API_WITH_NETWORK,
+  FAILED_TO_GET_BASE_URL_MESSAGE,
   OPTION_INVALID_BASE_URL_ERROR,
   OPTION_INVALID_BASE_URL_PREFIX,
-} from "../constants/constants";
-import {
-  API_ERROR_MESSAGE,
-  FAILED_TO_GET_BASE_URL_MESSAGE,
-  FAILED_TO_CONNECT_API_WITH_NETWORK,
-  FAILED_TO_CONNECT_API,
+  OPTION_UNEXPECTED_API_RESPONSE_ERROR,
+  OPTION_UNEXPECTED_API_RESPONSE_PREFIX,
+  STORAGE_KEY_API_BASE_URL,
   SUCCESS_MESSAGE,
-  useOptions,
-} from "./useOptions";
+} from "../constants/constants";
 import { useApiUrl } from "./useApiUrl";
+import { useOptions } from "./useOptions";
 
 vi.mock("./useApiUrl");
 
