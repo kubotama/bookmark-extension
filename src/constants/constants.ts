@@ -46,3 +46,13 @@ export const POPUP_RESPONSE_MESSAGE_PARSE_ERROR =
   "エラー応答の解析に失敗しました。";
 export const POPUP_NO_ACTIVE_TAB_ERROR =
   "アクティブなタブまたはURLが見つかりませんでした。";
+
+export const SUCCESS_MESSAGE = (count: number) =>
+  `${count}件のブックマークを取得しました。`;
+export const API_ERROR_MESSAGE = (status: number) =>
+  `APIへの接続に失敗しました (HTTP ${status})`;
+export const FAILED_TO_CONNECT_API_WITH_NETWORK =
+  "APIへの接続に失敗しました。ネットワーク設定などを確認してください。";
+export const FAILED_TO_GET_BASE_URL_MESSAGE =
+  "APIのベースURLを取得できませんでした:";
+export const FAILED_TO_CONNECT_API = "APIへの接続に失敗しました:";
