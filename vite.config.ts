@@ -13,7 +13,7 @@ export default defineConfig({
       input: {
         main: path.resolve(__dirname, "src/popup.html"), // public/popup.html を参照
         options: path.resolve(__dirname, "src/options.html"), // public/options.html を参照
-        // background: path.resolve(__dirname, "src/background/background.ts"),
+        background: path.resolve(__dirname, "src/background.js"),
         // content: path.resolve(__dirname, "src/content/content.ts"),
       },
       output: {
