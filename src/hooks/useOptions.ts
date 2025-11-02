@@ -55,8 +55,16 @@ export const useOptions = () => {
   }, []);
 
   const verifyClick = useCallback(async () => {
+    let apiUrl: string;
     try {
-      const apiUrl = getApiBookmarkGetUrl();
+      apiUrl = getApiBookmarkGetUrl();
+    } catch (error) {
+      // URL生成時のエラー（主に不正なURL）
+      console.error(OPTION_INVALID_BASE_URL_PREFIX, error);
+      setFeedbackMessage(createMessage(OPTION_INVALID_BASE_URL_ERROR, "error"));
+      return;
+    }
+    try {
       const response = await fetch(apiUrl);
 
       if (response.ok) {
@@ -88,18 +96,11 @@ export const useOptions = () => {
         );
       }
     } catch (error) {
-      if (error instanceof TypeError) {
-        console.error(OPTION_INVALID_BASE_URL_PREFIX, error);
-        setFeedbackMessage(
-          createMessage(OPTION_INVALID_BASE_URL_ERROR, "error")
-        );
-      } else {
-        // ネットワークエラーなどの場合のメッセージ
-        setFeedbackMessage(
-          createMessage(FAILED_TO_CONNECT_API_WITH_NETWORK, "error")
-        );
-        console.error(FAILED_TO_CONNECT_API, error);
-      }
+      // ネットワークエラーなどの場合のメッセージ
+      setFeedbackMessage(
+        createMessage(FAILED_TO_CONNECT_API_WITH_NETWORK, "error")
+      );
+      console.error(FAILED_TO_CONNECT_API, error);
     }
   }, [getApiBookmarkGetUrl]);
 

@@ -25,6 +25,9 @@ import {
   SUCCESS_MESSAGE,
   useOptions,
 } from "./useOptions";
+import { useApiUrl } from "./useApiUrl";
+
+vi.mock("./useApiUrl");
 
 describe("useOptions", () => {
   const set = vi.fn();
@@ -41,16 +44,23 @@ describe("useOptions", () => {
   const newUrl = "https://example.com";
 
   let consoleErrorSpy: MockInstance;
+  const mockUseApiUrl = useApiUrl as unknown as MockInstance;
 
   beforeEach(() => {
     // console.errorをモック化して、コンソールへの出力を抑制する
     consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     set.mockClear();
     get.mockClear();
+    mockUseApiUrl.mockReturnValue({
+      getApiBookmarkGetUrl: vi
+        .fn()
+        .mockReturnValue("https://example.com/bookmarks"),
+    });
   });
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
+    mockUseApiUrl.mockReset();
   });
 
   describe("URLの初期化", () => {
@@ -251,7 +261,11 @@ describe("useOptions", () => {
 
     it("APIが不正なURLの場合、エラーメッセージを設定し、コンソールにエラーを出力すること", async () => {
       const error = new TypeError("Invalid URL");
-      fetchSpy.mockRejectedValue(error);
+      mockUseApiUrl.mockReturnValue({
+        getApiBookmarkGetUrl: vi.fn().mockImplementation(() => {
+          throw error;
+        }),
+      });
 
       const { result } = renderHook(() => useOptions());
 
