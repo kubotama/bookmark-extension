@@ -16,6 +16,9 @@
     "page": "src/options.html",
     "open_in_tab": true
   },
-  "permissions": ["storage", "activeTab"],
+  "permissions": ["storage", "activeTab", "tabs", "bookmarks"],
+  "background": {
+    "service_worker": "background.js"
+  },
   "host_permissions": ["http://localhost:3000/*"]
 }
