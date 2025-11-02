@@ -1,5 +1,5 @@
 const updateIcon = async (tab) => {
-  if (!tab || !tab.url) {
+  if (!tab || !tab.url || !tab.url.startsWith("http")) {
     return;
   }
 
