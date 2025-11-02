@@ -4,19 +4,13 @@ const updateIcon = async (tab) => {
   }
 
   const isBookmarked = await chrome.bookmarks.search({ url: tab.url });
+  const iconPrefix = isBookmarked.length ? "icon-saved" : "icon";
 
-  const iconPath =
-    isBookmarked.length > 0
-      ? {
-          16: "icons/icon-saved16.png",
-          48: "icons/icon-saved48.png",
-          128: "icons/icon-saved128.png",
-        }
-      : {
-          16: "icons/icon16.png",
-          48: "icons/icon48.png",
-          128: "icons/icon128.png",
-        };
+  const iconPath = {
+    16: `icons/${iconPrefix}16.png`,
+    48: `icons/${iconPrefix}48.png`,
+    128: `icons/${iconPrefix}128.png`,
+  };
 
   chrome.action.setIcon({
     path: iconPath,
