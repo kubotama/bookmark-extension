@@ -5,6 +5,7 @@ import {
   expect,
   beforeEach,
   type MockInstance,
+  type MockedFunction,
 } from "vitest";
 import * as background from "./background.ts"; // Import all exports
 
@@ -97,11 +98,11 @@ describe("updateIcon", () => {
 });
 
 describe("background listeners with dependency injection", () => {
-  let updateIconMock: MockInstance<(tab: chrome.tabs.Tab) => Promise<void>>;
+  let updateIconMock: MockedFunction<(tab: chrome.tabs.Tab) => Promise<void>>;
   let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
-    updateIconMock = vi.fn<(tab: chrome.tabs.Tab) => Promise<void>>(); // モック関数を作成
+    updateIconMock = vi.fn();
     consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
@@ -111,18 +112,14 @@ describe("background listeners with dependency injection", () => {
 
   describe("onUpdated", () => {
     it("should call updateIconFn when status is complete", async () => {
-      const onUpdatedListener = background.createOnUpdated(
-        updateIconMock as unknown as (tab: chrome.tabs.Tab) => Promise<void>
-      ); // モックを注入
+      const onUpdatedListener = background.createOnUpdated(updateIconMock); // モックを注入
       const tab = { id: 1, url: "https://example.com" } as chrome.tabs.Tab;
       await onUpdatedListener(tab.id as number, { status: "complete" }, tab);
       expect(updateIconMock).toHaveBeenCalledWith(tab);
     });
 
     it("should not call updateIconFn when status is not complete", async () => {
-      const onUpdatedListener = background.createOnUpdated(
-        updateIconMock as unknown as (tab: chrome.tabs.Tab) => Promise<void>
-      ); // モックを注入
+      const onUpdatedListener = background.createOnUpdated(updateIconMock); // モックを注入
       const tab = { id: 1, url: "https://example.com" } as chrome.tabs.Tab;
       await onUpdatedListener(tab.id as number, { status: "loading" }, tab);
       expect(updateIconMock).not.toHaveBeenCalled();
@@ -130,10 +127,8 @@ describe("background listeners with dependency injection", () => {
 
     it("should log error if updateIconFn throws", async () => {
       const error = new Error("test error");
-      (updateIconMock as unknown as MockInstance).mockRejectedValue(error); // モックがエラーを投げるように設定
-      const onUpdatedListener = background.createOnUpdated(
-        updateIconMock as unknown as (tab: chrome.tabs.Tab) => Promise<void>
-      ); // モックを注入
+      updateIconMock.mockRejectedValue(error); // モックがエラーを投げるように設定
+      const onUpdatedListener = background.createOnUpdated(updateIconMock); // モックを注入
       const tab = { id: 1, url: "https://example.com" } as chrome.tabs.Tab;
       await onUpdatedListener(tab.id as number, { status: "complete" }, tab);
       expect(consoleErrorSpy).toHaveBeenCalledWith(
@@ -145,9 +140,7 @@ describe("background listeners with dependency injection", () => {
 
   describe("onActivated", () => {
     it("should call updateIconFn for the active tab", async () => {
-      const onActivatedListener = background.createOnActivated(
-        updateIconMock as unknown as (tab: chrome.tabs.Tab) => Promise<void>
-      ); // モックを注入
+      const onActivatedListener = background.createOnActivated(updateIconMock); // モックを注入
       const tab = { id: 1, url: "https://example.com" } as chrome.tabs.Tab;
       (chrome.tabs.get as unknown as MockInstance).mockResolvedValue(tab);
       await onActivatedListener({ tabId: 1, windowId: 1 });
@@ -158,9 +151,7 @@ describe("background listeners with dependency injection", () => {
     it("should log error if chrome.tabs.get throws", async () => {
       const error = new Error("get tab error");
       (chrome.tabs.get as unknown as MockInstance).mockRejectedValue(error);
-      const onActivatedListener = background.createOnActivated(
-        updateIconMock as unknown as (tab: chrome.tabs.Tab) => Promise<void>
-      ); // モックを注入
+      const onActivatedListener = background.createOnActivated(updateIconMock); // モックを注入
       await onActivatedListener({ tabId: 1, windowId: 1 });
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX,
@@ -170,12 +161,10 @@ describe("background listeners with dependency injection", () => {
 
     it("should log error if updateIconFn throws", async () => {
       const error = new Error("update icon error");
-      (updateIconMock as unknown as MockInstance).mockRejectedValue(error); // モックがエラーを投げるように設定
+      updateIconMock.mockRejectedValue(error); // モックがエラーを投げるように設定
       const tab = { id: 1, url: "https://example.com" } as chrome.tabs.Tab;
       (chrome.tabs.get as unknown as MockInstance).mockResolvedValue(tab);
-      const onActivatedListener = background.createOnActivated(
-        updateIconMock as unknown as (tab: chrome.tabs.Tab) => Promise<void>
-      ); // モックを注入
+      const onActivatedListener = background.createOnActivated(updateIconMock); // モックを注入
       await onActivatedListener({ tabId: 1, windowId: 1 });
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX,
