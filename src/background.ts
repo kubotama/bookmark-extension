@@ -42,7 +42,7 @@ export const createOnUpdated = (
       try {
         await updateIconFn(tab); // 注入されたupdateIconFnを使用
       } catch (e) {
-        console.error(`${BACKGROUND_TAB_UPDATE_ERROR_PREFIX}${e}`);
+        console.error(BACKGROUND_TAB_UPDATE_ERROR_PREFIX, e);
       }
     }
   };
@@ -60,7 +60,7 @@ export const createOnActivated = (
       const tab = await chrome.tabs.get(activeInfo.tabId);
       await updateIconFn(tab); // 注入されたupdateIconFnを使用
     } catch (e) {
-      console.error(`${BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX}${e}`);
+      console.error(BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX, e);
     }
   };
 };

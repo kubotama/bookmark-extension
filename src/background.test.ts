@@ -117,7 +117,8 @@ describe("background listeners with dependency injection", () => {
       const tab = { id: 1, url: "https://example.com" } as chrome.tabs.Tab;
       await onUpdatedListener(tab.id as number, { status: "complete" }, tab);
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        expect.stringContaining(BACKGROUND_TAB_UPDATE_ERROR_PREFIX)
+        BACKGROUND_TAB_UPDATE_ERROR_PREFIX,
+        new Error("test error")
       );
     });
   });
@@ -142,7 +143,8 @@ describe("background listeners with dependency injection", () => {
       ); // モックを注入
       await onActivatedListener({ tabId: 1, windowId: 1 });
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        expect.stringContaining(BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX)
+        BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX,
+        new Error("get tab error")
       );
     });
 
@@ -156,7 +158,8 @@ describe("background listeners with dependency injection", () => {
       ); // モックを注入
       await onActivatedListener({ tabId: 1, windowId: 1 });
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        expect.stringContaining(BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX)
+        BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX,
+        new Error("update icon error")
       );
     });
   });
