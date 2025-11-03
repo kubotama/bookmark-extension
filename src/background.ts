@@ -71,7 +71,7 @@ export const createOnActivated = (
  * バックグラウンドスクリプトのリスナーを初期化する関数。
  * 実際のupdateIcon関数を渡してリスナーを登録します。
  */
-export const initializeBackgroundListeners = (
+const initializeBackgroundListeners = (
   updateIconFn: (tab: chrome.tabs.Tab) => Promise<void>
 ) => {
   const onUpdatedListener = createOnUpdated(updateIconFn);
