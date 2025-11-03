@@ -132,6 +132,7 @@ describe("background listeners with dependency injection", () => {
     it("should call updateIconFn when status is complete", async () => {
       const onUpdatedListener = background.createOnUpdated(updateIconMock); // モックを注入
       const tab = { id: 1, url: "https://example.com" } as chrome.tabs.Tab;
+      (chrome.tabs.get as unknown as MockInstance).mockResolvedValue(tab);
       await onUpdatedListener(tab.id as number, { status: "complete" }, tab);
       expect(updateIconMock).toHaveBeenCalledWith(tab);
     });
