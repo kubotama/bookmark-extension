@@ -18,8 +18,28 @@ describe("updateIcon", () => {
     vi.clearAllMocks();
   });
 
-  it("should not do anything if tab is invalid", async () => {
-    await background.updateIcon({} as chrome.tabs.Tab);
+  const testCases = [
+    {
+      description: "should not do anything if tab has no url",
+      tab: { id: 1 } as chrome.tabs.Tab,
+    },
+    {
+      description: "should not do anything if tab has undefined",
+      tab: { id: 1, url: undefined } as chrome.tabs.Tab,
+    },
+    {
+      description:
+        "should not do anything for non-http urls(chrome://extensions)",
+      tab: { id: 1, url: "chrome://extensions" } as chrome.tabs.Tab,
+    },
+    {
+      description: "should not do anything for non-http urls(file:///)",
+      tab: { id: 1, url: "file:///" } as chrome.tabs.Tab,
+    },
+  ];
+
+  it.each(testCases)("$description", async ({ tab }) => {
+    await background.updateIcon(tab);
     expect(chrome.bookmarks.search).not.toHaveBeenCalled();
     expect(chrome.action.setIcon).not.toHaveBeenCalled();
   });
