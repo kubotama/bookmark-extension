@@ -26,29 +26,31 @@ export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
   });
 };
 
-chrome.tabs.onUpdated.addListener(
-  async (
-    _tabId: number,
-    changeInfo: chrome.tabs.TabChangeInfo,
-    tab: chrome.tabs.Tab
-  ): Promise<void> => {
-    if (changeInfo.status === "complete") {
-      try {
-        await updateIcon(tab);
-      } catch (e) {
-        console.error(`${BACKGROUND_TAB_UPDATE_ERROR_PREFIX}${e}`);
-      }
-    }
-  }
-);
-
-chrome.tabs.onActivated.addListener(
-  async (activeInfo: chrome.tabs.TabActiveInfo): Promise<void> => {
+export const onUpdated = async (
+  _tabId: number,
+  changeInfo: chrome.tabs.TabChangeInfo,
+  tab: chrome.tabs.Tab
+): Promise<void> => {
+  if (changeInfo.status === "complete") {
     try {
-      const tab = await chrome.tabs.get(activeInfo.tabId);
       await updateIcon(tab);
     } catch (e) {
-      console.error(`${BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX}${e}`);
+      console.error(`${BACKGROUND_TAB_UPDATE_ERROR_PREFIX}${e}`);
     }
   }
-);
+};
+
+chrome.tabs.onUpdated.addListener(onUpdated);
+
+export const onActivated = async (
+  activeInfo: chrome.tabs.TabActiveInfo
+): Promise<void> => {
+  try {
+    const tab = await chrome.tabs.get(activeInfo.tabId);
+    await updateIcon(tab);
+  } catch (e) {
+    console.error(`${BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX}${e}`);
+  }
+};
+
+chrome.tabs.onActivated.addListener(onActivated);
