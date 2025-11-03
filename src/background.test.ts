@@ -19,7 +19,7 @@ describe("updateIcon", () => {
     vi.clearAllMocks();
   });
 
-  const testCases = [
+  const testCasesForNotCall = [
     {
       description: "should not do anything if tab has no url",
       tab: { id: 1 } as chrome.tabs.Tab,
@@ -39,62 +39,80 @@ describe("updateIcon", () => {
     },
   ];
 
-  it.each(testCases)("$description", async ({ tab }) => {
+  it.each(testCasesForNotCall)("$description", async ({ tab }) => {
     await background.updateIcon(tab);
     expect(chrome.bookmarks.search).not.toHaveBeenCalled();
     expect(chrome.action.setIcon).not.toHaveBeenCalled();
   });
 
-  it("should set saved icon if page is bookmarked", async () => {
-    (chrome.bookmarks.search as unknown as MockInstance).mockResolvedValue([
-      {},
-    ]);
-    const tab = { id: 1, url: "https://example.com" } as chrome.tabs.Tab;
-    await background.updateIcon(tab);
-
-    expect(chrome.bookmarks.search).toHaveBeenCalledWith({
-      url: "https://example.com/",
-    });
-    expect(chrome.action.setIcon).toHaveBeenCalledWith({
-      path: {
-        16: "icons/icon-saved16.png",
-        48: "icons/icon-saved48.png",
-        128: "icons/icon-saved128.png",
+  const testCasesForCall = [
+    {
+      description: "should set saved icon if page is bookmarked",
+      isBookmarked: [{}],
+      tab: { id: 1, url: "https://example.com" } as chrome.tabs.Tab,
+      expected: {
+        forSearch: {
+          url: "https://example.com/",
+        },
+        forSetIcon: {
+          path: {
+            16: "icons/icon-saved16.png",
+            48: "icons/icon-saved48.png",
+            128: "icons/icon-saved128.png",
+          },
+          tabId: 1,
+        },
       },
-      tabId: 1,
-    });
-  });
-
-  it("should set default icon if page is not bookmarked", async () => {
-    (chrome.bookmarks.search as unknown as MockInstance).mockResolvedValue([]);
-    const tab = { id: 1, url: "https://example.com" } as chrome.tabs.Tab;
-    await background.updateIcon(tab);
-
-    expect(chrome.bookmarks.search).toHaveBeenCalledWith({
-      url: "https://example.com/",
-    });
-    expect(chrome.action.setIcon).toHaveBeenCalledWith({
-      path: {
-        16: "icons/icon16.png",
-        48: "icons/icon48.png",
-        128: "icons/icon128.png",
+    },
+    {
+      description: "should set default icon if page is not bookmarked",
+      isBookmarked: [],
+      tab: { id: 1, url: "https://example.com" } as chrome.tabs.Tab,
+      expected: {
+        forSearch: {
+          url: "https://example.com/",
+        },
+        forSetIcon: {
+          path: {
+            16: "icons/icon16.png",
+            48: "icons/icon48.png",
+            128: "icons/icon128.png",
+          },
+          tabId: 1,
+        },
       },
-      tabId: 1,
-    });
-  });
+    },
+    {
+      description: "should ignore hash in url",
+      isBookmarked: [],
+      tab: { id: 1, url: "https://example.com#section" } as chrome.tabs.Tab,
+      expected: {
+        forSearch: {
+          url: "https://example.com/",
+        },
+        forSetIcon: {
+          path: {
+            16: "icons/icon16.png",
+            48: "icons/icon48.png",
+            128: "icons/icon128.png",
+          },
+          tabId: 1,
+        },
+      },
+    },
+  ];
+  it.each(testCasesForCall)(
+    "$description",
+    async ({ tab, expected, isBookmarked }) => {
+      (chrome.bookmarks.search as unknown as MockInstance).mockResolvedValue(
+        isBookmarked
+      );
+      await background.updateIcon(tab);
 
-  it("should ignore hash in url", async () => {
-    (chrome.bookmarks.search as unknown as MockInstance).mockResolvedValue([]);
-    const tab = {
-      id: 1,
-      url: "https://example.com#section",
-    } as chrome.tabs.Tab;
-    await background.updateIcon(tab);
-
-    expect(chrome.bookmarks.search).toHaveBeenCalledWith({
-      url: "https://example.com/",
-    });
-  });
+      expect(chrome.bookmarks.search).toHaveBeenCalledWith(expected.forSearch);
+      expect(chrome.action.setIcon).toHaveBeenCalledWith(expected.forSetIcon);
+    }
+  );
 });
 
 describe("background listeners with dependency injection", () => {
