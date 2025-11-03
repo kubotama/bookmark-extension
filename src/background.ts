@@ -12,7 +12,7 @@ export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
   // ページ内リンク（#sectionなど）を無視してブックマークを検索するため、ハッシュを削除
   url.hash = "";
   const isBookmarked = await chrome.bookmarks.search({ url: url.href });
-  const iconPrefix = isBookmarked.length ? "icon-saved" : "icon";
+  const iconPrefix = isBookmarked.length > 0 ? "icon-saved" : "icon";
 
   const iconPath = {
     16: `icons/${iconPrefix}16.png`,
