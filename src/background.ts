@@ -34,12 +34,14 @@ export const createOnUpdated = (
   updateIconFn: (tab: chrome.tabs.Tab) => Promise<void>
 ) => {
   return async (
-    _tabId: number,
-    changeInfo: chrome.tabs.TabChangeInfo,
-    tab: chrome.tabs.Tab
+    tabId: number,
+    changeInfo: chrome.tabs.TabChangeInfo
+    // // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // _tab: chrome.tabs.Tab
   ): Promise<void> => {
     if (changeInfo.status === "complete") {
       try {
+        const tab = await chrome.tabs.get(tabId);
         await updateIconFn(tab);
       } catch (e) {
         console.error(BACKGROUND_TAB_UPDATE_ERROR_PREFIX, e);
