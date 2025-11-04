@@ -151,7 +151,7 @@ describe("background listeners with dependency injection", () => {
       await onUpdatedListener(tab.id as number, { status: "complete" }, tab);
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         BACKGROUND_TAB_UPDATE_ERROR_PREFIX,
-        new Error("test error")
+        error
       );
     });
   });
@@ -173,7 +173,7 @@ describe("background listeners with dependency injection", () => {
       await onActivatedListener({ tabId: 1, windowId: 1 });
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX,
-        new Error("get tab error")
+        error
       );
     });
 
@@ -186,7 +186,7 @@ describe("background listeners with dependency injection", () => {
       await onActivatedListener({ tabId: 1, windowId: 1 });
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX,
-        new Error("update icon error")
+        error
       );
     });
   });
