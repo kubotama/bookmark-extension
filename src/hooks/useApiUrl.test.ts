@@ -32,16 +32,23 @@ describe("useApiUrl", () => {
     consoleErrorSpy.mockRestore();
   });
 
+  const assertApiUrls = (
+    result: { current: ReturnType<typeof useApiUrl> },
+    expectedBaseUrl: string
+  ) => {
+    expect(result.current.getApiBookmarkAddUrl()).toBe(
+      new URL(API_ENDPOINT.ADD_BOOKMARK, expectedBaseUrl).href
+    );
+    expect(result.current.getApiBookmarkGetUrl()).toBe(
+      new URL(API_ENDPOINT.GET_BOOKMARKS, expectedBaseUrl).href
+    );
+  };
+
   it("apiBaseUrlの初期値が正しく設定されていること", () => {
     chromeStorageLocalGet.mockResolvedValue({});
     const { result } = renderHook(() => useApiUrl());
 
-    expect(result.current.getApiBookmarkAddUrl()).toBe(
-      new URL(API_ENDPOINT.ADD_BOOKMARK, API_BASE_URL).href
-    );
-    expect(result.current.getApiBookmarkGetUrl()).toBe(
-      new URL(API_ENDPOINT.GET_BOOKMARKS, API_BASE_URL).href
-    );
+    assertApiUrls(result, API_BASE_URL);
   });
 
   it("ストレージからURLを読み込んで設定すること", async () => {
@@ -55,12 +62,7 @@ describe("useApiUrl", () => {
       expect(result.current.isApiUrlLoaded).toBe(true);
     });
 
-    expect(result.current.getApiBookmarkAddUrl()).toBe(
-      new URL(API_ENDPOINT.ADD_BOOKMARK, newUrl).href
-    );
-    expect(result.current.getApiBookmarkGetUrl()).toBe(
-      new URL(API_ENDPOINT.GET_BOOKMARKS, newUrl).href
-    );
+    assertApiUrls(result, newUrl);
   });
 
   it("ストレージのURLが空の場合、デフォルトURLが使用されること", async () => {
@@ -71,12 +73,7 @@ describe("useApiUrl", () => {
       expect(result.current.isApiUrlLoaded).toBe(true);
     });
 
-    expect(result.current.getApiBookmarkAddUrl()).toBe(
-      new URL(API_ENDPOINT.ADD_BOOKMARK, API_BASE_URL).href
-    );
-    expect(result.current.getApiBookmarkGetUrl()).toBe(
-      new URL(API_ENDPOINT.GET_BOOKMARKS, API_BASE_URL).href
-    );
+    assertApiUrls(result, API_BASE_URL);
   });
 
   it("ストレージからのURL取得に失敗した場合、エラーがコンソールに出力されること", async () => {
