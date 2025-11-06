@@ -83,4 +83,31 @@ describe("useApiUrl", () => {
       error
     );
   });
+
+  it("unmount後にストレージ取得が失敗してもエラーがコンソールに出力されないこと", async () => {
+    const error = new Error("Failed to get URL");
+    // rejectPromiseの型を Error を受け取る関数として定義
+    let rejectPromise!: (reason: Error) => void;
+
+    chromeStorageLocalGet.mockImplementation(
+      () =>
+        new Promise<void>((_, reject) => {
+          // 型の整合性を保つため、rejectを直接代入せず、
+          // Error型の引数を受け取る新しい関数でラップする
+          rejectPromise = (err: Error) => reject(err);
+        })
+    );
+
+    const { unmount } = renderHook(() => useApiUrl());
+
+    unmount();
+
+    // unmount後にPromiseをrejectさせる（キャスト不要）
+    rejectPromise(error);
+
+    // Promiseがsettleするのを待つ
+    await new Promise((resolve) => setImmediate(resolve));
+
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
+  });
 });
