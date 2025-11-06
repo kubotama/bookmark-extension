@@ -8,6 +8,8 @@ import {
   vi,
 } from "vitest";
 
+import { chromeStorageLocalGet } from "../test/setup";
+
 import { renderHook, waitFor } from "@testing-library/react";
 
 import {
@@ -19,20 +21,11 @@ import {
 import { useApiUrl } from "./useApiUrl";
 
 describe("useApiUrl", () => {
-  const get = vi.fn();
-  global.chrome = {
-    storage: {
-      local: {
-        get,
-      },
-    },
-  } as unknown as typeof chrome;
-
   let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
     consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    get.mockClear();
+    chromeStorageLocalGet.mockClear();
   });
 
   afterEach(() => {
@@ -40,7 +33,7 @@ describe("useApiUrl", () => {
   });
 
   it("apiBaseUrlの初期値が正しく設定されていること", () => {
-    get.mockResolvedValue({});
+    chromeStorageLocalGet.mockResolvedValue({});
     const { result } = renderHook(() => useApiUrl());
 
     expect(result.current.getApiBookmarkAddUrl()).toBe(
@@ -53,7 +46,9 @@ describe("useApiUrl", () => {
 
   it("ストレージからURLを読み込んで設定すること", async () => {
     const newUrl = "https://example.com";
-    get.mockResolvedValue({ [STORAGE_KEY_API_BASE_URL]: newUrl });
+    chromeStorageLocalGet.mockResolvedValue({
+      [STORAGE_KEY_API_BASE_URL]: newUrl,
+    });
     const { result } = renderHook(() => useApiUrl());
 
     await waitFor(() => {
@@ -69,7 +64,7 @@ describe("useApiUrl", () => {
   });
 
   it("ストレージのURLが空の場合、デフォルトURLが使用されること", async () => {
-    get.mockResolvedValue({ [STORAGE_KEY_API_BASE_URL]: "" });
+    chromeStorageLocalGet.mockResolvedValue({ [STORAGE_KEY_API_BASE_URL]: "" });
     const { result } = renderHook(() => useApiUrl());
 
     await waitFor(() => {
@@ -86,7 +81,7 @@ describe("useApiUrl", () => {
 
   it("ストレージからのURL取得に失敗した場合、エラーがコンソールに出力されること", async () => {
     const error = new Error("Failed to get URL");
-    get.mockRejectedValue(error);
+    chromeStorageLocalGet.mockRejectedValue(error);
     const { result } = renderHook(() => useApiUrl());
 
     await waitFor(() => {
