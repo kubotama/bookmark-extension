@@ -76,12 +76,11 @@ describe("useApiUrl", () => {
     chromeStorageLocalGet.mockRejectedValue(error);
     const { result } = renderHook(() => useApiUrl());
 
-    await waitFor(() => {
-      expect(result.current.isApiUrlLoaded).toBe(true);
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        POPUP_FAILED_TO_FETCH_API_URL_PREFIX,
-        error
-      );
-    });
+    await assertApiUrls(result, API_BASE_URL);
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      POPUP_FAILED_TO_FETCH_API_URL_PREFIX,
+      error
+    );
   });
 });
