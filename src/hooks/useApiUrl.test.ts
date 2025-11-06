@@ -47,11 +47,11 @@ describe("useApiUrl", () => {
     });
   };
 
-  it("apiBaseUrlの初期値が正しく設定されていること", () => {
+  it("apiBaseUrlの初期値が正しく設定されていること", async () => {
     chromeStorageLocalGet.mockResolvedValue({});
     const { result } = renderHook(() => useApiUrl());
 
-    assertApiUrls(result, API_BASE_URL);
+    await assertApiUrls(result, API_BASE_URL);
   });
 
   it("ストレージからURLを読み込んで設定すること", async () => {
@@ -61,14 +61,14 @@ describe("useApiUrl", () => {
     });
     const { result } = renderHook(() => useApiUrl());
 
-    assertApiUrls(result, newUrl);
+    await assertApiUrls(result, newUrl);
   });
 
   it("ストレージのURLが空の場合、デフォルトURLが使用されること", async () => {
     chromeStorageLocalGet.mockResolvedValue({ [STORAGE_KEY_API_BASE_URL]: "" });
     const { result } = renderHook(() => useApiUrl());
 
-    assertApiUrls(result, API_BASE_URL);
+    await assertApiUrls(result, API_BASE_URL);
   });
 
   it("ストレージからのURL取得に失敗した場合、エラーがコンソールに出力されること", async () => {
