@@ -1,6 +1,8 @@
 import "@testing-library/jest-dom";
 import { vi } from "vitest";
 
+export const chromeStorageLocalGet = vi.fn();
+
 // Mock chrome API
 global.chrome = {
   bookmarks: {
@@ -15,7 +17,7 @@ global.chrome = {
   },
   storage: {
     local: {
-      get: vi.fn(),
+      get: chromeStorageLocalGet,
       set: vi.fn(),
     },
   },
