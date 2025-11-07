@@ -18,7 +18,7 @@ export const useApiUrl = () => {
       return new URL(apiPath, baseUrl).href;
     } catch (error) {
       console.error(POPUP_FAILED_TO_FETCH_API_URL_PREFIX, error);
-      return new URL(apiPath, API_BASE_URL).href;
+      throw error;
     }
   }, []);
 
