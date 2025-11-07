@@ -86,14 +86,14 @@ describe("useApiUrl", () => {
 
   it("unmount後にストレージ取得が失敗してもエラーがコンソールに出力されないこと", async () => {
     const error = new Error("Failed to get URL");
-    // rejectPromiseの型を Error を受け取る関数として定義
     let rejectPromise!: (reason: Error) => void;
+
+    // useApiUrlが利用するストレージのキーと型に合わせた型を定義
+    type ApiUrlStorage = { [STORAGE_KEY_API_BASE_URL]?: string };
 
     chromeStorageLocalGet.mockImplementation(
       () =>
-        new Promise<void>((_, reject) => {
-          // 型の整合性を保つため、rejectを直接代入せず、
-          // Error型の引数を受け取る新しい関数でラップする
+        new Promise<ApiUrlStorage>((_, reject) => {
           rejectPromise = (err: Error) => reject(err);
         })
     );
@@ -105,8 +105,7 @@ describe("useApiUrl", () => {
     // unmount後にPromiseをrejectさせる（キャスト不要）
     rejectPromise(error);
 
-    // Promiseがsettleするのを待つ
-    await new Promise((resolve) => setImmediate(resolve));
+    await Promise.resolve();
 
     expect(consoleErrorSpy).not.toHaveBeenCalled();
   });
