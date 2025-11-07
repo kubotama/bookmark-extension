@@ -13,13 +13,22 @@ export const useApiUrl = () => {
   const [apiBaseUrl, setApiBaseUrl] = useState<string>(API_BASE_URL);
   const [isApiUrlLoaded, setIsApiUrlLoaded] = useState<boolean>(false);
 
+  const getApiUrl = useCallback((apiPath: string, baseUrl: string) => {
+    try {
+      return new URL(apiPath, baseUrl).href;
+    } catch (error) {
+      console.error(POPUP_FAILED_TO_FETCH_API_URL_PREFIX, error);
+      return new URL(apiPath, API_BASE_URL).href;
+    }
+  }, []);
+
   const getApiBookmarkAddUrl = useCallback(() => {
-    return new URL(API_ENDPOINT.ADD_BOOKMARK, apiBaseUrl).href;
-  }, [apiBaseUrl]);
+    return getApiUrl(API_ENDPOINT.ADD_BOOKMARK, apiBaseUrl);
+  }, [apiBaseUrl, getApiUrl]);
 
   const getApiBookmarkGetUrl = useCallback(() => {
-    return new URL(API_ENDPOINT.GET_BOOKMARKS, apiBaseUrl).href;
-  }, [apiBaseUrl]);
+    return getApiUrl(API_ENDPOINT.GET_BOOKMARKS, apiBaseUrl);
+  }, [apiBaseUrl, getApiUrl]);
 
   useEffect(() => {
     const abortController = new AbortController();

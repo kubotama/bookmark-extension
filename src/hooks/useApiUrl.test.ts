@@ -109,4 +109,15 @@ describe("useApiUrl", () => {
 
     expect(consoleErrorSpy).not.toHaveBeenCalled();
   });
+
+  it("ストレージのURLが文字列でない場合、デフォルトURLが使用されること", async () => {
+    chromeStorageLocalGet.mockResolvedValue({
+      [STORAGE_KEY_API_BASE_URL]: 12345,
+    });
+    const { result } = renderHook(() => useApiUrl());
+
+    // 現在の実装ではURLの生成時にエラーが発生するため、このアサーションは失敗します。
+    // フック側で型チェックを実装した後に、このテストが通ることを確認してください。
+    await assertApiUrls(result, API_BASE_URL);
+  });
 });
