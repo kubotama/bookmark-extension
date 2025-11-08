@@ -70,6 +70,15 @@ describe("useApiUrl", () => {
     await assertApiUrls(result, API_BASE_URL);
   });
 
+  it("ストレージのURLが不正な型の場合、デフォルトURLが使用されること", async () => {
+    chromeStorageLocalGet.mockResolvedValue({
+      [STORAGE_KEY_API_BASE_URL]: 123,
+    });
+    const { result } = renderHook(() => useApiUrl());
+
+    await assertApiUrls(result, API_BASE_URL);
+  });
+
   it("ストレージからのURL取得に失敗した場合、エラーがコンソールに出力されること", async () => {
     const error = new Error("Failed to get URL");
     chromeStorageLocalGet.mockRejectedValue(error);

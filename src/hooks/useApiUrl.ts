@@ -39,8 +39,13 @@ export const useApiUrl = () => {
         const result = await chrome.storage.local.get([
           STORAGE_KEY_API_BASE_URL,
         ]);
-        if (!signal.aborted && result[STORAGE_KEY_API_BASE_URL]) {
-          setApiBaseUrl(result[STORAGE_KEY_API_BASE_URL]);
+        const storedUrl = result[STORAGE_KEY_API_BASE_URL];
+        if (
+          !signal.aborted &&
+          typeof storedUrl === "string" &&
+          storedUrl.length > 0
+        ) {
+          setApiBaseUrl(storedUrl);
         }
       } catch (error) {
         if (!signal.aborted) {
