@@ -17,7 +17,8 @@ import { useApiUrl } from "../hooks/useApiUrl";
 import { useDynamicPopupWidth } from "../hooks/useDynamicPopupWidth";
 import { usePopup } from "../hooks/usePopup";
 
-const openOptionsPage = () => {
+const openOptionsPage = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  e.preventDefault();
   chrome.tabs.create({ url: chrome.runtime.getURL("src/options.html") });
 };
 
@@ -45,13 +46,13 @@ const Popup = () => {
     return (
       <div className="popup-wrapper">
         <p className="popup-error-message">{POPUP_INVALID_API_URL_MESSAGE}</p>
-        <button
-          type="button"
+        <a
           onClick={openOptionsPage}
           className="popup-error-message"
+          role="link"
         >
           {POPUP_OPTIONS_PAGE_LINK_TEXT}
-        </button>
+        </a>
       </div>
     );
   }
