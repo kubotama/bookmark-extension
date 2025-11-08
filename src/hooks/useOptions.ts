@@ -16,11 +16,22 @@ import {
 import { useApiUrl } from "./useApiUrl";
 import { createMessage, type MessageData } from "./useMessage";
 
+const validateUrl = (url: string): string => {
+  if (!url) {
+    return "URLは必須です。";
+  }
+  if (!url.startsWith("http://") && !url.startsWith("https://")) {
+    return "URLはhttp://またはhttps://で始まる必要があります。";
+  }
+  return "";
+};
+
 export const useOptions = () => {
   const [baseUrl, setBaseUrl] = useState("");
   const [feedbackMessage, setFeedbackMessage] = useState<MessageData | null>(
     null
   );
+  const [urlError, setUrlError] = useState("");
   const { getApiBookmarkGetUrl } = useApiUrl();
 
   useEffect(() => {
@@ -33,7 +44,8 @@ export const useOptions = () => {
           STORAGE_KEY_API_BASE_URL,
         ]);
         if (!signal.aborted) {
-          setBaseUrl(result[STORAGE_KEY_API_BASE_URL] || "");
+          const url = result[STORAGE_KEY_API_BASE_URL] || "";
+          setBaseUrl(url);
         }
       } catch (error) {
         if (!signal.aborted) {
@@ -48,6 +60,11 @@ export const useOptions = () => {
       abortController.abort();
     };
   }, []);
+
+  const handleBaseUrlChange = (newUrl: string) => {
+    setBaseUrl(newUrl);
+    setUrlError(validateUrl(newUrl));
+  };
 
   const verifyClick = useCallback(async () => {
     let apiUrl: string;
@@ -100,17 +117,21 @@ export const useOptions = () => {
   }, [getApiBookmarkGetUrl]);
 
   const handleSave = async () => {
-    if (baseUrl) {
-      await chrome.storage.local.set({ [STORAGE_KEY_API_BASE_URL]: baseUrl });
-      setFeedbackMessage(createMessage(OPTION_SAVE_SUCCESS_MESSAGE, "success"));
+    const error = validateUrl(baseUrl);
+    setUrlError(error);
+    if (error) {
+      return;
     }
+    await chrome.storage.local.set({ [STORAGE_KEY_API_BASE_URL]: baseUrl });
+    setFeedbackMessage(createMessage(OPTION_SAVE_SUCCESS_MESSAGE, "success"));
   };
 
   return {
     baseUrl,
-    setBaseUrl,
     feedbackMessage,
     handleSave,
     verifyClick,
+    urlError,
+    handleBaseUrlChange,
   };
 };

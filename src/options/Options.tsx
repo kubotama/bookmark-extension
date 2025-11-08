@@ -14,8 +14,14 @@ import {
 import { useOptions } from "../hooks/useOptions";
 
 const Options = () => {
-  const { baseUrl, setBaseUrl, feedbackMessage, handleSave, verifyClick } =
-    useOptions();
+  const {
+    baseUrl,
+    feedbackMessage,
+    handleSave,
+    verifyClick,
+    urlError,
+    handleBaseUrlChange,
+  } = useOptions();
 
   return (
     <main className="options-page">
@@ -26,9 +32,11 @@ const Options = () => {
           label={OPTION_LABEL_API_URL}
           type="text"
           value={baseUrl}
-          onChange={(e) => setBaseUrl(e.target.value)}
+          onChange={(e) => handleBaseUrlChange(e.target.value)}
           placeholder={PLACEHOLDER_URL}
+          className={urlError ? "is-invalid" : ""}
         />
+        {urlError && <div className="error-message">{urlError}</div>}
       </div>
       <button className="btn" onClick={handleSave}>
         {OPTION_SAVE_BUTTON_TEXT}

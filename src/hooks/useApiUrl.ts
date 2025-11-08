@@ -9,9 +9,14 @@ import {
   STORAGE_KEY_API_BASE_URL,
 } from "../constants/constants";
 
+const isValidUrl = (url: string): boolean => {
+  return url.startsWith("http://") || url.startsWith("https://");
+};
+
 export const useApiUrl = () => {
   const [apiBaseUrl, setApiBaseUrl] = useState<string>(API_BASE_URL);
   const [isApiUrlLoaded, setIsApiUrlLoaded] = useState<boolean>(false);
+  const [isApiUrlInvalid, setIsApiUrlInvalid] = useState<boolean>(false);
 
   const getApiUrl = useCallback((apiPath: string, baseUrl: string) => {
     try {
@@ -40,11 +45,19 @@ export const useApiUrl = () => {
           STORAGE_KEY_API_BASE_URL,
         ]);
         const storedUrl = result[STORAGE_KEY_API_BASE_URL];
-        if (!signal.aborted && typeof storedUrl === "string") {
+        if (signal.aborted) {
+          return;
+        }
+        if (typeof storedUrl === "string") {
           const trimmedUrl = storedUrl.trim();
-          if (trimmedUrl) {
+          if (trimmedUrl && isValidUrl(trimmedUrl)) {
             setApiBaseUrl(trimmedUrl);
+          } else {
+            setIsApiUrlInvalid(true);
           }
+        } else if (storedUrl !== undefined) {
+          // The value exists in storage but is not a string (e.g., null, number, boolean)
+          setIsApiUrlInvalid(true);
         }
       } catch (error) {
         if (!signal.aborted) {
@@ -64,5 +77,10 @@ export const useApiUrl = () => {
     };
   }, []);
 
-  return { getApiBookmarkAddUrl, getApiBookmarkGetUrl, isApiUrlLoaded };
+  return {
+    getApiBookmarkAddUrl,
+    getApiBookmarkGetUrl,
+    isApiUrlLoaded,
+    isApiUrlInvalid,
+  };
 };

@@ -31,12 +31,22 @@ describe("useApiUrl", () => {
     consoleErrorSpy.mockRestore();
   });
 
+  const assertApiUrlState = async (
+    result: { current: ReturnType<typeof useApiUrl> },
+    isLoaded: boolean,
+    isInvalid: boolean
+  ) => {
+    await waitFor(() => {
+      expect(result.current.isApiUrlLoaded).toBe(isLoaded);
+      expect(result.current.isApiUrlInvalid).toBe(isInvalid);
+    });
+  };
+
   const assertApiUrls = async (
     result: { current: ReturnType<typeof useApiUrl> },
     expectedBaseUrl: string
   ) => {
     await waitFor(() => {
-      expect(result.current.isApiUrlLoaded).toBe(true);
       expect(result.current.getApiBookmarkAddUrl()).toBe(
         new URL(API_ENDPOINT.ADD_BOOKMARK, expectedBaseUrl).href
       );
@@ -50,6 +60,7 @@ describe("useApiUrl", () => {
     chromeStorageLocalGet.mockResolvedValue({});
     const { result } = renderHook(() => useApiUrl());
 
+    await assertApiUrlState(result, true, false);
     await assertApiUrls(result, API_BASE_URL);
   });
 
@@ -60,6 +71,7 @@ describe("useApiUrl", () => {
     });
     const { result } = renderHook(() => useApiUrl());
 
+    await assertApiUrlState(result, true, false);
     await assertApiUrls(result, newUrl);
   });
 
@@ -69,16 +81,16 @@ describe("useApiUrl", () => {
     { value: true, description: "真偽値" },
     { value: {}, description: "オブジェクト" },
     { value: "", description: "空文字列" },
-    { value: " ", description: "スペースのみの文字列" },
+    { value: "invalid-url", description: "不正なURL" },
   ])(
-    "ストレージのURLが不正な型 ($description) の場合、デフォルトURLが使用されること",
+    "ストレージのURLが不正な型 ($description) の場合、isApiUrlInvalidがtrueになること",
     async ({ value }) => {
       chromeStorageLocalGet.mockResolvedValue({
         [STORAGE_KEY_API_BASE_URL]: value,
       });
       const { result } = renderHook(() => useApiUrl());
 
-      await assertApiUrls(result, API_BASE_URL);
+      await assertApiUrlState(result, true, true);
     }
   );
 
@@ -87,6 +99,7 @@ describe("useApiUrl", () => {
     chromeStorageLocalGet.mockRejectedValue(error);
     const { result } = renderHook(() => useApiUrl());
 
+    await assertApiUrlState(result, true, false);
     await assertApiUrls(result, API_BASE_URL);
 
     expect(consoleErrorSpy).toHaveBeenCalledWith(

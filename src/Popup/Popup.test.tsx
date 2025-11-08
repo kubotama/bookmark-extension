@@ -18,6 +18,8 @@ import {
   LABEL_URL,
   POPUP_FAILED_TO_FETCH_API_URL_PREFIX,
   POPUP_FAILED_TO_RETRIEVE_ACTIVE_TAB_INFO_PREFIX,
+  POPUP_INVALID_API_URL_MESSAGE,
+  POPUP_OPTIONS_PAGE_LINK_TEXT,
   POPUP_REGISTER_BUTTON_TEXT,
   POPUP_REGISTER_SUCCESS_MESSAGE,
   POPUP_URL_FETCH_ERROR_MESSAGE,
@@ -51,6 +53,7 @@ describe("Popup", () => {
   let user: UserEvent;
   let mockQuery: Mock;
   let mockStorageGet: Mock;
+  let mockTabsCreate: Mock;
   let consoleErrorSpy: MockInstance;
 
   // トップレベルに共通のモックセットアップを移動
@@ -60,13 +63,23 @@ describe("Popup", () => {
       .mockResolvedValue([
         createMockTab("https://example.com", "サンプルのページのタイトル"),
       ]);
-    mockStorageGet = vi.fn().mockResolvedValue({});
+    mockStorageGet = vi.fn().mockImplementation((keys) => {
+      if (
+        (typeof keys === "string" && keys === STORAGE_KEY_API_BASE_URL) ||
+        (Array.isArray(keys) && keys.includes(STORAGE_KEY_API_BASE_URL))
+      ) {
+        return Promise.resolve({});
+      }
+      return Promise.resolve({});
+    });
+    mockTabsCreate = vi.fn();
 
     // Mock chrome APIs
     vi.clearAllMocks();
     vi.stubGlobal("chrome", {
       tabs: {
         query: mockQuery,
+        create: mockTabsCreate,
       },
       storage: {
         local: {
@@ -75,6 +88,7 @@ describe("Popup", () => {
       },
       runtime: {
         lastError: undefined,
+        getURL: (path: string) => `chrome-extension://test/${path}`,
       },
     });
     vi.stubGlobal("fetch", vi.fn());
@@ -493,6 +507,44 @@ describe("Popup", () => {
         name: "登録",
       });
       expect(registerButton).toBeDisabled();
+    });
+  });
+
+  describe("API URLが無効な場合", () => {
+    beforeEach(() => {
+      mockStorageGet.mockResolvedValue({
+        [STORAGE_KEY_API_BASE_URL]: "invalid-url",
+      });
+    });
+
+    it("ローディング中に'Loading...'と表示される", async () => {
+      // API URLの読み込みを未完了にするために、ストレージのgetをPromiseのままにしておく
+      mockStorageGet.mockImplementation(
+        () => new Promise(() => {}) // pending promise
+      );
+      render(<Popup />);
+      expect(await screen.findByText("Loading...")).toBeInTheDocument();
+    });
+
+    it("API URLが無効な場合にエラーメッセージとオプションページへのリンクが表示される", async () => {
+      render(<Popup />);
+      expect(
+        await screen.findByText(POPUP_INVALID_API_URL_MESSAGE)
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("link", { name: POPUP_OPTIONS_PAGE_LINK_TEXT })
+      ).toBeInTheDocument();
+    });
+
+    it("オプションページへのリンクをクリックすると、オプションページが開かれる", async () => {
+      render(<Popup />);
+      const link = await screen.findByRole("link", {
+        name: POPUP_OPTIONS_PAGE_LINK_TEXT,
+      });
+      await user.click(link);
+      expect(mockTabsCreate).toHaveBeenCalledWith({
+        url: "chrome-extension://test/src/options.html",
+      });
     });
   });
 });

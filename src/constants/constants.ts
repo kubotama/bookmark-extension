@@ -46,6 +46,9 @@ export const POPUP_RESPONSE_MESSAGE_PARSE_ERROR =
   "エラー応答の解析に失敗しました。";
 export const POPUP_NO_ACTIVE_TAB_ERROR =
   "アクティブなタブまたはURLが見つかりませんでした。";
+export const POPUP_INVALID_API_URL_MESSAGE =
+  "API URLが無効です。オプションページで設定してください。";
+export const POPUP_OPTIONS_PAGE_LINK_TEXT = "オプションページを開く";
 
 export const SUCCESS_MESSAGE = (count: number) =>
   `${count}件のブックマークを取得しました。`;

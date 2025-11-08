@@ -9,10 +9,17 @@ import Message from "../components/Message/Message";
 import {
   LABEL_TITLE,
   LABEL_URL,
+  POPUP_INVALID_API_URL_MESSAGE,
+  POPUP_OPTIONS_PAGE_LINK_TEXT,
   SAVE_MESSAGE_TIMEOUT_MS,
 } from "../constants/constants";
+import { useApiUrl } from "../hooks/useApiUrl";
 import { useDynamicPopupWidth } from "../hooks/useDynamicPopupWidth";
 import { usePopup } from "../hooks/usePopup";
+
+const openOptionsPage = () => {
+  chrome.tabs.create({ url: chrome.runtime.getURL("src/options.html") });
+};
 
 const Popup = () => {
   const {
@@ -25,9 +32,29 @@ const Popup = () => {
     handleUrlChange,
     isRegisterDisabled,
   } = usePopup();
+  const { isApiUrlLoaded, isApiUrlInvalid } = useApiUrl();
 
   const measurementRef = useRef<HTMLSpanElement>(null);
   const popupWidth = useDynamicPopupWidth(activeTabUrl, measurementRef);
+
+  if (!isApiUrlLoaded) {
+    return <div>Loading...</div>;
+  }
+
+  if (isApiUrlInvalid) {
+    return (
+      <div className="popup-wrapper">
+        <p className="popup-error-message">{POPUP_INVALID_API_URL_MESSAGE}</p>
+        <a
+          href="#"
+          onClick={openOptionsPage}
+          className="popup-error-message"
+        >
+          {POPUP_OPTIONS_PAGE_LINK_TEXT}
+        </a>
+      </div>
+    );
+  }
 
   return (
     <>
