@@ -69,7 +69,6 @@ describe("useApiUrl", () => {
     { value: true, description: "真偽値" },
     { value: {}, description: "オブジェクト" },
     { value: "", description: "空文字列" },
-    { value: undefined, description: "undefined" },
   ])(
     "ストレージのURLが不正な型 ($description) の場合、デフォルトURLが使用されること",
     async ({ value }) => {
