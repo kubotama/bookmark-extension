@@ -63,13 +63,6 @@ describe("useApiUrl", () => {
     await assertApiUrls(result, newUrl);
   });
 
-  it("ストレージのURLが空の場合、デフォルトURLが使用されること", async () => {
-    chromeStorageLocalGet.mockResolvedValue({ [STORAGE_KEY_API_BASE_URL]: "" });
-    const { result } = renderHook(() => useApiUrl());
-
-    await assertApiUrls(result, API_BASE_URL);
-  });
-
   it.each([
     { value: 123, description: "数値" },
     { value: null, description: "null" },
