@@ -2,7 +2,7 @@
 
 import "./Popup.css";
 
-import { useRef } from "react";
+import { useCallback, useRef } from "react";
 
 import LabeledInputField from "../components/LabeledInputField";
 import Message from "../components/Message/Message";
@@ -16,11 +16,6 @@ import {
 import { useApiUrl } from "../hooks/useApiUrl";
 import { useDynamicPopupWidth } from "../hooks/useDynamicPopupWidth";
 import { usePopup } from "../hooks/usePopup";
-
-const openOptionsPage = (e: React.MouseEvent<HTMLAnchorElement>) => {
-  e.preventDefault();
-  chrome.tabs.create({ url: chrome.runtime.getURL("src/options.html") });
-};
 
 const Popup = () => {
   const {
@@ -37,6 +32,14 @@ const Popup = () => {
 
   const measurementRef = useRef<HTMLSpanElement>(null);
   const popupWidth = useDynamicPopupWidth(activeTabUrl, measurementRef);
+
+  const openOptionsPage = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault();
+      chrome.tabs.create({ url: chrome.runtime.getURL("src/options.html") });
+    },
+    []
+  );
 
   if (!isApiUrlLoaded) {
     return <div>Loading...</div>;
