@@ -13,18 +13,9 @@ import {
   STORAGE_KEY_API_BASE_URL,
   SUCCESS_MESSAGE,
 } from "../constants/constants";
+import { validateUrl } from "../lib/url";
 import { useApiUrl } from "./useApiUrl";
 import { createMessage, type MessageData } from "./useMessage";
-
-const validateUrl = (url: string): string => {
-  if (!url) {
-    return "URLは必須です。";
-  }
-  if (!url.startsWith("http://") && !url.startsWith("https://")) {
-    return "URLはhttp://またはhttps://で始まる必要があります。";
-  }
-  return "";
-};
 
 export const useOptions = () => {
   const [baseUrl, setBaseUrl] = useState("");

@@ -1,11 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 
 import {
-  createErrorMessage,
-  createMessage,
-  type MessageData,
-} from "./useMessage";
-import {
   POPUP_INVALID_URL_MESSAGE_PREFIX,
   POPUP_REGISTER_CONFLICT_ERROR_PREFIX,
   POPUP_REGISTER_FAILED_PREFIX,
@@ -13,17 +8,14 @@ import {
   POPUP_RESPONSE_MESSAGE_PARSE_ERROR,
   POPUP_UNEXPECTED_ERROR_PREFIX,
 } from "../constants/constants";
+import { isValidUrl } from "../lib/url";
 import { useActiveTabInfo } from "./useActiveTabInfo";
 import { useApiUrl } from "./useApiUrl";
-
-const isValidUrl = (url: string): boolean => {
-  try {
-    new URL(url);
-    return true;
-  } catch {
-    return false;
-  }
-};
+import {
+  createErrorMessage,
+  createMessage,
+  type MessageData,
+} from "./useMessage";
 
 export const usePopup = () => {
   const {
@@ -82,7 +74,11 @@ export const usePopup = () => {
           response.status
         );
         setMessage(errorMessage);
-        console.error(POPUP_REGISTER_FAILED_PREFIX, response.status, parseError);
+        console.error(
+          POPUP_REGISTER_FAILED_PREFIX,
+          response.status,
+          parseError
+        );
       }
     } catch (error) {
       if (error instanceof TypeError) {

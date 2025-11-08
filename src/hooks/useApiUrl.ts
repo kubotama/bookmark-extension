@@ -9,9 +9,7 @@ import {
   STORAGE_KEY_API_BASE_URL,
 } from "../constants/constants";
 
-const isValidUrl = (url: string): boolean => {
-  return url.startsWith("http://") || url.startsWith("https://");
-};
+import { isValidUrl } from "../lib/url";
 
 export const useApiUrl = () => {
   const [apiBaseUrl, setApiBaseUrl] = useState<string>(API_BASE_URL);
