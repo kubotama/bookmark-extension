@@ -63,3 +63,5 @@ export const FAILED_TO_CONNECT_API = "APIへの接続に失敗しました:";
 export const BACKGROUND_TAB_UPDATE_ERROR_PREFIX = "タブの更新エラー: ";
 export const BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX =
   "タブのアクティベートエラー: ";
+
+export const OPTIONS_PAGE_PATH = "src/options.html";

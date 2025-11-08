@@ -9,6 +9,7 @@ import Message from "../components/Message/Message";
 import {
   LABEL_TITLE,
   LABEL_URL,
+  OPTIONS_PAGE_PATH,
   POPUP_INVALID_API_URL_MESSAGE,
   POPUP_OPTIONS_PAGE_LINK_TEXT,
   SAVE_MESSAGE_TIMEOUT_MS,
@@ -36,7 +37,7 @@ const Popup = () => {
   const openOptionsPage = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault();
-      chrome.tabs.create({ url: chrome.runtime.getURL("src/options.html") });
+      chrome.tabs.create({ url: chrome.runtime.getURL(OPTIONS_PAGE_PATH) });
     },
     []
   );
