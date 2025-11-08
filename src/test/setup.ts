@@ -1,7 +1,8 @@
 import "@testing-library/jest-dom";
-import { vi } from "vitest";
+import { afterEach, vi } from "vitest";
 
 export const chromeStorageLocalGet = vi.fn();
+export const chromeStorageLocalSet = vi.fn();
 
 // Mock chrome API
 global.chrome = {
@@ -18,7 +19,7 @@ global.chrome = {
   storage: {
     local: {
       get: chromeStorageLocalGet,
-      set: vi.fn(),
+      set: chromeStorageLocalSet,
     },
   },
   tabs: {
@@ -35,3 +36,8 @@ global.chrome = {
     setIcon: vi.fn(),
   },
 } as unknown as typeof chrome;
+
+afterEach(() => {
+  chromeStorageLocalGet.mockClear();
+  chromeStorageLocalSet.mockClear();
+});

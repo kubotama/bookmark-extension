@@ -25,20 +25,11 @@ import {
 import { useApiUrl } from "./useApiUrl";
 import { useOptions } from "./useOptions";
 
+import { chromeStorageLocalSet, chromeStorageLocalGet } from "../test/setup";
+
 vi.mock("./useApiUrl");
 
 describe("useOptions", () => {
-  const set = vi.fn();
-  const get = vi.fn();
-  global.chrome = {
-    storage: {
-      local: {
-        set,
-        get,
-      },
-    },
-  } as unknown as typeof chrome;
-
   const newUrl = "https://example.com";
 
   let consoleErrorSpy: MockInstance;
@@ -47,8 +38,6 @@ describe("useOptions", () => {
   beforeEach(() => {
     // console.errorをモック化して、コンソールへの出力を抑制する
     consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    set.mockClear();
-    get.mockClear();
     mockUseApiUrl.mockReturnValue({
       getApiBookmarkGetUrl: vi
         .fn()
@@ -63,7 +52,9 @@ describe("useOptions", () => {
 
   describe("URLの初期化", () => {
     it("ストレージからURLを読み込んで設定すること", async () => {
-      get.mockResolvedValue({ [STORAGE_KEY_API_BASE_URL]: newUrl });
+      chromeStorageLocalGet.mockResolvedValue({
+        [STORAGE_KEY_API_BASE_URL]: newUrl,
+      });
       const { result } = renderHook(() => useOptions());
 
       await waitFor(() => {
@@ -72,7 +63,7 @@ describe("useOptions", () => {
     });
 
     it("ストレージにURLがない場合、空文字に設定されること", async () => {
-      get.mockResolvedValue({});
+      chromeStorageLocalGet.mockResolvedValue({});
       const { result } = renderHook(() => useOptions());
 
       await waitFor(() => {
@@ -81,7 +72,7 @@ describe("useOptions", () => {
     });
 
     it("ストレージからの読み込みに失敗した場合、コンソールにエラーが出力されること", async () => {
-      get.mockRejectedValue(new Error("Failed to get"));
+      chromeStorageLocalGet.mockRejectedValue(new Error("Failed to get"));
       renderHook(() => useOptions());
 
       await waitFor(() => {
@@ -101,7 +92,7 @@ describe("useOptions", () => {
         await result.current.handleSave();
       });
 
-      expect(set).not.toHaveBeenCalled();
+      expect(chromeStorageLocalSet).not.toHaveBeenCalled();
     });
 
     it("URLが入力されている場合、ストレージに保存されること", async () => {
@@ -115,7 +106,9 @@ describe("useOptions", () => {
         await result.current.handleSave();
       });
 
-      expect(set).toHaveBeenCalledWith({ [STORAGE_KEY_API_BASE_URL]: newUrl });
+      expect(chromeStorageLocalSet).toHaveBeenCalledWith({
+        [STORAGE_KEY_API_BASE_URL]: newUrl,
+      });
     });
 
     it("保存後、メッセージが設定されること", async () => {

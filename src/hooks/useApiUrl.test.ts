@@ -25,7 +25,6 @@ describe("useApiUrl", () => {
 
   beforeEach(() => {
     consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    chromeStorageLocalGet.mockClear();
   });
 
   afterEach(() => {
