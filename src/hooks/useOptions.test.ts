@@ -38,8 +38,6 @@ describe("useOptions", () => {
   beforeEach(() => {
     // console.errorをモック化して、コンソールへの出力を抑制する
     consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-    chromeStorageLocalSet.mockClear();
-    chromeStorageLocalGet.mockClear();
     mockUseApiUrl.mockReturnValue({
       getApiBookmarkGetUrl: vi
         .fn()
