@@ -43,7 +43,7 @@ export const useApiUrl = () => {
         if (
           !signal.aborted &&
           typeof storedUrl === "string" &&
-          storedUrl.length > 0
+          storedUrl
         ) {
           setApiBaseUrl(storedUrl);
         }
