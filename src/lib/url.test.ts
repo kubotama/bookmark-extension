@@ -7,53 +7,87 @@ import {
 import { isValidUrl, validateUrl } from "./url";
 
 describe("validateUrl", () => {
-  it("should return an empty string for a valid http URL", () => {
-    expect(validateUrl("http://example.com")).toBe("");
-  });
+  const testCasesValidUrls = [
+    {
+      description: "should return an empty string for a valid http URL",
+      url: "http://example.com",
+      expected: "",
+    },
+    {
+      description: "should return an empty string for a valid https URL",
+      url: "https://example.com",
+      expected: "",
+    },
+    {
+      description: "should return an error message for an empty string",
+      url: "",
+      expected: URL_REQUIRED_ERROR_MESSAGE,
+    },
+    {
+      description:
+        "should return an error message for a URL without a protocol",
+      url: "example.com",
+      expected: INVALID_URL_ERROR_MESSAGE,
+    },
+    {
+      description:
+        "should return an error message for a URL with a different protocol",
+      url: "ftp://example.com",
+      expected: URL_PROTOCOL_ERROR_MESSAGE,
+    },
+    {
+      description: "should return an error message for an invalid URL",
+      url: "http:foo",
+      expected: INVALID_URL_ERROR_MESSAGE,
+    },
+  ];
 
-  it("should return an empty string for a valid https URL", () => {
-    expect(validateUrl("https://example.com")).toBe("");
-  });
-
-  it("should return an error message for an empty string", () => {
-    expect(validateUrl("")).toBe(URL_REQUIRED_ERROR_MESSAGE);
-  });
-
-  it("should return an error message for a URL without a protocol", () => {
-    expect(validateUrl("example.com")).toBe(INVALID_URL_ERROR_MESSAGE);
-  });
-
-  it("should return an error message for a URL with a different protocol", () => {
-    expect(validateUrl("ftp://example.com")).toBe(URL_PROTOCOL_ERROR_MESSAGE);
-  });
-
-  it("should return an error message for an invalid URL", () => {
-    expect(validateUrl("http:foo")).toBe(INVALID_URL_ERROR_MESSAGE);
-  });
+  it.each(testCasesValidUrls)(
+    "$description",
+    ({ url, expected }: { url: string; expected: string }) => {
+      expect(validateUrl(url)).toBe(expected);
+    }
+  );
 });
 
 describe("isValidUrl", () => {
-  it("should return true for a valid http URL", () => {
-    expect(isValidUrl("http://example.com")).toBe(true);
-  });
+  const testCasesValidUrls = [
+    {
+      description: "should return true for a valid http URL",
+      url: "http://example.com",
+      expected: true,
+    },
+    {
+      description: "should return true for a valid https URL",
+      url: "https://example.com",
+      expected: true,
+    },
+    {
+      description: "should return false for an empty string",
+      url: "",
+      expected: false,
+    },
+    {
+      description: "should return false for a URL without a protocol",
+      url: "example.com",
+      expected: false,
+    },
+    {
+      description: "should return false for a URL with a different protocol",
+      url: "ftp://example.com",
+      expected: false,
+    },
+    {
+      description: "should return false for an invalid URL",
+      url: "http:foo",
+      expected: false,
+    },
+  ];
 
-  it("should return true for a valid https URL", () => {
-    expect(isValidUrl("https://example.com")).toBe(true);
-  });
-
-  it("should return false for an empty string", () => {
-    expect(isValidUrl("")).toBe(false);
-  });
-
-  it("should return false for a URL without a protocol", () => {
-    expect(isValidUrl("example.com")).toBe(false);
-  });
-
-  it("should return false for a URL with a different protocol", () => {
-    expect(isValidUrl("ftp://example.com")).toBe(false);
-  });
-
-  it("should return false for an invalid URL", () => {
-    expect(isValidUrl("http:foo")).toBe(false);
-  });
+  it.each(testCasesValidUrls)(
+    "$description",
+    ({ url, expected }: { url: string; expected: boolean }) => {
+      expect(isValidUrl(url)).toBe(expected);
+    }
+  );
 });
