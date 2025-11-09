@@ -30,6 +30,8 @@ export const OPTION_INVALID_BASE_URL_PREFIX = "APIのベースURL設定が不正
 export const URL_REQUIRED_ERROR_MESSAGE = "URLは必須です。";
 export const URL_PROTOCOL_ERROR_MESSAGE =
   "URLはhttp://またはhttps://で始まる必要があります。";
+export const URL_HOSTNAME_ERROR_MESSAGE =
+  "localhost以外のホスト名にはドット（.）を含める必要があります。";
 export const INVALID_URL_ERROR_MESSAGE = "無効なURLです。";
 
 export const POPUP_REGISTER_BUTTON_TEXT = "登録";

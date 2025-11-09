@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   INVALID_URL_ERROR_MESSAGE,
+  URL_HOSTNAME_ERROR_MESSAGE,
   URL_PROTOCOL_ERROR_MESSAGE,
   URL_REQUIRED_ERROR_MESSAGE,
 } from "../constants/constants";
@@ -60,7 +61,7 @@ describe("validateUrl", () => {
       description:
         "should return an error message for a hostname without a dot",
       url: "http://example",
-      expected: INVALID_URL_ERROR_MESSAGE,
+      expected: URL_HOSTNAME_ERROR_MESSAGE,
     },
   ];
 
