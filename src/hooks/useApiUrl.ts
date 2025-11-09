@@ -48,7 +48,7 @@ export const useApiUrl = () => {
         }
         if (typeof storedUrl === "string") {
           const trimmedUrl = storedUrl.trim();
-          if (trimmedUrl && isValidUrl(trimmedUrl)) {
+          if (isValidUrl(trimmedUrl)) {
             setApiBaseUrl(trimmedUrl);
           } else {
             setIsApiUrlInvalid(true);
