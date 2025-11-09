@@ -11,6 +11,15 @@
   padding: 0.5rem;
 }
 
+.options-page .options-container .is-invalid {
+  border-color: red;
+}
+
+.options-page .options-container .error-message {
+  color: red;
+  grid-column: 2;
+}
+
 .options-page .btn {
   padding: 0.5rem 1rem;
   background-color: darkcyan;

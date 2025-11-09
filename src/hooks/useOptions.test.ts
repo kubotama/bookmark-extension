@@ -85,21 +85,11 @@ describe("useOptions", () => {
   });
 
   describe("URLの保存", () => {
-    it("URLが空の場合、ストレージに保存されないこと", async () => {
-      const { result } = renderHook(() => useOptions());
-
-      await act(async () => {
-        await result.current.handleSave();
-      });
-
-      expect(chromeStorageLocalSet).not.toHaveBeenCalled();
-    });
-
     it("URLが入力されている場合、ストレージに保存されること", async () => {
       const { result } = renderHook(() => useOptions());
 
       act(() => {
-        result.current.setBaseUrl(newUrl);
+        result.current.handleBaseUrlChange(newUrl);
       });
 
       await act(async () => {
@@ -115,7 +105,7 @@ describe("useOptions", () => {
       const { result } = renderHook(() => useOptions());
 
       act(() => {
-        result.current.setBaseUrl(newUrl);
+        result.current.handleBaseUrlChange(newUrl);
       });
 
       await act(async () => {
@@ -127,6 +117,58 @@ describe("useOptions", () => {
         type: "success",
         id: expect.any(String),
       });
+    });
+  });
+
+  describe("URLの検証", () => {
+    it("不正なURLが入力された場合、エラーメッセージが設定されること", () => {
+      const { result } = renderHook(() => useOptions());
+
+      act(() => {
+        result.current.handleBaseUrlChange("invalid-url");
+      });
+
+      expect(result.current.urlError).toBe(
+        "URLはhttp://またはhttps://で始まる必要があります。"
+      );
+    });
+
+    it("有効なURLが入力された場合、エラーメッセージが空になること", () => {
+      const { result } = renderHook(() => useOptions());
+
+      act(() => {
+        result.current.handleBaseUrlChange("https://example.com");
+      });
+
+      expect(result.current.urlError).toBe("");
+    });
+
+    it("不正なURLで保存しようとした場合、保存されずにエラーメッセージが設定されること", async () => {
+      const { result } = renderHook(() => useOptions());
+
+      act(() => {
+        result.current.handleBaseUrlChange("invalid-url");
+      });
+
+      await act(async () => {
+        await result.current.handleSave();
+      });
+
+      expect(chromeStorageLocalSet).not.toHaveBeenCalled();
+      expect(result.current.urlError).toBe(
+        "URLはhttp://またはhttps://で始まる必要があります。"
+      );
+    });
+
+    it("URLが空の状態で保存しようとした場合、保存されずにエラーメッセージが設定されること", async () => {
+      const { result } = renderHook(() => useOptions());
+
+      await act(async () => {
+        await result.current.handleSave();
+      });
+
+      expect(chromeStorageLocalSet).not.toHaveBeenCalled();
+      expect(result.current.urlError).toBe("URLは必須です。");
     });
   });
 

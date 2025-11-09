@@ -52,6 +52,7 @@ describe("usePopup", () => {
       getApiBookmarkAddUrl: () => API_BOOKMARK_ADD,
       getApiBookmarkGetUrl: () => API_BOOKMARK_ADD,
       isApiUrlLoaded: true,
+      isApiUrlInvalid: false,
     };
     vi.stubGlobal("fetch", vi.fn());
     hookResult = renderHook(() => usePopup());

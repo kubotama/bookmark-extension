@@ -2,15 +2,19 @@
 
 import "./Popup.css";
 
-import { useRef } from "react";
+import { useCallback, useRef } from "react";
 
 import LabeledInputField from "../components/LabeledInputField";
 import Message from "../components/Message/Message";
 import {
   LABEL_TITLE,
   LABEL_URL,
+  OPTIONS_PAGE_PATH,
+  POPUP_INVALID_API_URL_MESSAGE,
+  POPUP_OPTIONS_PAGE_LINK_TEXT,
   SAVE_MESSAGE_TIMEOUT_MS,
 } from "../constants/constants";
+import { useApiUrl } from "../hooks/useApiUrl";
 import { useDynamicPopupWidth } from "../hooks/useDynamicPopupWidth";
 import { usePopup } from "../hooks/usePopup";
 
@@ -25,9 +29,33 @@ const Popup = () => {
     handleUrlChange,
     isRegisterDisabled,
   } = usePopup();
+  const { isApiUrlLoaded, isApiUrlInvalid } = useApiUrl();
 
   const measurementRef = useRef<HTMLSpanElement>(null);
   const popupWidth = useDynamicPopupWidth(activeTabUrl, measurementRef);
+
+  const openOptionsPage = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault();
+      chrome.tabs.create({ url: chrome.runtime.getURL(OPTIONS_PAGE_PATH) });
+    },
+    []
+  );
+
+  if (!isApiUrlLoaded) {
+    return <div>Loading...</div>;
+  }
+
+  if (isApiUrlInvalid) {
+    return (
+      <div className="popup-wrapper">
+        <p className="popup-error-message">{POPUP_INVALID_API_URL_MESSAGE}</p>
+        <a href="#" onClick={openOptionsPage} className="popup-error-message">
+          {POPUP_OPTIONS_PAGE_LINK_TEXT}
+        </a>
+      </div>
+    );
+  }
 
   return (
     <>

@@ -109,6 +109,8 @@ describe("Options", () => {
     it("does not save if the URL is empty", async () => {
       mockGet.mockResolvedValue({});
       render(<Options />);
+      const input = await screen.findByLabelText(OPTION_LABEL_API_URL);
+      await user.clear(input);
       const button = await screen.findByRole("button", {
         name: OPTION_SAVE_BUTTON_TEXT,
       });
@@ -116,6 +118,71 @@ describe("Options", () => {
       await user.click(button);
 
       expect(mockSet).not.toHaveBeenCalled();
+      expect(await screen.findByText("URLは必須です。")).toBeInTheDocument();
+    });
+  });
+
+  describe("URL validation", () => {
+    beforeEach(() => {
+      user = userEvent.setup();
+    });
+
+    it("shows an error message for an invalid URL", async () => {
+      render(<Options />);
+      const input = await screen.findByLabelText(OPTION_LABEL_API_URL);
+
+      await user.clear(input);
+      await user.type(input, "invalid-url");
+
+      expect(
+        await screen.findByText(
+          "URLはhttp://またはhttps://で始まる必要があります。"
+        )
+      ).toBeInTheDocument();
+      expect(input).toHaveClass("is-invalid");
+    });
+
+    it("removes the error message for a valid URL", async () => {
+      render(<Options />);
+      const input = await screen.findByLabelText(OPTION_LABEL_API_URL);
+
+      await user.clear(input);
+      await user.type(input, "invalid-url");
+
+      expect(
+        await screen.findByText(
+          "URLはhttp://またはhttps://で始まる必要があります。"
+        )
+      ).toBeInTheDocument();
+
+      await user.clear(input);
+      await user.type(input, "https://example.com");
+
+      expect(
+        screen.queryByText(
+          "URLはhttp://またはhttps://で始まる必要があります。"
+        )
+      ).not.toBeInTheDocument();
+      expect(input).not.toHaveClass("is-invalid");
+    });
+
+    it("shows an error and does not save when save is clicked with an invalid URL", async () => {
+      render(<Options />);
+      const input = await screen.findByLabelText(OPTION_LABEL_API_URL);
+      const button = await screen.findByRole("button", {
+        name: OPTION_SAVE_BUTTON_TEXT,
+      });
+
+      await user.clear(input);
+      await user.type(input, "invalid-url");
+      await user.click(button);
+
+      expect(mockSet).not.toHaveBeenCalled();
+      expect(
+        await screen.findByText(
+          "URLはhttp://またはhttps://で始まる必要があります。"
+        )
+      ).toBeInTheDocument();
     });
   });
 });

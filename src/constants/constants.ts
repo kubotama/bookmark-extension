@@ -46,6 +46,9 @@ export const POPUP_RESPONSE_MESSAGE_PARSE_ERROR =
   "エラー応答の解析に失敗しました。";
 export const POPUP_NO_ACTIVE_TAB_ERROR =
   "アクティブなタブまたはURLが見つかりませんでした。";
+export const POPUP_INVALID_API_URL_MESSAGE =
+  "API URLが無効です。オプションページで設定してください。";
+export const POPUP_OPTIONS_PAGE_LINK_TEXT = "オプションページを開く";
 
 export const SUCCESS_MESSAGE = (count: number) =>
   `${count}件のブックマークを取得しました。`;
@@ -60,3 +63,5 @@ export const FAILED_TO_CONNECT_API = "APIへの接続に失敗しました:";
 export const BACKGROUND_TAB_UPDATE_ERROR_PREFIX = "タブの更新エラー: ";
 export const BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX =
   "タブのアクティベートエラー: ";
+
+export const OPTIONS_PAGE_PATH = "src/options.html";
