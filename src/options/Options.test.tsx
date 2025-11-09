@@ -4,11 +4,13 @@ import { render, screen } from "@testing-library/react";
 import userEvent, { type UserEvent } from "@testing-library/user-event";
 
 import {
+  INVALID_URL_ERROR_MESSAGE,
   OPTION_LABEL_API_URL,
   OPTION_SAVE_BUTTON_TEXT,
   OPTION_SUBTITLE_TEXT,
   PLACEHOLDER_URL,
   STORAGE_KEY_API_BASE_URL,
+  URL_REQUIRED_ERROR_MESSAGE,
 } from "../constants/constants";
 import Options from "./Options";
 
@@ -118,7 +120,9 @@ describe("Options", () => {
       await user.click(button);
 
       expect(mockSet).not.toHaveBeenCalled();
-      expect(await screen.findByText("URLは必須です。")).toBeInTheDocument();
+      expect(
+        await screen.findByText(URL_REQUIRED_ERROR_MESSAGE)
+      ).toBeInTheDocument();
     });
   });
 
@@ -135,9 +139,7 @@ describe("Options", () => {
       await user.type(input, "invalid-url");
 
       expect(
-        await screen.findByText(
-          "URLはhttp://またはhttps://で始まる必要があります。"
-        )
+        await screen.findByText(INVALID_URL_ERROR_MESSAGE)
       ).toBeInTheDocument();
       expect(input).toHaveClass("is-invalid");
     });
@@ -150,18 +152,14 @@ describe("Options", () => {
       await user.type(input, "invalid-url");
 
       expect(
-        await screen.findByText(
-          "URLはhttp://またはhttps://で始まる必要があります。"
-        )
+        await screen.findByText(INVALID_URL_ERROR_MESSAGE)
       ).toBeInTheDocument();
 
       await user.clear(input);
       await user.type(input, "https://example.com");
 
       expect(
-        screen.queryByText(
-          "URLはhttp://またはhttps://で始まる必要があります。"
-        )
+        screen.queryByText(INVALID_URL_ERROR_MESSAGE)
       ).not.toBeInTheDocument();
       expect(input).not.toHaveClass("is-invalid");
     });
@@ -179,9 +177,7 @@ describe("Options", () => {
 
       expect(mockSet).not.toHaveBeenCalled();
       expect(
-        await screen.findByText(
-          "URLはhttp://またはhttps://で始まる必要があります。"
-        )
+        await screen.findByText(INVALID_URL_ERROR_MESSAGE)
       ).toBeInTheDocument();
     });
   });

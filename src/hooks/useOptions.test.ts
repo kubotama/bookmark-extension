@@ -15,12 +15,14 @@ import {
   FAILED_TO_CONNECT_API,
   FAILED_TO_CONNECT_API_WITH_NETWORK,
   FAILED_TO_GET_BASE_URL_MESSAGE,
+  INVALID_URL_ERROR_MESSAGE,
   OPTION_INVALID_BASE_URL_ERROR,
   OPTION_INVALID_BASE_URL_PREFIX,
   OPTION_UNEXPECTED_API_RESPONSE_ERROR,
   OPTION_UNEXPECTED_API_RESPONSE_PREFIX,
   STORAGE_KEY_API_BASE_URL,
   SUCCESS_MESSAGE,
+  URL_REQUIRED_ERROR_MESSAGE,
 } from "../constants/constants";
 import { useApiUrl } from "./useApiUrl";
 import { useOptions } from "./useOptions";
@@ -128,9 +130,7 @@ describe("useOptions", () => {
         result.current.handleBaseUrlChange("invalid-url");
       });
 
-      expect(result.current.urlError).toBe(
-        "URLはhttp://またはhttps://で始まる必要があります。"
-      );
+      expect(result.current.urlError).toBe(INVALID_URL_ERROR_MESSAGE);
     });
 
     it("有効なURLが入力された場合、エラーメッセージが空になること", () => {
@@ -155,9 +155,7 @@ describe("useOptions", () => {
       });
 
       expect(chromeStorageLocalSet).not.toHaveBeenCalled();
-      expect(result.current.urlError).toBe(
-        "URLはhttp://またはhttps://で始まる必要があります。"
-      );
+      expect(result.current.urlError).toBe(INVALID_URL_ERROR_MESSAGE);
     });
 
     it("URLが空の状態で保存しようとした場合、保存されずにエラーメッセージが設定されること", async () => {
@@ -168,7 +166,7 @@ describe("useOptions", () => {
       });
 
       expect(chromeStorageLocalSet).not.toHaveBeenCalled();
-      expect(result.current.urlError).toBe("URLは必須です。");
+      expect(result.current.urlError).toBe(URL_REQUIRED_ERROR_MESSAGE);
     });
   });
 

@@ -27,6 +27,11 @@ export const OPTION_UNEXPECTED_API_RESPONSE_PREFIX =
   "APIからの応答が予期しない形式です: ";
 export const OPTION_INVALID_BASE_URL_PREFIX = "APIのベースURL設定が不正です: ";
 
+export const URL_REQUIRED_ERROR_MESSAGE = "URLは必須です。";
+export const URL_PROTOCOL_ERROR_MESSAGE =
+  "URLはhttp://またはhttps://で始まる必要があります。";
+export const INVALID_URL_ERROR_MESSAGE = "無効なURLです。";
+
 export const POPUP_REGISTER_BUTTON_TEXT = "登録";
 
 export const POPUP_URL_FETCH_ERROR_MESSAGE = "URLの取得に失敗しました。";
