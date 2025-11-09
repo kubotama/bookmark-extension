@@ -61,7 +61,7 @@
   color: red;
 }
 
-.popup-error-message a {
+a.popup-error-message {
   color: red;
   text-decoration: underline;
 }
