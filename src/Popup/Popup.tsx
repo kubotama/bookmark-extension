@@ -50,11 +50,7 @@ const Popup = () => {
     return (
       <div className="popup-wrapper">
         <p className="popup-error-message">{POPUP_INVALID_API_URL_MESSAGE}</p>
-        <a
-          onClick={openOptionsPage}
-          className="popup-error-message"
-          role="link"
-        >
+        <a href="#" onClick={openOptionsPage} className="popup-error-message">
           {POPUP_OPTIONS_PAGE_LINK_TEXT}
         </a>
       </div>
