@@ -40,6 +40,28 @@ describe("validateUrl", () => {
       url: "http:foo",
       expected: INVALID_URL_ERROR_MESSAGE,
     },
+    {
+      description: "should return an empty string for a valid localhost URL",
+      url: "http://localhost",
+      expected: "",
+    },
+    {
+      description:
+        "should return an empty string for a valid localhost URL with a port",
+      url: "http://localhost:3000",
+      expected: "",
+    },
+    {
+      description: "should return an empty string for a valid IP address URL",
+      url: "http://127.0.0.1",
+      expected: "",
+    },
+    {
+      description:
+        "should return an error message for a hostname without a dot",
+      url: "http://example",
+      expected: INVALID_URL_ERROR_MESSAGE,
+    },
   ];
 
   it.each(testCasesValidUrls)(
@@ -80,6 +102,26 @@ describe("isValidUrl", () => {
     {
       description: "should return false for an invalid URL",
       url: "http:foo",
+      expected: false,
+    },
+    {
+      description: "should return true for a valid localhost URL",
+      url: "http://localhost",
+      expected: true,
+    },
+    {
+      description: "should return true for a valid localhost URL with a port",
+      url: "http://localhost:3000",
+      expected: true,
+    },
+    {
+      description: "should return true for a valid IP address URL",
+      url: "http://127.0.0.1",
+      expected: true,
+    },
+    {
+      description: "should return false for a hostname without a dot",
+      url: "http://example",
       expected: false,
     },
   ];
