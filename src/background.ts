@@ -3,6 +3,7 @@ import {
   BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX,
   BACKGROUND_TAB_UPDATE_ERROR_PREFIX,
   DEFAULT_ICON_PATHS,
+  INVALID_URL_ERROR_MESSAGE,
   SAVED_ICON_PATHS,
   STORAGE_KEY_API_BASE_URL,
 } from "./constants/constants";
@@ -38,14 +39,22 @@ export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
   const apiBaseUrl = storageData?.[STORAGE_KEY_API_BASE_URL] ?? "";
 
   if (typeof apiBaseUrl !== "string" || !isValidUrl(apiBaseUrl)) {
-    console.error("Invalid API Base URL:", apiBaseUrl);
+    console.error(INVALID_URL_ERROR_MESSAGE, apiBaseUrl);
     // API のベース URL が無効な場合、デフォルトアイコンを設定するなどのフォールバック処理
     chrome.action.setIcon({ path: DEFAULT_ICON_PATHS, tabId: tab.id });
     return;
   }
 
+  let apiUrl: string;
   try {
-    const apiUrl = getApiUrl(API_ENDPOINT.GET_BOOKMARKS, apiBaseUrl);
+    apiUrl = getApiUrl(API_ENDPOINT.GET_BOOKMARKS, apiBaseUrl);
+  } catch (error) {
+    // getApiUrlが失敗した場合、URL生成のエラーとしてログに記録し、処理を中断する
+    console.error(INVALID_URL_ERROR_MESSAGE, apiBaseUrl, error);
+    chrome.action.setIcon({ path: DEFAULT_ICON_PATHS, tabId: tab.id });
+    return;
+  }
+  try {
     const response = await fetch(apiUrl);
     if (!response.ok) {
       throw new Error(`API request failed with status ${response.status}`);

@@ -12,13 +12,23 @@ import * as background from "./background.ts"; // Import all exports
 import {
   BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX,
   BACKGROUND_TAB_UPDATE_ERROR_PREFIX,
+  DEFAULT_ICON_PATHS,
+  SAVED_ICON_PATHS,
+  INVALID_URL_ERROR_MESSAGE,
 } from "./constants/constants.ts";
 
-describe("updateIcon", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
+let consoleErrorSpy: MockInstance;
 
+beforeEach(() => {
+  vi.clearAllMocks();
+  consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+});
+
+afterEach(() => {
+  consoleErrorSpy.mockRestore();
+});
+
+describe("updateIcon", () => {
   const testCasesForNotCall = [
     {
       description: "should not do anything if tab has no url",
@@ -53,11 +63,7 @@ describe("updateIcon", () => {
       tab: { id: 1, url: "https://example.com" } as chrome.tabs.Tab,
       expected: {
         forSetIcon: {
-          path: {
-            16: "icons/icon-saved16.png",
-            48: "icons/icon-saved48.png",
-            128: "icons/icon-saved128.png",
-          },
+          path: SAVED_ICON_PATHS,
           tabId: 1,
         },
       },
@@ -69,11 +75,7 @@ describe("updateIcon", () => {
       tab: { id: 1, url: "https://example.com" } as chrome.tabs.Tab,
       expected: {
         forSetIcon: {
-          path: {
-            16: "icons/icon16.png",
-            48: "icons/icon48.png",
-            128: "icons/icon128.png",
-          },
+          path: DEFAULT_ICON_PATHS,
           tabId: 1,
         },
       },
@@ -85,11 +87,7 @@ describe("updateIcon", () => {
       tab: { id: 1, url: "https://example.com#section" } as chrome.tabs.Tab,
       expected: {
         forSetIcon: {
-          path: {
-            16: "icons/icon-saved16.png",
-            48: "icons/icon-saved48.png",
-            128: "icons/icon-saved128.png",
-          },
+          path: SAVED_ICON_PATHS,
           tabId: 1,
         },
       },
@@ -121,11 +119,7 @@ describe("updateIcon", () => {
     await background.updateIcon(tab);
 
     expect(chrome.action.setIcon).toHaveBeenCalledWith({
-      path: {
-        16: "icons/icon16.png",
-        48: "icons/icon48.png",
-        128: "icons/icon128.png",
-      },
+      path: DEFAULT_ICON_PATHS,
       tabId: 1,
     });
   });
@@ -139,13 +133,10 @@ describe("updateIcon", () => {
     await background.updateIcon(tab);
 
     expect(chrome.action.setIcon).toHaveBeenCalledWith({
-      path: {
-        16: "icons/icon16.png",
-        48: "icons/icon48.png",
-        128: "icons/icon128.png",
-      },
+      path: DEFAULT_ICON_PATHS,
       tabId: 1,
     });
+    expect(consoleErrorSpy).toHaveBeenCalledWith(INVALID_URL_ERROR_MESSAGE, "");
   });
 
   it("should set default icon if fetch fails", async () => {
@@ -158,11 +149,7 @@ describe("updateIcon", () => {
     await background.updateIcon(tab);
 
     expect(chrome.action.setIcon).toHaveBeenCalledWith({
-      path: {
-        16: "icons/icon16.png",
-        48: "icons/icon48.png",
-        128: "icons/icon128.png",
-      },
+      path: DEFAULT_ICON_PATHS,
       tabId: 1,
     });
   });
@@ -170,15 +157,9 @@ describe("updateIcon", () => {
 
 describe("background listeners with dependency injection", () => {
   let updateIconMock: MockedFunction<(tab: chrome.tabs.Tab) => Promise<void>>;
-  let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
     updateIconMock = vi.fn();
-    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-  });
-
-  afterEach(() => {
-    consoleErrorSpy.mockRestore();
   });
 
   describe("onUpdated", () => {
