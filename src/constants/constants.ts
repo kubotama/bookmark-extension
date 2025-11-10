@@ -72,3 +72,15 @@ export const BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX =
   "タブのアクティベートエラー: ";
 
 export const OPTIONS_PAGE_PATH = "src/options.html";
+
+export const DEFAULT_ICON_PATHS = {
+  16: "icons/icon16.png",
+  48: "icons/icon48.png",
+  128: "icons/icon128.png",
+};
+
+export const SAVED_ICON_PATHS = {
+  16: "icons/icon-saved16.png",
+  48: "icons/icon-saved48.png",
+  128: "icons/icon-saved128.png",
+};
