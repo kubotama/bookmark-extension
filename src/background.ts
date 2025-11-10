@@ -1,7 +1,27 @@
 import {
+  API_ENDPOINT,
   BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX,
   BACKGROUND_TAB_UPDATE_ERROR_PREFIX,
+  STORAGE_KEY_API_BASE_URL,
 } from "./constants/constants";
+import { isValidUrl } from "./lib/url";
+
+type Bookmark = {
+  id: number;
+  url: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+const getApiUrl = (apiPath: string, baseUrl: string) => {
+  try {
+    return new URL(apiPath, baseUrl).href;
+  } catch (error) {
+    console.error("Failed to create API URL:", error);
+    throw error;
+  }
+};
 
 export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
   if (!tab || !tab.id || !tab.url || !tab.url.startsWith("http")) {
@@ -9,21 +29,60 @@ export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
   }
 
   const url = new URL(tab.url);
-  // ページ内リンク（#sectionなど）を無視してブックマークを検索するため、ハッシュを削除
   url.hash = "";
-  const isBookmarked = await chrome.bookmarks.search({ url: url.href });
-  const iconPrefix = isBookmarked.length > 0 ? "icon-saved" : "icon";
+  const currentUrl = url.href;
 
-  const iconPath = {
-    16: `icons/${iconPrefix}16.png`,
-    48: `icons/${iconPrefix}48.png`,
-    128: `icons/${iconPrefix}128.png`,
-  };
+  const { [STORAGE_KEY_API_BASE_URL]: apiBaseUrl } =
+    await chrome.storage.local.get(STORAGE_KEY_API_BASE_URL);
 
-  chrome.action.setIcon({
-    path: iconPath,
-    tabId: tab.id,
-  });
+  if (typeof apiBaseUrl !== "string" || !isValidUrl(apiBaseUrl)) {
+    console.error("Invalid API Base URL:", apiBaseUrl);
+    // API のベース URL が無効な場合、デフォルトアイコンを設定するなどのフォールバック処理
+    chrome.action.setIcon({
+      path: {
+        16: "icons/icon16.png",
+        48: "icons/icon48.png",
+        128: "icons/icon128.png",
+      },
+      tabId: tab.id,
+    });
+    return;
+  }
+
+  try {
+    const apiUrl = getApiUrl(API_ENDPOINT.GET_BOOKMARKS, apiBaseUrl);
+    const response = await fetch(apiUrl);
+    if (!response.ok) {
+      throw new Error(`API request failed with status ${response.status}`);
+    }
+    const bookmarks: Bookmark[] = await response.json();
+    const isBookmarked = bookmarks.some(
+      (bookmark) => bookmark.url === currentUrl
+    );
+
+    const iconPrefix = isBookmarked ? "icon-saved" : "icon";
+    const iconPath = {
+      16: `icons/${iconPrefix}16.png`,
+      48: `icons/${iconPrefix}48.png`,
+      128: `icons/${iconPrefix}128.png`,
+    };
+
+    chrome.action.setIcon({
+      path: iconPath,
+      tabId: tab.id,
+    });
+  } catch (error) {
+    console.error("Failed to fetch bookmarks or update icon:", error);
+    // エラーが発生した場合、デフォルトアイコンを設定
+    chrome.action.setIcon({
+      path: {
+        16: "icons/icon16.png",
+        48: "icons/icon48.png",
+        128: "icons/icon128.png",
+      },
+      tabId: tab.id,
+    });
+  }
 };
 
 /**

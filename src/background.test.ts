@@ -41,19 +41,17 @@ describe("updateIcon", () => {
 
   it.each(testCasesForNotCall)("$description", async ({ tab }) => {
     await background.updateIcon(tab);
-    expect(chrome.bookmarks.search).not.toHaveBeenCalled();
+    expect(chrome.storage.local.get).not.toHaveBeenCalled();
     expect(chrome.action.setIcon).not.toHaveBeenCalled();
   });
 
   const testCasesForCall = [
     {
       description: "should set saved icon if page is bookmarked",
-      isBookmarked: [{}],
+      apiBaseUrl: "https://api.example.com",
+      bookmarks: [{ id: 1, url: "https://example.com/" }],
       tab: { id: 1, url: "https://example.com" } as chrome.tabs.Tab,
       expected: {
-        forSearch: {
-          url: "https://example.com/",
-        },
         forSetIcon: {
           path: {
             16: "icons/icon-saved16.png",
@@ -66,12 +64,10 @@ describe("updateIcon", () => {
     },
     {
       description: "should set default icon if page is not bookmarked",
-      isBookmarked: [],
+      apiBaseUrl: "https://api.example.com",
+      bookmarks: [],
       tab: { id: 1, url: "https://example.com" } as chrome.tabs.Tab,
       expected: {
-        forSearch: {
-          url: "https://example.com/",
-        },
         forSetIcon: {
           path: {
             16: "icons/icon16.png",
@@ -84,17 +80,15 @@ describe("updateIcon", () => {
     },
     {
       description: "should ignore hash in url",
-      isBookmarked: [],
+      apiBaseUrl: "https://api.example.com",
+      bookmarks: [{ id: 1, url: "https://example.com/" }],
       tab: { id: 1, url: "https://example.com#section" } as chrome.tabs.Tab,
       expected: {
-        forSearch: {
-          url: "https://example.com/",
-        },
         forSetIcon: {
           path: {
-            16: "icons/icon16.png",
-            48: "icons/icon48.png",
-            128: "icons/icon128.png",
+            16: "icons/icon-saved16.png",
+            48: "icons/icon-saved48.png",
+            128: "icons/icon-saved128.png",
           },
           tabId: 1,
         },
@@ -103,16 +97,57 @@ describe("updateIcon", () => {
   ];
   it.each(testCasesForCall)(
     "$description",
-    async ({ tab, expected, isBookmarked }) => {
-      (chrome.bookmarks.search as unknown as MockInstance).mockResolvedValue(
-        isBookmarked
-      );
+    async ({ tab, expected, apiBaseUrl, bookmarks }) => {
+      (chrome.storage.local.get as unknown as MockInstance).mockResolvedValue({
+        apiBaseUrl,
+      });
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => bookmarks,
+      });
+
       await background.updateIcon(tab);
 
-      expect(chrome.bookmarks.search).toHaveBeenCalledWith(expected.forSearch);
       expect(chrome.action.setIcon).toHaveBeenCalledWith(expected.forSetIcon);
     }
   );
+
+  it("should set default icon if apiBaseUrl is invalid", async () => {
+    const tab = { id: 1, url: "https://example.com" } as chrome.tabs.Tab;
+    (chrome.storage.local.get as unknown as MockInstance).mockResolvedValue({
+      apiBaseUrl: "invalid-url",
+    });
+
+    await background.updateIcon(tab);
+
+    expect(chrome.action.setIcon).toHaveBeenCalledWith({
+      path: {
+        16: "icons/icon16.png",
+        48: "icons/icon48.png",
+        128: "icons/icon128.png",
+      },
+      tabId: 1,
+    });
+  });
+
+  it("should set default icon if fetch fails", async () => {
+    const tab = { id: 1, url: "https://example.com" } as chrome.tabs.Tab;
+    (chrome.storage.local.get as unknown as MockInstance).mockResolvedValue({
+      apiBaseUrl: "https://api.example.com",
+    });
+    global.fetch = vi.fn().mockRejectedValue(new Error("Network error"));
+
+    await background.updateIcon(tab);
+
+    expect(chrome.action.setIcon).toHaveBeenCalledWith({
+      path: {
+        16: "icons/icon16.png",
+        48: "icons/icon48.png",
+        128: "icons/icon128.png",
+      },
+      tabId: 1,
+    });
+  });
 });
 
 describe("background listeners with dependency injection", () => {
