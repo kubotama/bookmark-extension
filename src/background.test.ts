@@ -130,6 +130,24 @@ describe("updateIcon", () => {
     });
   });
 
+  it("should set default icon if local strage isn't stored", async () => {
+    const tab = { id: 1, url: "https://example.com" } as chrome.tabs.Tab;
+    (chrome.storage.local.get as unknown as MockInstance).mockResolvedValue(
+      undefined
+    );
+
+    await background.updateIcon(tab);
+
+    expect(chrome.action.setIcon).toHaveBeenCalledWith({
+      path: {
+        16: "icons/icon16.png",
+        48: "icons/icon48.png",
+        128: "icons/icon128.png",
+      },
+      tabId: 1,
+    });
+  });
+
   it("should set default icon if fetch fails", async () => {
     const tab = { id: 1, url: "https://example.com" } as chrome.tabs.Tab;
     (chrome.storage.local.get as unknown as MockInstance).mockResolvedValue({
