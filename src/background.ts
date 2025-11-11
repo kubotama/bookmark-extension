@@ -49,27 +49,29 @@ export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
 
   const apiUrl = getApiUrl(API_ENDPOINT.GET_BOOKMARKS, apiBaseUrl);
 
+  let bookmarks: Bookmark[];
   try {
     const response = await fetch(apiUrl);
     if (!response.ok) {
       throw new Error(`${OPTION_FAILED_API_REQUEST_PREFIX} ${response.status}`);
     }
-    const bookmarks: Bookmark[] = await response.json();
-    try {
-      chrome.action.setIcon({
-        path: bookmarks.some((bookmark) => bookmark.url === currentUrl)
-          ? SAVED_ICON_PATHS
-          : DEFAULT_ICON_PATHS,
-        tabId: tab.id,
-      });
-    } catch (error) {
-      console.error(OPTION_FAILED_UPDATE_ICON_PREFIX, error);
-      setIconToDefault(tab.id);
-    }
+    bookmarks = await response.json();
   } catch (error) {
     console.error(OPTION_FAILED_FETCH_BOOKMARKS_PREFIX, error);
     setIconToDefault(tab.id);
     return;
+  }
+
+  try {
+    chrome.action.setIcon({
+      path: bookmarks.some((bookmark) => bookmark.url === currentUrl)
+        ? SAVED_ICON_PATHS
+        : DEFAULT_ICON_PATHS,
+      tabId: tab.id,
+    });
+  } catch (error) {
+    console.error(OPTION_FAILED_UPDATE_ICON_PREFIX, error);
+    setIconToDefault(tab.id);
   }
 };
 
