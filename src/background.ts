@@ -50,7 +50,7 @@ export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
   } catch (error) {
     // getApiUrlが失敗した場合、URL生成のエラーとしてログに記録し、処理を中断する
     console.error(INVALID_URL_ERROR_MESSAGE, apiBaseUrl, error);
-    chrome.action.setIcon({ path: DEFAULT_ICON_PATHS, tabId: tab.id });
+    setIconToDefault(tab.id);
     return;
   }
   try {
@@ -59,17 +59,21 @@ export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
       throw new Error(`API request failed with status ${response.status}`);
     }
     const bookmarks: Bookmark[] = await response.json();
-    const isBookmarked = bookmarks.some(
-      (bookmark) => bookmark.url === currentUrl
-    );
-
-    chrome.action.setIcon({
-      path: isBookmarked ? SAVED_ICON_PATHS : DEFAULT_ICON_PATHS,
-      tabId: tab.id,
-    });
+    try {
+      chrome.action.setIcon({
+        path: bookmarks.some((bookmark) => bookmark.url === currentUrl)
+          ? SAVED_ICON_PATHS
+          : DEFAULT_ICON_PATHS,
+        tabId: tab.id,
+      });
+    } catch (error) {
+      console.error("Failed to update icon:", error);
+      setIconToDefault(tab.id);
+    }
   } catch (error) {
-    console.error("Failed to fetch bookmarks or update icon:", error);
+    console.error("Failed to fetch bookmarks:", error);
     setIconToDefault(tab.id);
+    return;
   }
 };
 
