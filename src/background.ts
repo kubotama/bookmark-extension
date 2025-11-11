@@ -83,8 +83,6 @@ export const createOnUpdated = (
   return async (
     tabId: number,
     changeInfo: chrome.tabs.TabChangeInfo
-    // // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    // _tab: chrome.tabs.Tab
   ): Promise<void> => {
     if (changeInfo.status === "complete") {
       try {
