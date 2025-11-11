@@ -22,10 +22,15 @@ export const OPTION_SAVE_SUCCESS_MESSAGE = "保存しました！";
 export const OPTION_UNEXPECTED_API_RESPONSE_ERROR =
   "APIからの応答が予期しない形式です。";
 export const OPTION_INVALID_BASE_URL_ERROR = "APIのベースURL設定が不正です。";
-
 export const OPTION_UNEXPECTED_API_RESPONSE_PREFIX =
   "APIからの応答が予期しない形式です: ";
 export const OPTION_INVALID_BASE_URL_PREFIX = "APIのベースURL設定が不正です: ";
+export const OPTION_FAILED_API_REQUEST_PREFIX =
+  "APIへのリクエストに失敗しました: ";
+export const OPTION_FAILED_UPDATE_ICON_PREFIX =
+  "アイコンの更新に失敗しました: ";
+export const OPTION_FAILED_FETCH_BOOKMARKS_PREFIX =
+  "ブックマークの取得に失敗しました: ";
 
 export const URL_REQUIRED_ERROR_MESSAGE = "URLは必須です。";
 export const URL_PROTOCOL_ERROR_MESSAGE =

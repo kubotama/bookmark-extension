@@ -4,6 +4,9 @@ import {
   BACKGROUND_TAB_UPDATE_ERROR_PREFIX,
   DEFAULT_ICON_PATHS,
   INVALID_URL_ERROR_MESSAGE,
+  OPTION_FAILED_API_REQUEST_PREFIX,
+  OPTION_FAILED_FETCH_BOOKMARKS_PREFIX,
+  OPTION_FAILED_UPDATE_ICON_PREFIX,
   SAVED_ICON_PATHS,
   STORAGE_KEY_API_BASE_URL,
 } from "./constants/constants";
@@ -56,7 +59,7 @@ export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
   try {
     const response = await fetch(apiUrl);
     if (!response.ok) {
-      throw new Error(`API request failed with status ${response.status}`);
+      throw new Error(`${OPTION_FAILED_API_REQUEST_PREFIX} ${response.status}`);
     }
     const bookmarks: Bookmark[] = await response.json();
     try {
@@ -67,11 +70,11 @@ export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
         tabId: tab.id,
       });
     } catch (error) {
-      console.error("Failed to update icon:", error);
+      console.error(OPTION_FAILED_UPDATE_ICON_PREFIX, error);
       setIconToDefault(tab.id);
     }
   } catch (error) {
-    console.error("Failed to fetch bookmarks:", error);
+    console.error(OPTION_FAILED_FETCH_BOOKMARKS_PREFIX, error);
     setIconToDefault(tab.id);
     return;
   }
