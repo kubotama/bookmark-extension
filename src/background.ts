@@ -21,6 +21,10 @@ const getApiUrl = (apiPath: string, baseUrl: string) => {
   return new URL(apiPath, baseUrl).href;
 };
 
+const setIconToDefault = (tabId: number) => {
+  chrome.action.setIcon({ path: DEFAULT_ICON_PATHS, tabId });
+};
+
 export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
   if (!tab || !tab.id || !tab.url || !tab.url.startsWith("http")) {
     return;
@@ -36,7 +40,7 @@ export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
   if (typeof apiBaseUrl !== "string" || !isValidUrl(apiBaseUrl)) {
     console.error(INVALID_URL_ERROR_MESSAGE, apiBaseUrl);
     // API のベース URL が無効な場合、デフォルトアイコンを設定するなどのフォールバック処理
-    chrome.action.setIcon({ path: DEFAULT_ICON_PATHS, tabId: tab.id });
+    setIconToDefault(tab.id);
     return;
   }
 
@@ -65,7 +69,7 @@ export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
     });
   } catch (error) {
     console.error("Failed to fetch bookmarks or update icon:", error);
-    chrome.action.setIcon({ path: DEFAULT_ICON_PATHS, tabId: tab.id });
+    setIconToDefault(tab.id);
   }
 };
 
