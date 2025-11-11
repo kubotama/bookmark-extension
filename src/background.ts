@@ -18,12 +18,7 @@ type Bookmark = {
 };
 
 const getApiUrl = (apiPath: string, baseUrl: string) => {
-  try {
-    return new URL(apiPath, baseUrl).href;
-  } catch (error) {
-    console.error("Failed to create API URL:", error);
-    throw error;
-  }
+  return new URL(apiPath, baseUrl).href;
 };
 
 export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
