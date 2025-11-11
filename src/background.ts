@@ -47,15 +47,8 @@ export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
     return;
   }
 
-  let apiUrl: string;
-  try {
-    apiUrl = getApiUrl(API_ENDPOINT.GET_BOOKMARKS, apiBaseUrl);
-  } catch (error) {
-    // getApiUrlが失敗した場合、URL生成のエラーとしてログに記録し、処理を中断する
-    console.error(INVALID_URL_ERROR_MESSAGE, apiBaseUrl, error);
-    setIconToDefault(tab.id);
-    return;
-  }
+  const apiUrl = getApiUrl(API_ENDPOINT.GET_BOOKMARKS, apiBaseUrl);
+
   try {
     const response = await fetch(apiUrl);
     if (!response.ok) {
