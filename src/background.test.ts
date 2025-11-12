@@ -18,7 +18,21 @@ import {
   OPTION_FAILED_FETCH_BOOKMARKS_PREFIX,
 } from "./constants/constants.ts";
 
-const MOCK_TAB = { id: 1, url: "https://example.com" } as chrome.tabs.Tab;
+const MOCK_TAB: chrome.tabs.Tab = {
+  id: 1,
+  url: "https://example.com",
+  active: true,
+  autoDiscardable: true,
+  discarded: false,
+  groupId: -1, // chrome.tabGroups.TAB_GROUP_ID_NONE
+  highlighted: true,
+  incognito: false,
+  index: 0,
+  pinned: false,
+  windowId: 1,
+  frozen: false,
+  selected: false,
+};
 
 let consoleErrorSpy: MockInstance;
 
