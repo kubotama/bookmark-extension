@@ -1,7 +1,28 @@
 import {
+  API_ENDPOINT,
   BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX,
   BACKGROUND_TAB_UPDATE_ERROR_PREFIX,
+  DEFAULT_ICON_PATHS,
+  INVALID_URL_ERROR_MESSAGE,
+  OPTION_FAILED_API_REQUEST_PREFIX,
+  OPTION_FAILED_FETCH_BOOKMARKS_PREFIX,
+  OPTION_FAILED_UPDATE_ICON_PREFIX,
+  SAVED_ICON_PATHS,
+  STORAGE_KEY_API_BASE_URL,
 } from "./constants/constants";
+import { getApiUrl, isValidUrl } from "./lib/url";
+
+type Bookmark = {
+  id: number;
+  url: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+const setIconToDefault = (tabId: number) => {
+  chrome.action.setIcon({ path: DEFAULT_ICON_PATHS, tabId });
+};
 
 export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
   if (!tab || !tab.id || !tab.url || !tab.url.startsWith("http")) {
@@ -9,21 +30,45 @@ export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
   }
 
   const url = new URL(tab.url);
-  // ページ内リンク（#sectionなど）を無視してブックマークを検索するため、ハッシュを削除
   url.hash = "";
-  const isBookmarked = await chrome.bookmarks.search({ url: url.href });
-  const iconPrefix = isBookmarked.length > 0 ? "icon-saved" : "icon";
+  const currentUrl = url.href;
 
-  const iconPath = {
-    16: `icons/${iconPrefix}16.png`,
-    48: `icons/${iconPrefix}48.png`,
-    128: `icons/${iconPrefix}128.png`,
-  };
+  const storageData = await chrome.storage.local.get(STORAGE_KEY_API_BASE_URL);
+  const apiBaseUrl = storageData?.[STORAGE_KEY_API_BASE_URL] ?? "";
 
-  chrome.action.setIcon({
-    path: iconPath,
-    tabId: tab.id,
-  });
+  if (typeof apiBaseUrl !== "string" || !isValidUrl(apiBaseUrl)) {
+    console.error(INVALID_URL_ERROR_MESSAGE, apiBaseUrl);
+    // API のベース URL が無効な場合、デフォルトアイコンを設定するなどのフォールバック処理
+    setIconToDefault(tab.id);
+    return;
+  }
+
+  const apiUrl = getApiUrl(API_ENDPOINT.GET_BOOKMARKS, apiBaseUrl);
+
+  let bookmarks: Bookmark[];
+  try {
+    const response = await fetch(apiUrl);
+    if (!response.ok) {
+      throw new Error(`${OPTION_FAILED_API_REQUEST_PREFIX} ${response.status}`);
+    }
+    bookmarks = await response.json();
+  } catch (error) {
+    console.error(OPTION_FAILED_FETCH_BOOKMARKS_PREFIX, error);
+    setIconToDefault(tab.id);
+    return;
+  }
+
+  try {
+    chrome.action.setIcon({
+      path: bookmarks.some((bookmark) => bookmark.url === currentUrl)
+        ? SAVED_ICON_PATHS
+        : DEFAULT_ICON_PATHS,
+      tabId: tab.id,
+    });
+  } catch (error) {
+    console.error(OPTION_FAILED_UPDATE_ICON_PREFIX, error);
+    setIconToDefault(tab.id);
+  }
 };
 
 /**
@@ -36,8 +81,6 @@ export const createOnUpdated = (
   return async (
     tabId: number,
     changeInfo: chrome.tabs.TabChangeInfo
-    // // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    // _tab: chrome.tabs.Tab
   ): Promise<void> => {
     if (changeInfo.status === "complete") {
       try {

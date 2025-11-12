@@ -12,13 +12,23 @@ import * as background from "./background.ts"; // Import all exports
 import {
   BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX,
   BACKGROUND_TAB_UPDATE_ERROR_PREFIX,
+  DEFAULT_ICON_PATHS,
+  SAVED_ICON_PATHS,
+  INVALID_URL_ERROR_MESSAGE,
 } from "./constants/constants.ts";
 
-describe("updateIcon", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
+let consoleErrorSpy: MockInstance;
 
+beforeEach(() => {
+  vi.clearAllMocks();
+  consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+});
+
+afterEach(() => {
+  consoleErrorSpy.mockRestore();
+});
+
+describe("updateIcon", () => {
   const testCasesForNotCall = [
     {
       description: "should not do anything if tab has no url",
@@ -41,61 +51,43 @@ describe("updateIcon", () => {
 
   it.each(testCasesForNotCall)("$description", async ({ tab }) => {
     await background.updateIcon(tab);
-    expect(chrome.bookmarks.search).not.toHaveBeenCalled();
+    expect(chrome.storage.local.get).not.toHaveBeenCalled();
     expect(chrome.action.setIcon).not.toHaveBeenCalled();
   });
 
   const testCasesForCall = [
     {
       description: "should set saved icon if page is bookmarked",
-      isBookmarked: [{}],
+      apiBaseUrl: "https://api.example.com",
+      bookmarks: [{ id: 1, url: "https://example.com/" }],
       tab: { id: 1, url: "https://example.com" } as chrome.tabs.Tab,
       expected: {
-        forSearch: {
-          url: "https://example.com/",
-        },
         forSetIcon: {
-          path: {
-            16: "icons/icon-saved16.png",
-            48: "icons/icon-saved48.png",
-            128: "icons/icon-saved128.png",
-          },
+          path: SAVED_ICON_PATHS,
           tabId: 1,
         },
       },
     },
     {
       description: "should set default icon if page is not bookmarked",
-      isBookmarked: [],
+      apiBaseUrl: "https://api.example.com",
+      bookmarks: [],
       tab: { id: 1, url: "https://example.com" } as chrome.tabs.Tab,
       expected: {
-        forSearch: {
-          url: "https://example.com/",
-        },
         forSetIcon: {
-          path: {
-            16: "icons/icon16.png",
-            48: "icons/icon48.png",
-            128: "icons/icon128.png",
-          },
+          path: DEFAULT_ICON_PATHS,
           tabId: 1,
         },
       },
     },
     {
       description: "should ignore hash in url",
-      isBookmarked: [],
+      apiBaseUrl: "https://api.example.com",
+      bookmarks: [{ id: 1, url: "https://example.com/" }],
       tab: { id: 1, url: "https://example.com#section" } as chrome.tabs.Tab,
       expected: {
-        forSearch: {
-          url: "https://example.com/",
-        },
         forSetIcon: {
-          path: {
-            16: "icons/icon16.png",
-            48: "icons/icon48.png",
-            128: "icons/icon128.png",
-          },
+          path: SAVED_ICON_PATHS,
           tabId: 1,
         },
       },
@@ -103,29 +95,71 @@ describe("updateIcon", () => {
   ];
   it.each(testCasesForCall)(
     "$description",
-    async ({ tab, expected, isBookmarked }) => {
-      (chrome.bookmarks.search as unknown as MockInstance).mockResolvedValue(
-        isBookmarked
-      );
+    async ({ tab, expected, apiBaseUrl, bookmarks }) => {
+      (chrome.storage.local.get as unknown as MockInstance).mockResolvedValue({
+        apiBaseUrl,
+      });
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => bookmarks,
+      });
+
       await background.updateIcon(tab);
 
-      expect(chrome.bookmarks.search).toHaveBeenCalledWith(expected.forSearch);
       expect(chrome.action.setIcon).toHaveBeenCalledWith(expected.forSetIcon);
     }
   );
+
+  it("should set default icon if apiBaseUrl is invalid", async () => {
+    const tab = { id: 1, url: "https://example.com" } as chrome.tabs.Tab;
+    (chrome.storage.local.get as unknown as MockInstance).mockResolvedValue({
+      apiBaseUrl: "invalid-url",
+    });
+
+    await background.updateIcon(tab);
+
+    expect(chrome.action.setIcon).toHaveBeenCalledWith({
+      path: DEFAULT_ICON_PATHS,
+      tabId: 1,
+    });
+  });
+
+  it("should set default icon if local storage isn't stored", async () => {
+    const tab = { id: 1, url: "https://example.com" } as chrome.tabs.Tab;
+    (chrome.storage.local.get as unknown as MockInstance).mockResolvedValue(
+      undefined
+    );
+
+    await background.updateIcon(tab);
+
+    expect(chrome.action.setIcon).toHaveBeenCalledWith({
+      path: DEFAULT_ICON_PATHS,
+      tabId: 1,
+    });
+    expect(consoleErrorSpy).toHaveBeenCalledWith(INVALID_URL_ERROR_MESSAGE, "");
+  });
+
+  it("should set default icon if fetch fails", async () => {
+    const tab = { id: 1, url: "https://example.com" } as chrome.tabs.Tab;
+    (chrome.storage.local.get as unknown as MockInstance).mockResolvedValue({
+      apiBaseUrl: "https://api.example.com",
+    });
+    global.fetch = vi.fn().mockRejectedValue(new Error("Network error"));
+
+    await background.updateIcon(tab);
+
+    expect(chrome.action.setIcon).toHaveBeenCalledWith({
+      path: DEFAULT_ICON_PATHS,
+      tabId: 1,
+    });
+  });
 });
 
 describe("background listeners with dependency injection", () => {
   let updateIconMock: MockedFunction<(tab: chrome.tabs.Tab) => Promise<void>>;
-  let consoleErrorSpy: MockInstance;
 
   beforeEach(() => {
     updateIconMock = vi.fn();
-    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-  });
-
-  afterEach(() => {
-    consoleErrorSpy.mockRestore();
   });
 
   describe("onUpdated", () => {

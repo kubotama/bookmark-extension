@@ -22,10 +22,15 @@ export const OPTION_SAVE_SUCCESS_MESSAGE = "保存しました！";
 export const OPTION_UNEXPECTED_API_RESPONSE_ERROR =
   "APIからの応答が予期しない形式です。";
 export const OPTION_INVALID_BASE_URL_ERROR = "APIのベースURL設定が不正です。";
-
 export const OPTION_UNEXPECTED_API_RESPONSE_PREFIX =
   "APIからの応答が予期しない形式です: ";
 export const OPTION_INVALID_BASE_URL_PREFIX = "APIのベースURL設定が不正です: ";
+export const OPTION_FAILED_API_REQUEST_PREFIX =
+  "APIへのリクエストに失敗しました: ";
+export const OPTION_FAILED_UPDATE_ICON_PREFIX =
+  "アイコンの更新に失敗しました: ";
+export const OPTION_FAILED_FETCH_BOOKMARKS_PREFIX =
+  "ブックマークの取得に失敗しました: ";
 
 export const URL_REQUIRED_ERROR_MESSAGE = "URLは必須です。";
 export const URL_PROTOCOL_ERROR_MESSAGE =
@@ -72,3 +77,15 @@ export const BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX =
   "タブのアクティベートエラー: ";
 
 export const OPTIONS_PAGE_PATH = "src/options.html";
+
+export const DEFAULT_ICON_PATHS = {
+  16: "icons/icon16.png",
+  48: "icons/icon48.png",
+  128: "icons/icon128.png",
+};
+
+export const SAVED_ICON_PATHS = {
+  16: "icons/icon-saved16.png",
+  48: "icons/icon-saved48.png",
+  128: "icons/icon-saved128.png",
+};
