@@ -1,5 +1,6 @@
 import {
   INVALID_URL_ERROR_MESSAGE,
+  POPUP_FAILED_TO_FETCH_API_URL_PREFIX,
   URL_HOSTNAME_ERROR_MESSAGE,
   URL_PROTOCOL_ERROR_MESSAGE,
   URL_REQUIRED_ERROR_MESSAGE,
@@ -32,4 +33,13 @@ export const validateUrl = (url: string): string => {
 
 export const isValidUrl = (url: string): boolean => {
   return validateUrl(url) === "";
+};
+
+export const getApiUrl = (apiPath: string, baseUrl: string) => {
+  try {
+    return new URL(apiPath, baseUrl).href;
+  } catch (error) {
+    console.error(POPUP_FAILED_TO_FETCH_API_URL_PREFIX, error);
+    throw error;
+  }
 };

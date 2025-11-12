@@ -9,29 +9,20 @@ import {
   STORAGE_KEY_API_BASE_URL,
 } from "../constants/constants";
 
-import { isValidUrl } from "../lib/url";
+import { getApiUrl, isValidUrl } from "../lib/url";
 
 export const useApiUrl = () => {
   const [apiBaseUrl, setApiBaseUrl] = useState<string>(API_BASE_URL);
   const [isApiUrlLoaded, setIsApiUrlLoaded] = useState<boolean>(false);
   const [isApiUrlInvalid, setIsApiUrlInvalid] = useState<boolean>(false);
 
-  const getApiUrl = useCallback((apiPath: string, baseUrl: string) => {
-    try {
-      return new URL(apiPath, baseUrl).href;
-    } catch (error) {
-      console.error(POPUP_FAILED_TO_FETCH_API_URL_PREFIX, error);
-      throw error;
-    }
-  }, []);
-
   const getApiBookmarkAddUrl = useCallback(() => {
     return getApiUrl(API_ENDPOINT.ADD_BOOKMARK, apiBaseUrl);
-  }, [apiBaseUrl, getApiUrl]);
+  }, [apiBaseUrl]);
 
   const getApiBookmarkGetUrl = useCallback(() => {
     return getApiUrl(API_ENDPOINT.GET_BOOKMARKS, apiBaseUrl);
-  }, [apiBaseUrl, getApiUrl]);
+  }, [apiBaseUrl]);
 
   useEffect(() => {
     const abortController = new AbortController();

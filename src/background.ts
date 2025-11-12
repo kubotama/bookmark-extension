@@ -10,7 +10,7 @@ import {
   SAVED_ICON_PATHS,
   STORAGE_KEY_API_BASE_URL,
 } from "./constants/constants";
-import { isValidUrl } from "./lib/url";
+import { getApiUrl, isValidUrl } from "./lib/url";
 
 type Bookmark = {
   id: number;
@@ -18,10 +18,6 @@ type Bookmark = {
   title: string;
   createdAt: string;
   updatedAt: string;
-};
-
-const getApiUrl = (apiPath: string, baseUrl: string) => {
-  return new URL(apiPath, baseUrl).href;
 };
 
 const setIconToDefault = (tabId: number) => {
