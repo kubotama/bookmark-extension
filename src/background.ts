@@ -37,16 +37,18 @@ export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
   const apiBaseUrl = storageData?.[STORAGE_KEY_API_BASE_URL] ?? "";
 
   if (typeof apiBaseUrl !== "string" || !isValidUrl(apiBaseUrl)) {
-    console.error(INVALID_URL_ERROR_MESSAGE, apiBaseUrl);
+    console.error(
+      new Error(INVALID_URL_ERROR_MESSAGE),
+      `apiBaseUrl: ${apiBaseUrl}`
+    );
     // API のベース URL が無効な場合、デフォルトアイコンを設定するなどのフォールバック処理
     setIconToDefault(tab.id);
     return;
   }
 
-  const apiUrl = getApiUrl(API_ENDPOINT.GET_BOOKMARKS, apiBaseUrl);
-
   let bookmarks: Bookmark[];
   try {
+    const apiUrl = getApiUrl(API_ENDPOINT.GET_BOOKMARKS, apiBaseUrl);
     const response = await fetch(apiUrl);
     if (!response.ok) {
       throw new Error(`${OPTION_FAILED_API_REQUEST_PREFIX} ${response.status}`);

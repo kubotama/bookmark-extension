@@ -151,7 +151,10 @@ describe("updateIcon", () => {
       path: DEFAULT_ICON_PATHS,
       tabId: 1,
     });
-    expect(consoleErrorSpy).toHaveBeenCalledWith(INVALID_URL_ERROR_MESSAGE, "");
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      new Error(INVALID_URL_ERROR_MESSAGE),
+      `apiBaseUrl: `
+    );
   });
 
   it("should set default icon if fetch fails", async () => {
