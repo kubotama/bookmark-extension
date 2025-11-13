@@ -144,6 +144,10 @@ describe("updateIcon", () => {
       },
       expect.anything()
     );
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      new Error(INVALID_URL_ERROR_MESSAGE),
+      `apiBaseUrl: invalid-url`
+    );
   });
 
   it("should set default icon if local storage isn't stored", async () => {
