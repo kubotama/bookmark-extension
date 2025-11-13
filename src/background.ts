@@ -20,8 +20,24 @@ type Bookmark = {
   updatedAt: string;
 };
 
-const setIconToDefault = (tabId: number) => {
-  chrome.action.setIcon({ path: DEFAULT_ICON_PATHS, tabId });
+const setIcon = (options: chrome.action.TabIconDetails): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    chrome.action.setIcon(options, () => {
+      if (chrome.runtime.lastError) {
+        reject(chrome.runtime.lastError);
+      } else {
+        resolve();
+      }
+    });
+  });
+};
+
+const setIconToDefault = async (tabId: number) => {
+  try {
+    await setIcon({ path: DEFAULT_ICON_PATHS, tabId });
+  } catch (error) {
+    console.error(`Failed to set default icon for tab ${tabId}:`, error);
+  }
 };
 
 export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
@@ -42,7 +58,7 @@ export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
       `apiBaseUrl: ${apiBaseUrl}`
     );
     // API のベース URL が無効な場合、デフォルトアイコンを設定するなどのフォールバック処理
-    setIconToDefault(tab.id);
+    await setIconToDefault(tab.id);
     return;
   }
 
@@ -61,7 +77,7 @@ export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
   }
 
   try {
-    chrome.action.setIcon({
+    await setIcon({
       path: bookmarks.some((bookmark) => bookmark.url === currentUrl)
         ? SAVED_ICON_PATHS
         : DEFAULT_ICON_PATHS,
@@ -69,7 +85,7 @@ export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
     });
   } catch (error) {
     console.error(OPTION_FAILED_UPDATE_ICON_PREFIX, error);
-    setIconToDefault(tab.id);
+    await setIconToDefault(tab.id);
   }
 };
 
