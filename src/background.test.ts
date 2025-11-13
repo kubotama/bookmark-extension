@@ -145,8 +145,8 @@ describe("updateIcon", () => {
       expect.anything()
     );
     expect(consoleErrorSpy).toHaveBeenCalledWith(
-      new Error(INVALID_URL_ERROR_MESSAGE),
-      `apiBaseUrl: invalid-url`
+      INVALID_URL_ERROR_MESSAGE,
+      new Error(`apiBaseUrl: invalid-url`)
     );
   });
 
@@ -165,8 +165,8 @@ describe("updateIcon", () => {
       expect.anything()
     );
     expect(consoleErrorSpy).toHaveBeenCalledWith(
-      new Error(INVALID_URL_ERROR_MESSAGE),
-      `apiBaseUrl: `
+      INVALID_URL_ERROR_MESSAGE,
+      new Error(`apiBaseUrl: `)
     );
   });
 

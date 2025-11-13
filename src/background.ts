@@ -54,8 +54,8 @@ export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
 
   if (typeof apiBaseUrl !== "string" || !isValidUrl(apiBaseUrl)) {
     console.error(
-      new Error(INVALID_URL_ERROR_MESSAGE),
-      `apiBaseUrl: ${apiBaseUrl}`
+      INVALID_URL_ERROR_MESSAGE,
+      new Error(`apiBaseUrl: ${apiBaseUrl}`)
     );
     // API のベース URL が無効な場合、デフォルトアイコンを設定するなどのフォールバック処理
     await setIconToDefault(tab.id);
