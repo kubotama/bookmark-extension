@@ -72,7 +72,7 @@ export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
     bookmarks = await response.json();
   } catch (error) {
     console.error(OPTION_FAILED_FETCH_BOOKMARKS_PREFIX, error);
-    setIconToDefault(tab.id);
+    await setIconToDefault(tab.id);
     return;
   }
 
