@@ -76,16 +76,22 @@ export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
     return;
   }
 
+  const isBookmarked = bookmarks.some(
+    (bookmark) => bookmark.url === currentUrl
+  );
+  const iconPath = isBookmarked ? SAVED_ICON_PATHS : DEFAULT_ICON_PATHS;
+
   try {
     await setIcon({
-      path: bookmarks.some((bookmark) => bookmark.url === currentUrl)
-        ? SAVED_ICON_PATHS
-        : DEFAULT_ICON_PATHS,
+      path: iconPath,
       tabId: tab.id,
     });
   } catch (error) {
     console.error(OPTION_FAILED_UPDATE_ICON_PREFIX, error);
-    await setIconToDefault(tab.id);
+    // 保存済みアイコンの設定に失敗した場合のみ、デフォルトアイコンへのフォールバックを試みる
+    if (isBookmarked) {
+      await setIconToDefault(tab.id);
+    }
   }
 };
 
