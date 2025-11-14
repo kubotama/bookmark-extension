@@ -5,12 +5,14 @@ export type Bookmark = {
 };
 
 export const isBookmark = (obj: unknown): obj is Bookmark => {
+  if (typeof obj !== "object" || obj === null) {
+    return false;
+  }
+  const record = obj as Record<string, unknown>;
   return (
-    typeof obj === "object" &&
-    obj !== null &&
-    typeof (obj as Record<string, unknown>).id === "number" &&
-    typeof (obj as Record<string, unknown>).url === "string" &&
-    typeof (obj as Record<string, unknown>).title === "string"
+    typeof record.id === "number" &&
+    typeof record.url === "string" &&
+    typeof record.title === "string"
   );
 };
 
