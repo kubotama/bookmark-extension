@@ -20,8 +20,24 @@ type Bookmark = {
   updatedAt: string;
 };
 
-const setIconToDefault = (tabId: number) => {
-  chrome.action.setIcon({ path: DEFAULT_ICON_PATHS, tabId });
+const setIcon = (options: chrome.action.TabIconDetails): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    chrome.action.setIcon(options, () => {
+      if (chrome.runtime.lastError) {
+        reject(chrome.runtime.lastError);
+      } else {
+        resolve();
+      }
+    });
+  });
+};
+
+const setIconToDefault = async (tabId: number) => {
+  try {
+    await setIcon({ path: DEFAULT_ICON_PATHS, tabId });
+  } catch (error) {
+    console.error(`Failed to set default icon for tab ${tabId}:`, error);
+  }
 };
 
 export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
@@ -37,16 +53,18 @@ export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
   const apiBaseUrl = storageData?.[STORAGE_KEY_API_BASE_URL] ?? "";
 
   if (typeof apiBaseUrl !== "string" || !isValidUrl(apiBaseUrl)) {
-    console.error(INVALID_URL_ERROR_MESSAGE, apiBaseUrl);
+    console.error(
+      INVALID_URL_ERROR_MESSAGE,
+      new Error(`apiBaseUrl: ${apiBaseUrl}`)
+    );
     // API のベース URL が無効な場合、デフォルトアイコンを設定するなどのフォールバック処理
-    setIconToDefault(tab.id);
+    await setIconToDefault(tab.id);
     return;
   }
 
-  const apiUrl = getApiUrl(API_ENDPOINT.GET_BOOKMARKS, apiBaseUrl);
-
   let bookmarks: Bookmark[];
   try {
+    const apiUrl = getApiUrl(API_ENDPOINT.GET_BOOKMARKS, apiBaseUrl);
     const response = await fetch(apiUrl);
     if (!response.ok) {
       throw new Error(`${OPTION_FAILED_API_REQUEST_PREFIX} ${response.status}`);
@@ -54,20 +72,26 @@ export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
     bookmarks = await response.json();
   } catch (error) {
     console.error(OPTION_FAILED_FETCH_BOOKMARKS_PREFIX, error);
-    setIconToDefault(tab.id);
+    await setIconToDefault(tab.id);
     return;
   }
 
+  const isBookmarked = bookmarks.some(
+    (bookmark) => bookmark.url === currentUrl
+  );
+  const iconPath = isBookmarked ? SAVED_ICON_PATHS : DEFAULT_ICON_PATHS;
+
   try {
-    chrome.action.setIcon({
-      path: bookmarks.some((bookmark) => bookmark.url === currentUrl)
-        ? SAVED_ICON_PATHS
-        : DEFAULT_ICON_PATHS,
+    await setIcon({
+      path: iconPath,
       tabId: tab.id,
     });
   } catch (error) {
     console.error(OPTION_FAILED_UPDATE_ICON_PREFIX, error);
-    setIconToDefault(tab.id);
+    // 保存済みアイコンの設定に失敗した場合のみ、デフォルトアイコンへのフォールバックを試みる
+    if (isBookmarked) {
+      await setIconToDefault(tab.id);
+    }
   }
 };
 

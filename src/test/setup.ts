@@ -33,7 +33,11 @@ global.chrome = {
     get: vi.fn(),
   },
   action: {
-    setIcon: vi.fn(),
+    setIcon: vi.fn((_details, callback) => {
+      if (callback) {
+        callback();
+      }
+    }),
   },
 } as unknown as typeof chrome;
 

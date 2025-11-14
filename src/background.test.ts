@@ -123,7 +123,10 @@ describe("updateIcon", () => {
 
       await background.updateIcon(tab);
 
-      expect(chrome.action.setIcon).toHaveBeenCalledWith(expected.forSetIcon);
+      expect(chrome.action.setIcon).toHaveBeenCalledWith(
+        expected.forSetIcon,
+        expect.anything()
+      );
     }
   );
 
@@ -134,10 +137,17 @@ describe("updateIcon", () => {
 
     await background.updateIcon(MOCK_TAB);
 
-    expect(chrome.action.setIcon).toHaveBeenCalledWith({
-      path: DEFAULT_ICON_PATHS,
-      tabId: 1,
-    });
+    expect(chrome.action.setIcon).toHaveBeenCalledWith(
+      {
+        path: DEFAULT_ICON_PATHS,
+        tabId: 1,
+      },
+      expect.anything()
+    );
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      INVALID_URL_ERROR_MESSAGE,
+      new Error(`apiBaseUrl: invalid-url`)
+    );
   });
 
   it("should set default icon if local storage isn't stored", async () => {
@@ -147,11 +157,17 @@ describe("updateIcon", () => {
 
     await background.updateIcon(MOCK_TAB);
 
-    expect(chrome.action.setIcon).toHaveBeenCalledWith({
-      path: DEFAULT_ICON_PATHS,
-      tabId: 1,
-    });
-    expect(consoleErrorSpy).toHaveBeenCalledWith(INVALID_URL_ERROR_MESSAGE, "");
+    expect(chrome.action.setIcon).toHaveBeenCalledWith(
+      {
+        path: DEFAULT_ICON_PATHS,
+        tabId: 1,
+      },
+      expect.anything()
+    );
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      INVALID_URL_ERROR_MESSAGE,
+      new Error(`apiBaseUrl: `)
+    );
   });
 
   it("should set default icon if fetch fails", async () => {
@@ -163,10 +179,13 @@ describe("updateIcon", () => {
 
     await background.updateIcon(MOCK_TAB);
 
-    expect(chrome.action.setIcon).toHaveBeenCalledWith({
-      path: DEFAULT_ICON_PATHS,
-      tabId: 1,
-    });
+    expect(chrome.action.setIcon).toHaveBeenCalledWith(
+      {
+        path: DEFAULT_ICON_PATHS,
+        tabId: 1,
+      },
+      expect.anything()
+    );
     expect(consoleErrorSpy).toHaveBeenCalledWith(
       OPTION_FAILED_FETCH_BOOKMARKS_PREFIX,
       error
