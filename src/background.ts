@@ -3,6 +3,7 @@ import {
   BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX,
   BACKGROUND_TAB_UPDATE_ERROR_PREFIX,
   DEFAULT_ICON_PATHS,
+  INVALID_BOOKMARK_ARRAY_ERROR,
   INVALID_URL_ERROR_MESSAGE,
   OPTION_FAILED_API_REQUEST_PREFIX,
   OPTION_FAILED_FETCH_BOOKMARKS_PREFIX,
@@ -64,7 +65,7 @@ export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
     }
     const json = await response.json();
     if (!areBookmarks(json)) {
-      throw new Error("API response is not a valid bookmark array");
+      throw new Error(INVALID_BOOKMARK_ARRAY_ERROR);
     }
     bookmarks = json;
   } catch (error) {
