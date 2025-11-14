@@ -34,6 +34,17 @@ describe("isBookmark", () => {
     };
     expect(isBookmark(bookmarkWithWrongType)).toBe(false);
   });
+
+  it("should return true for an object with extra properties", () => {
+    const bookmarkWithExtraProps = {
+      id: 1,
+      url: "https://example.com",
+      title: "Example",
+      extra: "some value",
+      another: 123,
+    };
+    expect(isBookmark(bookmarkWithExtraProps)).toBe(true);
+  });
 });
 
 describe("areBookmarks", () => {
