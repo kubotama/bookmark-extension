@@ -1,49 +1,63 @@
 import { areBookmarks, isBookmark } from "./bookmark";
 
 describe("isBookmark", () => {
-  it("should return true for a valid bookmark object", () => {
-    const validBookmark = {
-      id: 1,
-      url: "https://example.com",
-      title: "Example",
-    };
-    expect(isBookmark(validBookmark)).toBe(true);
-  });
-
-  it("should return false for an invalid bookmark object", () => {
-    const invalidBookmark = {
-      id: 1,
-      // Missing 'url' property
-      title: "Example",
-    };
-    expect(isBookmark(invalidBookmark)).toBe(false);
-  });
-
-  it("should return false for a non-object", () => {
-    expect(isBookmark(null)).toBe(false);
-    expect(isBookmark(undefined)).toBe(false);
-    expect(isBookmark("string")).toBe(false);
-    expect(isBookmark(123)).toBe(false);
-  });
-
-  it("should return false for an object with incorrect property types", () => {
-    const bookmarkWithWrongType = {
-      id: "1", // Should be a number
-      url: "https://example.com",
-      title: "Example",
-    };
-    expect(isBookmark(bookmarkWithWrongType)).toBe(false);
-  });
-
-  it("should return true for an object with extra properties", () => {
-    const bookmarkWithExtraProps = {
-      id: 1,
-      url: "https://example.com",
-      title: "Example",
-      extra: "some value",
-      another: 123,
-    };
-    expect(isBookmark(bookmarkWithExtraProps)).toBe(true);
+  it.each([
+    {
+      description: "should return true for a valid bookmark object",
+      value: {
+        id: 1,
+        url: "https://example.com",
+        title: "Example",
+      },
+      expected: true,
+    },
+    {
+      description: "object with missing 'url' property",
+      value: { id: 1, title: "Example" },
+      expected: false,
+    },
+    {
+      description: "object with missing 'id' property",
+      value: { url: "https://example.com", title: "Example" },
+      expected: false,
+    },
+    {
+      description: "object with missing 'title' property",
+      value: { id: 1, url: "https://example.com" },
+      expected: false,
+    },
+    {
+      description: "object with incorrect 'id' type",
+      value: { id: "1", url: "https://example.com", title: "Example" },
+      expected: false,
+    },
+    {
+      description: "object with incorrect 'url' type",
+      value: { id: 1, url: 123, title: "Example" },
+      expected: false,
+    },
+    {
+      description: "object with incorrect 'title' type",
+      value: { id: 1, url: "https://example.com", title: null },
+      expected: false,
+    },
+    { description: "null value", value: null, expected: false },
+    { description: "undefined value", value: undefined, expected: false },
+    { description: "string value", value: "string", expected: false },
+    { description: "number value", value: 123, expected: false },
+    {
+      description: "should return true for an object with extra properties",
+      value: {
+        id: 1,
+        url: "https://example.com",
+        title: "Example",
+        extra: "some value",
+        another: 123,
+      },
+      expected: true,
+    },
+  ])("should return $expected for $description", ({ value, expected }) => {
+    expect(isBookmark(value)).toBe(expected);
   });
 });
 
