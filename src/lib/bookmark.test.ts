@@ -62,45 +62,60 @@ describe("isBookmark", () => {
 });
 
 describe("areBookmarks", () => {
-  it("should return true for an array of valid bookmark objects", () => {
-    const validBookmarks = [
-      {
-        id: 1,
-        url: "https://example.com",
-        title: "Example",
-      },
-      {
-        id: 2,
-        url: "https://example.org",
-        title: "Example Org",
-      },
-    ];
-    expect(areBookmarks(validBookmarks)).toBe(true);
-  });
-
-  it("should return false for an array containing an invalid bookmark object", () => {
-    const mixedBookmarks = [
-      {
-        id: 1,
-        url: "https://example.com",
-        title: "Example",
-      },
-      {
-        id: 2,
-        // Missing 'url' property
-        title: "Example Org",
-      },
-    ];
-    expect(areBookmarks(mixedBookmarks)).toBe(false);
-  });
-
-  it("should return false for a non-array", () => {
-    expect(areBookmarks({})).toBe(false);
-    expect(areBookmarks(null)).toBe(false);
-    expect(areBookmarks(undefined)).toBe(false);
-  });
-
-  it("should return true for an empty array", () => {
-    expect(areBookmarks([])).toBe(true);
+  it.each([
+    {
+      description: "an array of valid bookmark objects",
+      value: [
+        {
+          id: 1,
+          url: "https://example.com",
+          title: "Example",
+        },
+        {
+          id: 2,
+          url: "https://example.org",
+          title: "Example Org",
+        },
+      ],
+      expected: true,
+    },
+    {
+      description: "an array containing an invalid bookmark object",
+      value: [
+        {
+          id: 1,
+          url: "https://example.com",
+          title: "Example",
+        },
+        {
+          id: 2,
+          // Missing 'url' property
+          title: "Example Org",
+        },
+      ],
+      expected: false,
+    },
+    {
+      description: "an empty object",
+      value: {},
+      expected: false,
+    },
+    {
+      description: "null value",
+      value: null,
+      expected: false,
+    },
+    {
+      description: "undefined value",
+      value: undefined,
+      expected: false,
+    },
+    {
+      description: "empty array",
+      value: [],
+      expected: true,
+    },
+  ])("should return $expected for $description", ({ value, expected }) => {
+    expect(areBookmarks(value)).toBe(expected);
   });
 });
