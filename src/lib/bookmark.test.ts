@@ -6,8 +6,6 @@ describe("isBookmark", () => {
       id: 1,
       url: "https://example.com",
       title: "Example",
-      createdAt: "2023-01-01T00:00:00Z",
-      updatedAt: "2023-01-01T00:00:00Z",
     };
     expect(isBookmark(validBookmark)).toBe(true);
   });
@@ -17,8 +15,6 @@ describe("isBookmark", () => {
       id: 1,
       // Missing 'url' property
       title: "Example",
-      createdAt: "2023-01-01T00:00:00Z",
-      updatedAt: "2023-01-01T00:00:00Z",
     };
     expect(isBookmark(invalidBookmark)).toBe(false);
   });
@@ -35,8 +31,6 @@ describe("isBookmark", () => {
       id: "1", // Should be a number
       url: "https://example.com",
       title: "Example",
-      createdAt: "2023-01-01T00:00:00Z",
-      updatedAt: "2023-01-01T00:00:00Z",
     };
     expect(isBookmark(bookmarkWithWrongType)).toBe(false);
   });
@@ -49,15 +43,11 @@ describe("areBookmarks", () => {
         id: 1,
         url: "https://example.com",
         title: "Example",
-        createdAt: "2023-01-01T00:00:00Z",
-        updatedAt: "2023-01-01T00:00:00Z",
       },
       {
         id: 2,
         url: "https://example.org",
         title: "Example Org",
-        createdAt: "2023-01-02T00:00:00Z",
-        updatedAt: "2023-01-02T00:00:00Z",
       },
     ];
     expect(areBookmarks(validBookmarks)).toBe(true);
@@ -69,15 +59,11 @@ describe("areBookmarks", () => {
         id: 1,
         url: "https://example.com",
         title: "Example",
-        createdAt: "2023-01-01T00:00:00Z",
-        updatedAt: "2023-01-01T00:00:00Z",
       },
       {
         id: 2,
         // Missing 'url' property
         title: "Example Org",
-        createdAt: "2023-01-02T00:00:00Z",
-        updatedAt: "2023-01-02T00:00:00Z",
       },
     ];
     expect(areBookmarks(mixedBookmarks)).toBe(false);
