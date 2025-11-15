@@ -3,6 +3,7 @@ import {
   BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX,
   BACKGROUND_TAB_UPDATE_ERROR_PREFIX,
   DEFAULT_ICON_PATHS,
+  INVALID_BOOKMARK_ARRAY_ERROR,
   INVALID_URL_ERROR_MESSAGE,
   OPTION_FAILED_API_REQUEST_PREFIX,
   OPTION_FAILED_FETCH_BOOKMARKS_PREFIX,
@@ -10,15 +11,8 @@ import {
   SAVED_ICON_PATHS,
   STORAGE_KEY_API_BASE_URL,
 } from "./constants/constants";
+import { type Bookmark, areBookmarks } from "./lib/bookmark";
 import { getApiUrl, isValidUrl } from "./lib/url";
-
-type Bookmark = {
-  id: number;
-  url: string;
-  title: string;
-  createdAt: string;
-  updatedAt: string;
-};
 
 const setIcon = (options: chrome.action.TabIconDetails): Promise<void> => {
   return new Promise((resolve, reject) => {
@@ -69,7 +63,11 @@ export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
     if (!response.ok) {
       throw new Error(`${OPTION_FAILED_API_REQUEST_PREFIX} ${response.status}`);
     }
-    bookmarks = await response.json();
+    const json = await response.json();
+    if (!areBookmarks(json)) {
+      throw new Error(INVALID_BOOKMARK_ARRAY_ERROR);
+    }
+    bookmarks = json;
   } catch (error) {
     console.error(OPTION_FAILED_FETCH_BOOKMARKS_PREFIX, error);
     await setIconToDefault(tab.id);

@@ -75,6 +75,8 @@ export const FAILED_TO_CONNECT_API = "APIへの接続に失敗しました:";
 export const BACKGROUND_TAB_UPDATE_ERROR_PREFIX = "タブの更新エラー: ";
 export const BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX =
   "タブのアクティベートエラー: ";
+export const INVALID_BOOKMARK_ARRAY_ERROR =
+  "APIのレスポンスが不正なブックマーク配列です";
 
 export const OPTIONS_PAGE_PATH = "src/options.html";
 
