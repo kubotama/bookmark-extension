@@ -29,17 +29,17 @@ export const usePopup = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const registerClick = useCallback(async () => {
+    if (!isValidUrl(activeTabUrl)) {
+      setMessage(
+        createErrorMessage(`${POPUP_INVALID_URL_MESSAGE_PREFIX}${activeTabUrl}`)
+      );
+      return;
+    }
+
     const bookmark = {
       url: activeTabUrl,
       title: activeTabTitle,
     };
-
-    if (!isValidUrl(bookmark.url)) {
-      setMessage(
-        createErrorMessage(`${POPUP_INVALID_URL_MESSAGE_PREFIX}${bookmark.url}`)
-      );
-      return;
-    }
 
     setIsLoading(true);
     setMessage(undefined);
