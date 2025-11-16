@@ -41,6 +41,13 @@
   color: white;
   font-size: small;
 }
+
+.popup-button:disabled {
+  background-color: gray;
+  color: lightgray;
+  cursor: not-allowed;
+}
+
 .popup-separator {
   display: flex;
 }
