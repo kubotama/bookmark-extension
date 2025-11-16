@@ -87,16 +87,16 @@ const Popup = () => {
           onChange={(e) => setActiveTabTitle(e.target.value)}
           className="popup-input"
         />
-        {message && (
-          <Message
-            key={message.id}
-            message={message}
-            duration={
-              message.type === "success" ? SAVE_MESSAGE_TIMEOUT_MS : undefined
-            }
-          />
-        )}
       </div>
+      {message && (
+        <Message
+          key={message.id}
+          message={message}
+          duration={
+            message.type === "success" ? SAVE_MESSAGE_TIMEOUT_MS : undefined
+          }
+        />
+      )}
     </>
   );
 };
