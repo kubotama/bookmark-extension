@@ -193,6 +193,26 @@ describe("usePopup", () => {
     });
   });
 
+  it("不正なURLで登録を試みた場合にエラーメッセージが表示されること", async () => {
+    // 不正なURLをセットアップ
+    mockActiveTabInfo.url = "invalid-url";
+    const { result } = renderHook(() => usePopup());
+
+    // registerClickを呼び出す
+    await act(async () => {
+      await result.current.registerClick();
+    });
+
+    // fetchが呼ばれていないことを確認
+    expect(global.fetch).not.toHaveBeenCalled();
+
+    // エラーメッセージが表示されることを確認
+    await waitFor(() => {
+      expect(result.current.message?.text).toBe("無効なURLです: invalid-url");
+      expect(result.current.message?.type).toBe("error");
+    });
+  });
+
   describe("isRegisterDisabledのロジック", () => {
     const testCases = [
       {
