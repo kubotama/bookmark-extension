@@ -208,7 +208,9 @@ describe("usePopup", () => {
 
     // エラーメッセージが表示されることを確認
     await waitFor(() => {
-      expect(result.current.message?.text).toBe("無効なURLです: invalid-url");
+      expect(result.current.message?.text).toBe(
+        `無効なURLです: ${mockActiveTabInfo.url}`
+      );
       expect(result.current.message?.type).toBe("error");
     });
   });
