@@ -21,12 +21,12 @@ import { usePopup } from "../hooks/usePopup";
 const Popup = () => {
   const {
     activeTabUrl,
+    setActiveTabUrl,
     activeTabTitle,
     isLoading,
     setActiveTabTitle,
     message,
     registerClick,
-    handleUrlChange,
     isRegisterDisabled,
   } = usePopup();
   const { isApiUrlLoaded, isApiUrlInvalid } = useApiUrl();
@@ -76,7 +76,7 @@ const Popup = () => {
           type="text"
           placeholder="URLを入力してください"
           value={activeTabUrl}
-          onChange={(e) => handleUrlChange(e.target.value)}
+          onChange={(e) => setActiveTabUrl(e.target.value)}
           className="popup-input"
         />
         <LabeledInputField

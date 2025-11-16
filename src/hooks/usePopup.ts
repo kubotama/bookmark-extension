@@ -28,22 +28,18 @@ export const usePopup = () => {
   const [message, setMessage] = useState<MessageData | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleUrlChange = useCallback(
-    (newUrl: string) => {
-      setActiveTabUrl(newUrl);
-      const message = isValidUrl(newUrl)
-        ? undefined
-        : createErrorMessage(`${POPUP_INVALID_URL_MESSAGE_PREFIX}${newUrl}`);
-      setMessage(message);
-    },
-    [setActiveTabUrl]
-  );
-
   const registerClick = useCallback(async () => {
     const bookmark = {
       url: activeTabUrl,
       title: activeTabTitle,
     };
+
+    if (!isValidUrl(bookmark.url)) {
+      setMessage(
+        createErrorMessage(`${POPUP_INVALID_URL_MESSAGE_PREFIX}${bookmark.url}`)
+      );
+      return;
+    }
 
     setIsLoading(true);
     setMessage(undefined);
@@ -111,6 +107,7 @@ export const usePopup = () => {
   return {
     // Tab info
     activeTabUrl,
+    setActiveTabUrl,
     activeTabTitle,
     setActiveTabTitle,
     // API status
@@ -118,7 +115,6 @@ export const usePopup = () => {
     // UI state and handlers
     message,
     registerClick,
-    handleUrlChange,
     isRegisterDisabled,
   };
 };
