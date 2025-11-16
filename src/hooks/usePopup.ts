@@ -1,7 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 
 import {
-  POPUP_INVALID_URL_MESSAGE_PREFIX,
   POPUP_REGISTER_CONFLICT_ERROR_PREFIX,
   POPUP_REGISTER_FAILED_PREFIX,
   POPUP_REGISTER_SUCCESS_MESSAGE,
@@ -29,13 +28,6 @@ export const usePopup = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const registerClick = useCallback(async () => {
-    if (!isValidUrl(activeTabUrl)) {
-      setMessage(
-        createErrorMessage(`${POPUP_INVALID_URL_MESSAGE_PREFIX}${activeTabUrl}`)
-      );
-      return;
-    }
-
     const bookmark = {
       url: activeTabUrl,
       title: activeTabTitle,
