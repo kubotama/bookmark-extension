@@ -43,8 +43,8 @@
 }
 
 .popup-button:disabled {
-  background-color: gray;
-  color: lightgray;
+  background-color: #cccccc;
+  color: #666666;
   cursor: not-allowed;
 }
 
