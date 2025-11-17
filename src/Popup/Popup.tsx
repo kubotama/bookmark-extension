@@ -89,9 +89,8 @@ const Popup = () => {
         />
       </div>
       {message && (
-        <div className="popup-message">
+        <div key={message.id} className="popup-message">
           <Message
-            key={message.id}
             message={message}
             duration={
               message.type === "success" ? SAVE_MESSAGE_TIMEOUT_MS : undefined
