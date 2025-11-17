@@ -53,22 +53,5 @@
 }
 
 .popup-message {
-  display: flex;
-  grid-column: 1 / -1;
-  margin-top: 1rem;
-  align-items: center;
-}
-
-.popup-message-text {
-  /* margin: 0.5rem; 親のpaddingで管理するため不要 or paddingに変更 */
-  font-size: medium;
-}
-
-.popup-error-message {
-  color: red;
-}
-
-a.popup-error-message {
-  color: red;
-  text-decoration: underline;
+  padding: 1rem;
 }
