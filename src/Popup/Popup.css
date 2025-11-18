@@ -1,3 +1,10 @@
+:root {
+  --color-disabled-background: #cccccc;
+  --color-disabled-foreground: #666666;
+  --color-primary-text: #ffffff;
+  --color-primary-background: #008b8b;
+}
+
 /* ポップアップ全体のラッパー */
 .popup-wrapper {
   padding: 1rem;
@@ -37,14 +44,14 @@
   margin-top: 1rem;
   align-items: center;
   justify-content: center;
-  background-color: darkcyan;
-  color: white;
+  background-color: var(--color-primary-background);
+  color: var(--color-primary-text);
   font-size: small;
 }
 
 .popup-button:disabled {
-  background-color: #cccccc;
-  color: #666666;
+  background-color: var(--color-disabled-background);
+  color: var(--color-disabled-foreground);
   cursor: not-allowed;
 }
 
