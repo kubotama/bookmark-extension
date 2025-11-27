@@ -1,7 +1,13 @@
+export type Keyword = {
+  keyword_id: number;
+  keyword_name: string;
+};
+
 export type Bookmark = {
-  id: number;
+  bookmark_id: number;
   url: string;
   title: string;
+  keywords: Keyword[];
 };
 
 export const isBookmark = (obj: unknown): obj is Bookmark => {
@@ -10,7 +16,7 @@ export const isBookmark = (obj: unknown): obj is Bookmark => {
   }
   const record = obj as Record<string, unknown>;
   return (
-    typeof record.id === "number" &&
+    typeof record.bookmark_id === "number" &&
     typeof record.url === "string" &&
     typeof record.title === "string"
   );
