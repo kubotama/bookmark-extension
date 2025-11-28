@@ -27,7 +27,7 @@ describe("isBookmark", () => {
       expected: false,
     },
     {
-      description: "object with incorrect 'id' type",
+      description: "object with incorrect 'bookmark_id' type",
       value: { bookmark_id: "1", url: "https://example.com", title: "Example" },
       expected: false,
     },
