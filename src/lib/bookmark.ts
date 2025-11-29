@@ -8,10 +8,11 @@ export const isKeyword = (obj: unknown): obj is Keyword => {
   if (typeof obj !== "object" || obj === null) {
     return false;
   }
-  const record = obj as Record<string, unknown>;
   return (
-    typeof record.keyword_id === "number" &&
-    typeof record.keyword_name === "string"
+    "keyword_id" in obj &&
+    typeof (obj as Keyword).keyword_id === "number" &&
+    "keyword_name" in obj &&
+    typeof (obj as Keyword).keyword_name === "string"
   );
 };
 
@@ -26,15 +27,33 @@ export const isBookmark = (obj: unknown): obj is Bookmark => {
   if (typeof obj !== "object" || obj === null) {
     return false;
   }
-  const record = obj as Record<string, unknown>;
-  return (
-    typeof record.bookmark_id === "number" &&
-    typeof record.url === "string" &&
-    typeof record.title === "string" &&
-    Array.isArray(record.keywords) &&
-    // 配列のすべての要素が isKeyword を満たすかチェック
-    record.keywords.every(isKeyword)
-  );
+
+  if (
+    !("bookmark_id" in obj) ||
+    !("url" in obj) ||
+    !("title" in obj) ||
+    !("keywords" in obj)
+  ) {
+    return false;
+  }
+
+  const bookmark = obj as Bookmark;
+  if (
+    typeof bookmark.bookmark_id !== "number" ||
+    typeof bookmark.url !== "string" ||
+    typeof bookmark.title !== "string"
+  ) {
+    return false;
+  }
+
+  if (
+    !Array.isArray(bookmark.keywords) ||
+    !bookmark.keywords.every(isKeyword)
+  ) {
+    return false;
+  }
+
+  return true;
 };
 
 export const areBookmarks = (obj: unknown): obj is Bookmark[] => {
