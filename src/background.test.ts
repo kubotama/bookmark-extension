@@ -77,7 +77,12 @@ describe("updateIcon", () => {
       description: "should set saved icon if page is bookmarked",
       apiBaseUrl: "https://api.example.com",
       bookmarks: [
-        { bookmark_id: 1, url: "https://example.com/", title: "Example" },
+        {
+          bookmark_id: 1,
+          url: "https://example.com/",
+          title: "Example",
+          keywords: [],
+        },
       ],
       tab: { id: 1, url: "https://example.com" } as chrome.tabs.Tab,
       expected: {
@@ -103,7 +108,12 @@ describe("updateIcon", () => {
       description: "should ignore hash in url",
       apiBaseUrl: "https://api.example.com",
       bookmarks: [
-        { bookmark_id: 1, url: "https://example.com/", title: "Example" },
+        {
+          bookmark_id: 1,
+          url: "https://example.com/",
+          title: "Example",
+          keywords: [],
+        },
       ],
       tab: { id: 1, url: "https://example.com#section" } as chrome.tabs.Tab,
       expected: {

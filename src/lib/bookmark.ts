@@ -1,7 +1,13 @@
+export type Keyword = {
+  keyword_id: number;
+  keyword_name: string;
+};
+
 export type Bookmark = {
   bookmark_id: number;
   url: string;
   title: string;
+  keywords: Keyword[];
 };
 
 export const isBookmark = (obj: unknown): obj is Bookmark => {
@@ -12,7 +18,8 @@ export const isBookmark = (obj: unknown): obj is Bookmark => {
   return (
     typeof record.bookmark_id === "number" &&
     typeof record.url === "string" &&
-    typeof record.title === "string"
+    typeof record.title === "string" &&
+    Array.isArray(record.keywords) // このチェックを追加
   );
 };
 
