@@ -178,10 +178,7 @@ describe("updateIcon", () => {
       },
       expect.anything()
     );
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      INVALID_URL_ERROR_MESSAGE,
-      new Error(`apiBaseUrl: `)
-    );
+    expect(consoleErrorSpy).toBeCalledTimes(0);
   });
 
   it("should set default icon if fetch fails", async () => {

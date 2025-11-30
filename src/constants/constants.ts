@@ -31,6 +31,8 @@ export const OPTION_FAILED_UPDATE_ICON_PREFIX =
   "アイコンの更新に失敗しました: ";
 export const OPTION_FAILED_FETCH_BOOKMARKS_PREFIX =
   "ブックマークの取得に失敗しました: ";
+export const OPTION_FAILED_TO_GET_API_BASE_URL_FROM_STORAGE_PREFIX =
+  "ストレージからAPIのベースURLを取得できませんでした: ";
 
 export const URL_REQUIRED_ERROR_MESSAGE = "URLは必須です。";
 export const URL_PROTOCOL_ERROR_MESSAGE =

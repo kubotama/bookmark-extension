@@ -13,7 +13,7 @@ import {
   STORAGE_KEY_API_BASE_URL,
   SUCCESS_MESSAGE,
 } from "../constants/constants";
-import { validateUrl } from "../lib/url";
+import { getStoredApiBaseUrl, validateUrl } from "../lib/url";
 import { useApiUrl } from "./useApiUrl";
 import { createMessage, type MessageData } from "./useMessage";
 
@@ -31,11 +31,8 @@ export const useOptions = () => {
 
     const loadUrl = async () => {
       try {
-        const result = await chrome.storage.local.get([
-          STORAGE_KEY_API_BASE_URL,
-        ]);
+        const url = await getStoredApiBaseUrl(); // 共通関数を呼び出す
         if (!signal.aborted) {
-          const url = result[STORAGE_KEY_API_BASE_URL] || "";
           setBaseUrl(url);
         }
       } catch (error) {
