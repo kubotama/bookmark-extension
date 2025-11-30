@@ -10,6 +10,8 @@ import {
 import * as background from "./background.ts"; // Import all exports
 
 import {
+  API_ENDPOINT,
+  API_BASE_URL,
   BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX,
   BACKGROUND_TAB_UPDATE_ERROR_PREFIX,
   DEFAULT_ICON_PATHS,
@@ -165,7 +167,7 @@ describe("updateIcon", () => {
   });
 
   it("should set default icon if local storage isn't stored", async () => {
-    const apiUrl = "http://localhost:3000/api/bookmarks";
+    const apiUrl = new URL(API_ENDPOINT.GET_BOOKMARKS, API_BASE_URL).href;
 
     (chrome.storage.local.get as unknown as MockInstance).mockResolvedValue({});
     const mockFetch = vi.fn().mockImplementation((url) => {
