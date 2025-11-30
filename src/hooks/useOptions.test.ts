@@ -77,7 +77,10 @@ describe("useOptions", () => {
       renderHook(() => useOptions());
 
       await waitFor(() => {
-        expect(consoleErrorSpy).toBeCalledTimes(0);
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+          "Failed to get API base URL from storage:",
+          new Error("Failed to get")
+        );
       });
     });
   });
