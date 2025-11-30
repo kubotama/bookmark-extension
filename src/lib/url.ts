@@ -58,7 +58,7 @@ export const getStoredApiBaseUrl = async (): Promise<string> => {
       STORAGE_KEY_API_BASE_URL
     );
     // ストレージの値が存在すればそれを使い、なければデフォルト値を使用する
-    return storageData?.[STORAGE_KEY_API_BASE_URL] ?? API_BASE_URL;
+    return storageData?.[STORAGE_KEY_API_BASE_URL] || API_BASE_URL;
   } catch (error) {
     console.error(OPTION_FAILED_TO_GET_API_BASE_URL_FROM_STORAGE_PREFIX, error);
     // エラーが発生した場合もデフォルト値を返す
