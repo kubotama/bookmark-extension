@@ -65,7 +65,7 @@ describe("useOptions", () => {
       });
     });
 
-    it("ストレージにURLがない場合、空文字に設定されること", async () => {
+    it("ストレージにURLがない場合、APIのデフォルトのURLが設定されること", async () => {
       chromeStorageLocalGet.mockResolvedValue({});
       const { result } = renderHook(() => useOptions());
 
