@@ -17,6 +17,7 @@ import {
   INVALID_URL_ERROR_MESSAGE,
   OPTION_INVALID_BASE_URL_ERROR,
   OPTION_INVALID_BASE_URL_PREFIX,
+  OPTION_FAILED_TO_GET_API_BASE_URL_FROM_STORAGE_PREFIX,
   OPTION_UNEXPECTED_API_RESPONSE_ERROR,
   OPTION_UNEXPECTED_API_RESPONSE_PREFIX,
   STORAGE_KEY_API_BASE_URL,
@@ -78,7 +79,7 @@ describe("useOptions", () => {
 
       await waitFor(() => {
         expect(consoleErrorSpy).toHaveBeenCalledWith(
-          "Failed to get API base URL from storage:",
+          OPTION_FAILED_TO_GET_API_BASE_URL_FROM_STORAGE_PREFIX,
           new Error("Failed to get")
         );
       });

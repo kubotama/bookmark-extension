@@ -1,6 +1,7 @@
 import {
   API_BASE_URL,
   INVALID_URL_ERROR_MESSAGE,
+  OPTION_FAILED_TO_GET_API_BASE_URL_FROM_STORAGE_PREFIX,
   POPUP_FAILED_TO_FETCH_API_URL_PREFIX,
   STORAGE_KEY_API_BASE_URL,
   URL_HOSTNAME_ERROR_MESSAGE,
@@ -59,7 +60,7 @@ export const getStoredApiBaseUrl = async (): Promise<string> => {
     // ストレージの値が存在すればそれを使い、なければデフォルト値を使用する
     return storageData?.[STORAGE_KEY_API_BASE_URL] ?? API_BASE_URL;
   } catch (error) {
-    console.error("Failed to get API base URL from storage:", error);
+    console.error(OPTION_FAILED_TO_GET_API_BASE_URL_FROM_STORAGE_PREFIX, error);
     // エラーが発生した場合もデフォルト値を返す
     return API_BASE_URL;
   }
