@@ -165,13 +165,19 @@ describe("updateIcon", () => {
   });
 
   it("should set default icon if local storage isn't stored", async () => {
-    (chrome.storage.local.get as unknown as MockInstance).mockResolvedValue(
-      {}
-    );
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => [],
+    const apiUrl = "http://localhost:3000/api/bookmarks";
+
+    (chrome.storage.local.get as unknown as MockInstance).mockResolvedValue({});
+    const mockFetch = vi.fn().mockImplementation((url) => {
+      if (url === apiUrl) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => [],
+        });
+      }
+      return Promise.reject(new Error(`Unexpected fetch call to ${url}`));
     });
+    global.fetch = mockFetch;
 
     await background.updateIcon(MOCK_TAB);
 
@@ -182,6 +188,12 @@ describe("updateIcon", () => {
       },
       expect.anything()
     );
+    // 期待通りにfetchが呼ばれたかを確認
+    expect(global.fetch).toHaveBeenCalled();
+
+    // 特定のURLで呼ばれたかを確認
+    expect(global.fetch).toHaveBeenCalledWith(apiUrl);
+
     expect(consoleErrorSpy).toBeCalledTimes(0);
   });
 
