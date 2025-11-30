@@ -4,7 +4,6 @@ import {
   API_ERROR_MESSAGE,
   FAILED_TO_CONNECT_API,
   FAILED_TO_CONNECT_API_WITH_NETWORK,
-  FAILED_TO_GET_BASE_URL_MESSAGE,
   OPTION_INVALID_BASE_URL_ERROR,
   OPTION_INVALID_BASE_URL_PREFIX,
   OPTION_SAVE_SUCCESS_MESSAGE,
@@ -30,15 +29,9 @@ export const useOptions = () => {
     const { signal } = abortController;
 
     const loadUrl = async () => {
-      try {
-        const url = await getStoredApiBaseUrl(); // 共通関数を呼び出す
-        if (!signal.aborted) {
-          setBaseUrl(url);
-        }
-      } catch (error) {
-        if (!signal.aborted) {
-          console.error(FAILED_TO_GET_BASE_URL_MESSAGE, error);
-        }
+      const url = await getStoredApiBaseUrl();
+      if (!signal.aborted) {
+        setBaseUrl(url);
       }
     };
 
