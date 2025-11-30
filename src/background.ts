@@ -1,4 +1,5 @@
 import {
+  API_BASE_URL,
   API_ENDPOINT,
   BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX,
   BACKGROUND_TAB_UPDATE_ERROR_PREFIX,
@@ -44,7 +45,7 @@ export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
   const currentUrl = url.href;
 
   const storageData = await chrome.storage.local.get(STORAGE_KEY_API_BASE_URL);
-  const apiBaseUrl = storageData?.[STORAGE_KEY_API_BASE_URL] ?? "";
+  const apiBaseUrl = storageData?.[STORAGE_KEY_API_BASE_URL] ?? API_BASE_URL;
 
   if (typeof apiBaseUrl !== "string" || !isValidUrl(apiBaseUrl)) {
     console.error(

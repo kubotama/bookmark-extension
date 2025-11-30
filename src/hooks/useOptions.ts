@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import {
+  API_BASE_URL,
   API_ERROR_MESSAGE,
   FAILED_TO_CONNECT_API,
   FAILED_TO_CONNECT_API_WITH_NETWORK,
@@ -35,7 +36,7 @@ export const useOptions = () => {
           STORAGE_KEY_API_BASE_URL,
         ]);
         if (!signal.aborted) {
-          const url = result[STORAGE_KEY_API_BASE_URL] || "";
+          const url = result[STORAGE_KEY_API_BASE_URL] || API_BASE_URL;
           setBaseUrl(url);
         }
       } catch (error) {
