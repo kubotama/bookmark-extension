@@ -49,7 +49,7 @@ export const getApiUrl = (apiPath: string, baseUrl: string) => {
 
 /**
  * ChromeストレージからAPIのベースURLを取得します。
- * 値が未設定の場合はデフォルトのURLを返します。
+ * 値が未設定、空文字列、または取得失敗の場合はデフォルトのURLを返します。
  * @returns {Promise<string>} APIのベースURL
  */
 export const getStoredApiBaseUrl = async (): Promise<string> => {
