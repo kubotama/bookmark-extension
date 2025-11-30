@@ -166,8 +166,12 @@ describe("updateIcon", () => {
 
   it("should set default icon if local storage isn't stored", async () => {
     (chrome.storage.local.get as unknown as MockInstance).mockResolvedValue(
-      undefined
+      {}
     );
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => [],
+    });
 
     await background.updateIcon(MOCK_TAB);
 
