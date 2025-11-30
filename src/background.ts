@@ -1,5 +1,4 @@
 import {
-  API_BASE_URL,
   API_ENDPOINT,
   BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX,
   BACKGROUND_TAB_UPDATE_ERROR_PREFIX,
@@ -10,10 +9,9 @@ import {
   OPTION_FAILED_FETCH_BOOKMARKS_PREFIX,
   OPTION_FAILED_UPDATE_ICON_PREFIX,
   SAVED_ICON_PATHS,
-  STORAGE_KEY_API_BASE_URL,
 } from "./constants/constants";
 import { type Bookmark, areBookmarks } from "./lib/bookmark";
-import { getApiUrl, isValidUrl } from "./lib/url";
+import { getApiUrl, getStoredApiBaseUrl, isValidUrl } from "./lib/url";
 
 const setIcon = (options: chrome.action.TabIconDetails): Promise<void> => {
   return new Promise((resolve, reject) => {
@@ -44,8 +42,7 @@ export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
   url.hash = "";
   const currentUrl = url.href;
 
-  const storageData = await chrome.storage.local.get(STORAGE_KEY_API_BASE_URL);
-  const apiBaseUrl = storageData?.[STORAGE_KEY_API_BASE_URL] ?? API_BASE_URL;
+  const apiBaseUrl = await getStoredApiBaseUrl();
 
   if (typeof apiBaseUrl !== "string" || !isValidUrl(apiBaseUrl)) {
     console.error(

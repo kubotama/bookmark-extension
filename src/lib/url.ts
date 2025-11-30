@@ -1,6 +1,8 @@
 import {
+  API_BASE_URL,
   INVALID_URL_ERROR_MESSAGE,
   POPUP_FAILED_TO_FETCH_API_URL_PREFIX,
+  STORAGE_KEY_API_BASE_URL,
   URL_HOSTNAME_ERROR_MESSAGE,
   URL_PROTOCOL_ERROR_MESSAGE,
   URL_REQUIRED_ERROR_MESSAGE,
@@ -41,5 +43,24 @@ export const getApiUrl = (apiPath: string, baseUrl: string) => {
   } catch (error) {
     console.error(POPUP_FAILED_TO_FETCH_API_URL_PREFIX, error);
     throw error;
+  }
+};
+
+/**
+ * ChromeストレージからAPIのベースURLを取得します。
+ * 値が未設定の場合はデフォルトのURLを返します。
+ * @returns {Promise<string>} APIのベースURL
+ */
+export const getStoredApiBaseUrl = async (): Promise<string> => {
+  try {
+    const storageData = await chrome.storage.local.get(
+      STORAGE_KEY_API_BASE_URL
+    );
+    // ストレージの値が存在すればそれを使い、なければデフォルト値を使用する
+    return storageData?.[STORAGE_KEY_API_BASE_URL] ?? API_BASE_URL;
+  } catch (error) {
+    console.error("Failed to get API base URL from storage:", error);
+    // エラーが発生した場合もデフォルト値を返す
+    return API_BASE_URL;
   }
 };

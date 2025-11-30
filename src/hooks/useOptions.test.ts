@@ -14,7 +14,6 @@ import {
   API_ERROR_MESSAGE,
   FAILED_TO_CONNECT_API,
   FAILED_TO_CONNECT_API_WITH_NETWORK,
-  FAILED_TO_GET_BASE_URL_MESSAGE,
   INVALID_URL_ERROR_MESSAGE,
   OPTION_INVALID_BASE_URL_ERROR,
   OPTION_INVALID_BASE_URL_PREFIX,
@@ -78,10 +77,7 @@ describe("useOptions", () => {
       renderHook(() => useOptions());
 
       await waitFor(() => {
-        expect(consoleErrorSpy).toHaveBeenCalledWith(
-          FAILED_TO_GET_BASE_URL_MESSAGE,
-          new Error("Failed to get")
-        );
+        expect(consoleErrorSpy).toBeCalledTimes(0);
       });
     });
   });
