@@ -11,6 +11,7 @@ import {
 import { act, renderHook, waitFor } from "@testing-library/react";
 
 import {
+  API_BASE_URL,
   API_ERROR_MESSAGE,
   FAILED_TO_CONNECT_API,
   FAILED_TO_CONNECT_API_WITH_NETWORK,
@@ -69,7 +70,7 @@ describe("useOptions", () => {
       const { result } = renderHook(() => useOptions());
 
       await waitFor(() => {
-        expect(result.current.baseUrl).toBe("");
+        expect(result.current.baseUrl).toBe(API_BASE_URL);
       });
     });
 
