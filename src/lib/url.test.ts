@@ -38,7 +38,7 @@ describe("validateUrl", () => {
     },
     {
       description: "should return an error message for an invalid URL",
-      url: "http:foo",
+      url: "http:foo.com",
       expected: INVALID_URL_ERROR_MESSAGE,
     },
     {
