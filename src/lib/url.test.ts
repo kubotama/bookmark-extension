@@ -63,6 +63,21 @@ describe("validateUrl", () => {
       url: "http://example",
       expected: URL_HOSTNAME_ERROR_MESSAGE,
     },
+    {
+      description: "should return an error message for an invalid schema",
+      url: "http:///example.com",
+      expected: INVALID_URL_ERROR_MESSAGE,
+    },
+    {
+      description: "should return an error message for an invalid schema",
+      url: "http:/example.com",
+      expected: INVALID_URL_ERROR_MESSAGE,
+    },
+    {
+      description: "should return an error message for an invalid schema",
+      url: "http//example.com",
+      expected: INVALID_URL_ERROR_MESSAGE,
+    },
   ];
 
   it.each(testCasesValidUrls)(

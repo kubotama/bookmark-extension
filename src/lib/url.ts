@@ -16,6 +16,9 @@ export const validateUrl = (url: string): string => {
   if (!url.includes("://")) {
     return INVALID_URL_ERROR_MESSAGE;
   }
+  if (!url.match(/:\/\/[^/]/)) {
+    return INVALID_URL_ERROR_MESSAGE;
+  }
 
   try {
     const parsedUrl = new URL(url);
