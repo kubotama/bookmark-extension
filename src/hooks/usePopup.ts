@@ -1,7 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 
 import {
-  POPUP_INVALID_URL_MESSAGE_PREFIX,
   POPUP_REGISTER_CONFLICT_ERROR_PREFIX,
   POPUP_REGISTER_FAILED_PREFIX,
   POPUP_REGISTER_SUCCESS_MESSAGE,
@@ -27,17 +26,6 @@ export const usePopup = () => {
   const { getApiBookmarkAddUrl, isApiUrlLoaded } = useApiUrl();
   const [message, setMessage] = useState<MessageData | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
-
-  const handleUrlChange = useCallback(
-    (newUrl: string) => {
-      setActiveTabUrl(newUrl);
-      const message = isValidUrl(newUrl)
-        ? undefined
-        : createErrorMessage(`${POPUP_INVALID_URL_MESSAGE_PREFIX}${newUrl}`);
-      setMessage(message);
-    },
-    [setActiveTabUrl]
-  );
 
   const registerClick = useCallback(async () => {
     const bookmark = {
@@ -111,6 +99,7 @@ export const usePopup = () => {
   return {
     // Tab info
     activeTabUrl,
+    setActiveTabUrl,
     activeTabTitle,
     setActiveTabTitle,
     // API status
@@ -118,7 +107,6 @@ export const usePopup = () => {
     // UI state and handlers
     message,
     registerClick,
-    handleUrlChange,
     isRegisterDisabled,
   };
 };

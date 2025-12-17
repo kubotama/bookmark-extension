@@ -2,45 +2,36 @@
 
 import "./Popup.css";
 
-import { useCallback, useRef } from "react";
+import { useRef } from "react";
 
 import LabeledInputField from "../components/LabeledInputField";
 import Message from "../components/Message/Message";
 import {
   LABEL_TITLE,
   LABEL_URL,
-  OPTIONS_PAGE_PATH,
   POPUP_INVALID_API_URL_MESSAGE,
-  POPUP_OPTIONS_PAGE_LINK_TEXT,
   SAVE_MESSAGE_TIMEOUT_MS,
 } from "../constants/constants";
 import { useApiUrl } from "../hooks/useApiUrl";
 import { useDynamicPopupWidth } from "../hooks/useDynamicPopupWidth";
+import { createErrorMessage } from "../hooks/useMessage";
 import { usePopup } from "../hooks/usePopup";
 
 const Popup = () => {
   const {
     activeTabUrl,
+    setActiveTabUrl,
     activeTabTitle,
-    isLoading,
     setActiveTabTitle,
+    isLoading,
     message,
     registerClick,
-    handleUrlChange,
     isRegisterDisabled,
   } = usePopup();
   const { isApiUrlLoaded, isApiUrlInvalid } = useApiUrl();
 
   const measurementRef = useRef<HTMLSpanElement>(null);
   const popupWidth = useDynamicPopupWidth(activeTabUrl, measurementRef);
-
-  const openOptionsPage = useCallback(
-    (e: React.MouseEvent<HTMLAnchorElement>) => {
-      e.preventDefault();
-      chrome.tabs.create({ url: chrome.runtime.getURL(OPTIONS_PAGE_PATH) });
-    },
-    []
-  );
 
   if (!isApiUrlLoaded) {
     return <div>Loading...</div>;
@@ -49,10 +40,7 @@ const Popup = () => {
   if (isApiUrlInvalid) {
     return (
       <div className="popup-wrapper">
-        <p className="popup-error-message">{POPUP_INVALID_API_URL_MESSAGE}</p>
-        <a href="#" onClick={openOptionsPage} className="popup-error-message">
-          {POPUP_OPTIONS_PAGE_LINK_TEXT}
-        </a>
+        <Message message={createErrorMessage(POPUP_INVALID_API_URL_MESSAGE)} />
       </div>
     );
   }
@@ -76,7 +64,7 @@ const Popup = () => {
           type="text"
           placeholder="URLを入力してください"
           value={activeTabUrl}
-          onChange={(e) => handleUrlChange(e.target.value)}
+          onChange={(e) => setActiveTabUrl(e.target.value)}
           className="popup-input"
         />
         <LabeledInputField
@@ -87,16 +75,17 @@ const Popup = () => {
           onChange={(e) => setActiveTabTitle(e.target.value)}
           className="popup-input"
         />
-        {message && (
+      </div>
+      {message && (
+        <div key={message.id} className="popup-message">
           <Message
-            key={message.id}
             message={message}
             duration={
               message.type === "success" ? SAVE_MESSAGE_TIMEOUT_MS : undefined
             }
           />
-        )}
-      </div>
+        </div>
+      )}
     </>
   );
 };

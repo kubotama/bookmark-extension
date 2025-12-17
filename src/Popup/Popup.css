@@ -1,3 +1,10 @@
+:root {
+  --color-disabled-background: #cccccc;
+  --color-disabled-foreground: #666666;
+  --color-primary-text: #ffffff;
+  --color-primary-background: #008b8b;
+}
+
 /* ポップアップ全体のラッパー */
 .popup-wrapper {
   padding: 1rem;
@@ -37,31 +44,21 @@
   margin-top: 1rem;
   align-items: center;
   justify-content: center;
-  background-color: darkcyan;
-  color: white;
+  background-color: var(--color-primary-background);
+  color: var(--color-primary-text);
   font-size: small;
 }
+
+.popup-button:disabled {
+  background-color: var(--color-disabled-background);
+  color: var(--color-disabled-foreground);
+  cursor: not-allowed;
+}
+
 .popup-separator {
   display: flex;
 }
 
 .popup-message {
-  display: flex;
-  grid-column: 1 / -1;
-  margin-top: 1rem;
-  align-items: center;
-}
-
-.popup-message-text {
-  /* margin: 0.5rem; 親のpaddingで管理するため不要 or paddingに変更 */
-  font-size: medium;
-}
-
-.popup-error-message {
-  color: red;
-}
-
-a.popup-error-message {
-  color: red;
-  text-decoration: underline;
+  padding: 1rem;
 }
