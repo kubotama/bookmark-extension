@@ -95,7 +95,7 @@ const updateTabIconById = async (
   tabId: number,
   updateIconFn: (tab: chrome.tabs.Tab) => Promise<void>,
   errorPrefix: string
-) => {
+): Promise<void> => {
   try {
     const tab = await chrome.tabs.get(tabId);
     await updateIconFn(tab);
