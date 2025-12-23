@@ -106,7 +106,7 @@ const updateTabIconById = async (
     const tab = await chrome.tabs.get(tabId);
     await updateIconFn(tab);
   } catch (e) {
-    if (e instanceof Error && e.message.includes("No tab with id")) {
+    if (e instanceof Error && e.message.startsWith("No tab with id")) {
       return;
     }
     console.error(errorPrefix, e);
