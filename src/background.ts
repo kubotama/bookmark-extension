@@ -5,6 +5,7 @@ import {
   DEFAULT_ICON_PATHS,
   INVALID_BOOKMARK_ARRAY_ERROR,
   INVALID_URL_ERROR_MESSAGE,
+  NO_TAB_ERROR_PREFIX,
   OPTION_FAILED_API_REQUEST_PREFIX,
   OPTION_FAILED_FETCH_BOOKMARKS_PREFIX,
   OPTION_FAILED_UPDATE_ICON_PREFIX,
@@ -106,7 +107,7 @@ const updateTabIconById = async (
     const tab = await chrome.tabs.get(tabId);
     await updateIconFn(tab);
   } catch (e) {
-    if (e instanceof Error && e.message.startsWith("No tab with id")) {
+    if (e instanceof Error && e.message.startsWith(NO_TAB_ERROR_PREFIX)) {
       return;
     }
     console.error(errorPrefix, e);

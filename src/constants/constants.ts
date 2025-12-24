@@ -74,6 +74,7 @@ export const FAILED_TO_GET_BASE_URL_MESSAGE =
   "APIのベースURLを取得できませんでした:";
 export const FAILED_TO_CONNECT_API = "APIへの接続に失敗しました:";
 
+export const NO_TAB_ERROR_PREFIX = "No tab with id";
 export const BACKGROUND_TAB_UPDATE_ERROR_PREFIX = "タブの更新エラー: ";
 export const BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX =
   "タブのアクティベートエラー: ";
