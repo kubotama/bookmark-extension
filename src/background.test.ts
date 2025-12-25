@@ -17,6 +17,7 @@ import {
   DEFAULT_ICON_PATHS,
   SAVED_ICON_PATHS,
   INVALID_URL_ERROR_MESSAGE,
+  NO_TAB_ERROR_PREFIX,
   OPTION_FAILED_FETCH_BOOKMARKS_PREFIX,
 } from "./constants/constants.ts";
 
@@ -243,6 +244,25 @@ describe("background listeners with dependency injection", () => {
       expect(updateIconMock).not.toHaveBeenCalled();
     });
 
+    it("should log error if chrome.tabs.get throws", async () => {
+      const error = new Error("get tab error");
+      (chrome.tabs.get as unknown as MockInstance).mockRejectedValue(error);
+      const onUpdatedListener = background.createOnUpdated(updateIconMock);
+      await onUpdatedListener(MOCK_TAB.id as number, { status: "complete" });
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        BACKGROUND_TAB_UPDATE_ERROR_PREFIX,
+        error
+      );
+    });
+
+    it("should NOT log error if chrome.tabs.get throws 'No tab with id' error", async () => {
+      const error = new Error(`${NO_TAB_ERROR_PREFIX}: 1.`);
+      (chrome.tabs.get as unknown as MockInstance).mockRejectedValue(error);
+      const onUpdatedListener = background.createOnUpdated(updateIconMock);
+      await onUpdatedListener(MOCK_TAB.id as number, { status: "complete" });
+      expect(consoleErrorSpy).not.toHaveBeenCalled();
+    });
+
     it("should log error if updateIconFn throws", async () => {
       const error = new Error("test error");
       updateIconMock.mockRejectedValue(error); // モックがエラーを投げるように設定
@@ -274,6 +294,14 @@ describe("background listeners with dependency injection", () => {
         BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX,
         error
       );
+    });
+
+    it("should NOT log error if chrome.tabs.get throws 'No tab with id' error", async () => {
+      const error = new Error(`${NO_TAB_ERROR_PREFIX}: 1.`);
+      (chrome.tabs.get as unknown as MockInstance).mockRejectedValue(error);
+      const onActivatedListener = background.createOnActivated(updateIconMock);
+      await onActivatedListener({ tabId: 1, windowId: 1 });
+      expect(consoleErrorSpy).not.toHaveBeenCalled();
     });
 
     it("should log error if updateIconFn throws", async () => {
