@@ -19,7 +19,6 @@ import {
   POPUP_FAILED_TO_FETCH_API_URL_PREFIX,
   POPUP_FAILED_TO_RETRIEVE_ACTIVE_TAB_INFO_PREFIX,
   POPUP_INVALID_API_URL_MESSAGE,
-  POPUP_OPTIONS_PAGE_LINK_TEXT,
   POPUP_REGISTER_BUTTON_TEXT,
   POPUP_REGISTER_SUCCESS_MESSAGE,
   POPUP_URL_FETCH_ERROR_MESSAGE,
@@ -526,25 +525,11 @@ describe("Popup", () => {
       expect(await screen.findByText("Loading...")).toBeInTheDocument();
     });
 
-    it("API URLが無効な場合にエラーメッセージとオプションページへのリンクが表示される", async () => {
+    it("API URLが無効な場合にエラーメッセージが表示される", async () => {
       render(<Popup />);
       expect(
         await screen.findByText(POPUP_INVALID_API_URL_MESSAGE)
       ).toBeInTheDocument();
-      expect(
-        screen.getByRole("link", { name: POPUP_OPTIONS_PAGE_LINK_TEXT })
-      ).toBeInTheDocument();
-    });
-
-    it("オプションページへのリンクをクリックすると、オプションページが開かれる", async () => {
-      render(<Popup />);
-      const link = await screen.findByRole("link", {
-        name: POPUP_OPTIONS_PAGE_LINK_TEXT,
-      });
-      await user.click(link);
-      expect(mockTabsCreate).toHaveBeenCalledWith({
-        url: "chrome-extension://test/src/options.html",
-      });
     });
   });
 });

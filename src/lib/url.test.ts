@@ -38,7 +38,7 @@ describe("validateUrl", () => {
     },
     {
       description: "should return an error message for an invalid URL",
-      url: "http:foo",
+      url: "http:foo.com",
       expected: INVALID_URL_ERROR_MESSAGE,
     },
     {
@@ -62,6 +62,21 @@ describe("validateUrl", () => {
         "should return an error message for a hostname without a dot",
       url: "http://example",
       expected: URL_HOSTNAME_ERROR_MESSAGE,
+    },
+    {
+      description: "should return an error message for a URL with too many slashes after the scheme",
+      url: "http:///example.com",
+      expected: INVALID_URL_ERROR_MESSAGE,
+    },
+    {
+      description: "should return an error message for a URL with too few slashes after the scheme",
+      url: "http:/example.com",
+      expected: INVALID_URL_ERROR_MESSAGE,
+    },
+    {
+      description: "should return an error message for a URL with a missing colon in the scheme separator",
+      url: "http//example.com",
+      expected: INVALID_URL_ERROR_MESSAGE,
     },
   ];
 

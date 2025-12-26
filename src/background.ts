@@ -5,14 +5,14 @@ import {
   DEFAULT_ICON_PATHS,
   INVALID_BOOKMARK_ARRAY_ERROR,
   INVALID_URL_ERROR_MESSAGE,
+  NO_TAB_ERROR_PREFIX,
   OPTION_FAILED_API_REQUEST_PREFIX,
   OPTION_FAILED_FETCH_BOOKMARKS_PREFIX,
   OPTION_FAILED_UPDATE_ICON_PREFIX,
   SAVED_ICON_PATHS,
-  STORAGE_KEY_API_BASE_URL,
 } from "./constants/constants";
 import { type Bookmark, areBookmarks } from "./lib/bookmark";
-import { getApiUrl, isValidUrl } from "./lib/url";
+import { getApiUrl, getStoredApiBaseUrl, isValidUrl } from "./lib/url";
 
 const setIcon = (options: chrome.action.TabIconDetails): Promise<void> => {
   return new Promise((resolve, reject) => {
@@ -43,8 +43,7 @@ export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
   url.hash = "";
   const currentUrl = url.href;
 
-  const storageData = await chrome.storage.local.get(STORAGE_KEY_API_BASE_URL);
-  const apiBaseUrl = storageData?.[STORAGE_KEY_API_BASE_URL] ?? "";
+  const apiBaseUrl = await getStoredApiBaseUrl();
 
   if (typeof apiBaseUrl !== "string" || !isValidUrl(apiBaseUrl)) {
     console.error(
@@ -94,6 +93,28 @@ export const updateIcon = async (tab: chrome.tabs.Tab): Promise<void> => {
 };
 
 /**
+ * タブIDに基づいてタブ情報を取得し、指定された関数でアイコンを更新します。
+ * @param tabId - アイコンを更新するタブのID。
+ * @param updateIconFn - タブオブジェクトを受け取りアイコン更新処理を行う非同期関数。
+ * @param errorPrefix - エラー発生時にコンソールに出力するメッセージのプレフィックス。
+ */
+const updateTabIconById = async (
+  tabId: number,
+  updateIconFn: (tab: chrome.tabs.Tab) => Promise<void>,
+  errorPrefix: string
+): Promise<void> => {
+  try {
+    const tab = await chrome.tabs.get(tabId);
+    await updateIconFn(tab);
+  } catch (e) {
+    if (e instanceof Error && e.message.startsWith(NO_TAB_ERROR_PREFIX)) {
+      return;
+    }
+    console.error(errorPrefix, e);
+  }
+};
+
+/**
  * onUpdatedリスナー関数を生成するファクトリ関数。
  * updateIconFnを依存性として受け取ります。
  */
@@ -105,12 +126,11 @@ export const createOnUpdated = (
     changeInfo: chrome.tabs.TabChangeInfo
   ): Promise<void> => {
     if (changeInfo.status === "complete") {
-      try {
-        const tab = await chrome.tabs.get(tabId);
-        await updateIconFn(tab);
-      } catch (e) {
-        console.error(BACKGROUND_TAB_UPDATE_ERROR_PREFIX, e);
-      }
+      await updateTabIconById(
+        tabId,
+        updateIconFn,
+        BACKGROUND_TAB_UPDATE_ERROR_PREFIX
+      );
     }
   };
 };
@@ -123,12 +143,11 @@ export const createOnActivated = (
   updateIconFn: (tab: chrome.tabs.Tab) => Promise<void>
 ) => {
   return async (activeInfo: chrome.tabs.TabActiveInfo): Promise<void> => {
-    try {
-      const tab = await chrome.tabs.get(activeInfo.tabId);
-      await updateIconFn(tab); // 注入されたupdateIconFnを使用
-    } catch (e) {
-      console.error(BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX, e);
-    }
+    await updateTabIconById(
+      activeInfo.tabId,
+      updateIconFn,
+      BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX
+    );
   };
 };
 

@@ -10,11 +10,14 @@ import {
 import * as background from "./background.ts"; // Import all exports
 
 import {
+  API_ENDPOINT,
+  API_BASE_URL,
   BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX,
   BACKGROUND_TAB_UPDATE_ERROR_PREFIX,
   DEFAULT_ICON_PATHS,
   SAVED_ICON_PATHS,
   INVALID_URL_ERROR_MESSAGE,
+  NO_TAB_ERROR_PREFIX,
   OPTION_FAILED_FETCH_BOOKMARKS_PREFIX,
 } from "./constants/constants.ts";
 
@@ -76,7 +79,14 @@ describe("updateIcon", () => {
     {
       description: "should set saved icon if page is bookmarked",
       apiBaseUrl: "https://api.example.com",
-      bookmarks: [{ id: 1, url: "https://example.com/", title: "Example" }],
+      bookmarks: [
+        {
+          bookmark_id: 1,
+          url: "https://example.com/",
+          title: "Example",
+          keywords: [],
+        },
+      ],
       tab: { id: 1, url: "https://example.com" } as chrome.tabs.Tab,
       expected: {
         forSetIcon: {
@@ -100,7 +110,14 @@ describe("updateIcon", () => {
     {
       description: "should ignore hash in url",
       apiBaseUrl: "https://api.example.com",
-      bookmarks: [{ id: 1, url: "https://example.com/", title: "Example" }],
+      bookmarks: [
+        {
+          bookmark_id: 1,
+          url: "https://example.com/",
+          title: "Example",
+          keywords: [],
+        },
+      ],
       tab: { id: 1, url: "https://example.com#section" } as chrome.tabs.Tab,
       expected: {
         forSetIcon: {
@@ -151,9 +168,19 @@ describe("updateIcon", () => {
   });
 
   it("should set default icon if local storage isn't stored", async () => {
-    (chrome.storage.local.get as unknown as MockInstance).mockResolvedValue(
-      undefined
-    );
+    const apiUrl = new URL(API_ENDPOINT.GET_BOOKMARKS, API_BASE_URL).href;
+
+    (chrome.storage.local.get as unknown as MockInstance).mockResolvedValue({});
+    const mockFetch = vi.fn().mockImplementation((url) => {
+      if (url === apiUrl) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => [],
+        });
+      }
+      return Promise.reject(new Error(`Unexpected fetch call to ${url}`));
+    });
+    global.fetch = mockFetch;
 
     await background.updateIcon(MOCK_TAB);
 
@@ -164,10 +191,13 @@ describe("updateIcon", () => {
       },
       expect.anything()
     );
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      INVALID_URL_ERROR_MESSAGE,
-      new Error(`apiBaseUrl: `)
-    );
+    // 期待通りにfetchが呼ばれたかを確認
+    expect(global.fetch).toHaveBeenCalled();
+
+    // 特定のURLで呼ばれたかを確認
+    expect(global.fetch).toHaveBeenCalledWith(apiUrl);
+
+    expect(consoleErrorSpy).toBeCalledTimes(0);
   });
 
   it("should set default icon if fetch fails", async () => {
@@ -214,6 +244,25 @@ describe("background listeners with dependency injection", () => {
       expect(updateIconMock).not.toHaveBeenCalled();
     });
 
+    it("should log error if chrome.tabs.get throws", async () => {
+      const error = new Error("get tab error");
+      (chrome.tabs.get as unknown as MockInstance).mockRejectedValue(error);
+      const onUpdatedListener = background.createOnUpdated(updateIconMock);
+      await onUpdatedListener(MOCK_TAB.id as number, { status: "complete" });
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        BACKGROUND_TAB_UPDATE_ERROR_PREFIX,
+        error
+      );
+    });
+
+    it("should NOT log error if chrome.tabs.get throws 'No tab with id' error", async () => {
+      const error = new Error(`${NO_TAB_ERROR_PREFIX}: 1.`);
+      (chrome.tabs.get as unknown as MockInstance).mockRejectedValue(error);
+      const onUpdatedListener = background.createOnUpdated(updateIconMock);
+      await onUpdatedListener(MOCK_TAB.id as number, { status: "complete" });
+      expect(consoleErrorSpy).not.toHaveBeenCalled();
+    });
+
     it("should log error if updateIconFn throws", async () => {
       const error = new Error("test error");
       updateIconMock.mockRejectedValue(error); // モックがエラーを投げるように設定
@@ -245,6 +294,14 @@ describe("background listeners with dependency injection", () => {
         BACKGROUND_TAB_ACTIVATE_ERROR_PREFIX,
         error
       );
+    });
+
+    it("should NOT log error if chrome.tabs.get throws 'No tab with id' error", async () => {
+      const error = new Error(`${NO_TAB_ERROR_PREFIX}: 1.`);
+      (chrome.tabs.get as unknown as MockInstance).mockRejectedValue(error);
+      const onActivatedListener = background.createOnActivated(updateIconMock);
+      await onActivatedListener({ tabId: 1, windowId: 1 });
+      expect(consoleErrorSpy).not.toHaveBeenCalled();
     });
 
     it("should log error if updateIconFn throws", async () => {
