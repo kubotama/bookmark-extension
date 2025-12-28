@@ -4,7 +4,6 @@ import {
   API_ERROR_MESSAGE,
   FAILED_TO_CONNECT_API,
   FAILED_TO_CONNECT_API_WITH_NETWORK,
-  FAILED_TO_GET_BASE_URL_MESSAGE,
   OPTION_INVALID_BASE_URL_ERROR,
   OPTION_INVALID_BASE_URL_PREFIX,
   OPTION_SAVE_SUCCESS_MESSAGE,
@@ -13,7 +12,7 @@ import {
   STORAGE_KEY_API_BASE_URL,
   SUCCESS_MESSAGE,
 } from "../constants/constants";
-import { validateUrl } from "../lib/url";
+import { getStoredApiBaseUrl, validateUrl } from "../lib/url";
 import { useApiUrl } from "./useApiUrl";
 import { createMessage, type MessageData } from "./useMessage";
 
@@ -30,18 +29,9 @@ export const useOptions = () => {
     const { signal } = abortController;
 
     const loadUrl = async () => {
-      try {
-        const result = await chrome.storage.local.get([
-          STORAGE_KEY_API_BASE_URL,
-        ]);
-        if (!signal.aborted) {
-          const url = result[STORAGE_KEY_API_BASE_URL] || "";
-          setBaseUrl(url);
-        }
-      } catch (error) {
-        if (!signal.aborted) {
-          console.error(FAILED_TO_GET_BASE_URL_MESSAGE, error);
-        }
+      const url = await getStoredApiBaseUrl();
+      if (!signal.aborted) {
+        setBaseUrl(url);
       }
     };
 

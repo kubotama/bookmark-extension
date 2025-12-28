@@ -11,13 +11,14 @@ import {
 import { act, renderHook, waitFor } from "@testing-library/react";
 
 import {
+  API_BASE_URL,
   API_ERROR_MESSAGE,
   FAILED_TO_CONNECT_API,
   FAILED_TO_CONNECT_API_WITH_NETWORK,
-  FAILED_TO_GET_BASE_URL_MESSAGE,
   INVALID_URL_ERROR_MESSAGE,
   OPTION_INVALID_BASE_URL_ERROR,
   OPTION_INVALID_BASE_URL_PREFIX,
+  OPTION_FAILED_TO_GET_API_BASE_URL_FROM_STORAGE_PREFIX,
   OPTION_UNEXPECTED_API_RESPONSE_ERROR,
   OPTION_UNEXPECTED_API_RESPONSE_PREFIX,
   STORAGE_KEY_API_BASE_URL,
@@ -64,12 +65,12 @@ describe("useOptions", () => {
       });
     });
 
-    it("ストレージにURLがない場合、空文字に設定されること", async () => {
+    it("ストレージにURLがない場合、APIのデフォルトのURLが設定されること", async () => {
       chromeStorageLocalGet.mockResolvedValue({});
       const { result } = renderHook(() => useOptions());
 
       await waitFor(() => {
-        expect(result.current.baseUrl).toBe("");
+        expect(result.current.baseUrl).toBe(API_BASE_URL);
       });
     });
 
@@ -79,7 +80,7 @@ describe("useOptions", () => {
 
       await waitFor(() => {
         expect(consoleErrorSpy).toHaveBeenCalledWith(
-          FAILED_TO_GET_BASE_URL_MESSAGE,
+          OPTION_FAILED_TO_GET_API_BASE_URL_FROM_STORAGE_PREFIX,
           new Error("Failed to get")
         );
       });
